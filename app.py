@@ -1,3 +1,3 @@
 import streamlit as st
 
-st.write("Shut up bitch")
+st.write("You dumb ass was able to open the page: well done")
