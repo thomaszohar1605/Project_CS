@@ -150,9 +150,4 @@ st.markdown(            #main subtitle
     unsafe_allow_html=True,
 )
 
-def main() -> None:     #-> None is a type hint: the function doesn’t return anything. Inside, it just calls run_app(), which is imported from functions.py
-    run_app()
 
-
-if __name__ == "__main__":     # Streamlit executes the script, so main() is called, and that runs run_app() where the rest of your UI is
-    main()
