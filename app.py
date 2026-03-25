@@ -1,9 +1,6 @@
-from __future__ import annotations
 
 import streamlit as st
 
-from functions import run_app #run_app contains the main logic for the app (steps,UI, ML calls,...)
-from api import get_spotify_user_client #function that creates a spotify client for the user)
 
 st.set_page_config(
     page_title="Group Playlist Recommender", #browser tab title
