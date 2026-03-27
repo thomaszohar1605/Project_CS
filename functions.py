@@ -394,8 +394,9 @@ def render_programme_step() -> None:
         st.warning("No programme generated yet.")
         return
 
-    st.dataframe(programme, use_container_width=True)
-
+    display_programme = programme.set_index("Day").T
+    st.dataframe(display_programme, use_container_width=True)
+    
     if st.button("Start again", use_container_width=True):
         reset_app()
         st.rerun()
