@@ -313,7 +313,15 @@ def render_criteria_step() -> None:
         st.session_state.selected_setting = setting
         st.session_state.selected_vacation_type = vacation_type
 
-        suggestions = get_initial_suggestions(st.session_state.activities_df)
+        suggestions = get_knn_suggestions(
+            activities_df=st.session_state.activities_df,
+            selected_region=st.session_state.selected_region,
+            selected_season=st.session_state.selected_season,
+            selected_setting=st.session_state.selected_setting,
+            selected_vacation_type=st.session_state.selected_vacation_type,
+            n_results=10,
+        )
+
         st.session_state.suggested_activities = suggestions
         st.session_state.step = 3
         st.rerun()
@@ -357,10 +365,22 @@ def render_suggestions_step() -> None:
                 return
 
             st.session_state.selected_favourites = selected_names
-            programme = build_simple_programme(
-                all_activities=st.session_state.activities_df,
-                selected_names=selected_names,
+
+            favourites_df = st.session_state.activities_df[
+                st.session_state.activities_df["name"].isin(selected_names)
+            ].copy()
+
+            recommended_df = get_refined_recommendations(
+                activities_df=st.session_state.activities_df,
+                favourite_names=selected_names,
+                n_results=28,
             )
+
+            programme = build_week_programme(
+                favourite_df=favourites_df,
+                recommended_df=recommended_df,
+            )
+
             st.session_state.final_programme = programme
             st.session_state.step = 4
             st.rerun()
@@ -381,72 +401,6 @@ def render_programme_step() -> None:
         st.rerun()
 
 
-# -------------------------------------------------
-# Basic logic before ML
-# -------------------------------------------------
-def get_initial_suggestions(df: pd.DataFrame) -> pd.DataFrame:
-    region = st.session_state.selected_region
-    season = st.session_state.selected_season
-    setting = st.session_state.selected_setting
-    vacation_type = st.session_state.selected_vacation_type
-
-    filtered = df[df["region"] == region].copy()
-
-    # season: allow exact match or "Any"
-    filtered = filtered[
-        (filtered["season"] == season) | (filtered["season"] == "Any")
-    ]
-
-    filtered = filtered[filtered["setting"] == setting]
-    filtered = filtered[filtered["vacation_type"] == vacation_type]
-
-    if filtered.empty:
-        fallback = df[df["region"] == region].copy()
-        return fallback.head(10).reset_index(drop=True)
-
-    filtered = filtered.sample(frac=1, random_state=42)
-    return filtered.head(10).reset_index(drop=True)
-
-
-def build_simple_programme(
-    all_activities: pd.DataFrame,
-    selected_names: List[str],
-) -> pd.DataFrame:
-    selected_df = all_activities[all_activities["name"].isin(selected_names)].copy()
-
-    if selected_df.empty:
-        return pd.DataFrame()
-
-    days = [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
-    ]
-    slots = ["Morning", "Afternoon", "Evening", "Night"]
-
-    rows: List[Dict[str, str]] = []
-
-    activity_pool = selected_df.to_dict(orient="records")
-
-    for day in days:
-        row = {"Day": day}
-        for slot in slots:
-            matching = [a for a in activity_pool if a["time_slot"] == slot]
-
-            if matching:
-                chosen = random.choice(matching)
-            else:
-                chosen = random.choice(activity_pool)
-
-            row[slot] = chosen["name"]
-
-        rows.append(row)
-
-    return pd.DataFrame(rows)
 
 
 def reset_app() -> None:
