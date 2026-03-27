@@ -7,6 +7,12 @@ from typing import Dict, List
 import pandas as pd
 import streamlit as st
 
+from ml import (
+    build_week_programme,
+    get_knn_suggestions,
+    get_refined_recommendations,
+)
+
 
 # -------------------------------------------------
 # Session state
