@@ -132,7 +132,7 @@ label, .stMarkdown p, .stMarkdown li, .stCheckbox, .stRadio {
     font-size: 0.92rem;
     color: #1a3a5c;
     margin-bottom: 0.8rem;
-}
+}x  
 
 /* ── Activity rows (Step 3) ── */
 .act-row {
