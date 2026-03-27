@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import streamlit as st
+from functions import run_app
 
 # ─────────────────────────────────────────────
 # PAGE CONFIG
@@ -197,3 +198,4 @@ st.markdown(
 # RUN APP
 # ─────────────────────────────────────────────
 
+run_app()
