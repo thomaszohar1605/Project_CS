@@ -232,6 +232,7 @@ def get_knn_suggestions(
 def get_refined_recommendations(
     activities_df: pd.DataFrame,
     favourite_names: List[str],
+    selected_region: str,
     n_results: int = 28,
 ) -> pd.DataFrame:
     """
@@ -245,7 +246,11 @@ def get_refined_recommendations(
     if favourites_df.empty:
         return pd.DataFrame()
 
-    remaining_df = activities_df[~activities_df["name"].isin(favourite_names)].copy()
+    regional_df = activities_df[activities_df["region"] == selected_region].copy()
+
+    remaining_df = regional_df[
+        ~regional_df["name"].isin(favourite_names)
+    ].copy()
 
     if remaining_df.empty:
         return favourites_df.copy()
