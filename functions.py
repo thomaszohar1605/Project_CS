@@ -367,12 +367,14 @@ def render_suggestions_step() -> None:
             st.session_state.selected_favourites = selected_names
 
             favourites_df = st.session_state.activities_df[
-                st.session_state.activities_df["name"].isin(selected_names)
+                (st.session_state.activities_df["name"].isin(selected_names)) &
+                (st.session_state.activities_df["region"] == st.session_state.selected_region)
             ].copy()
 
             recommended_df = get_refined_recommendations(
                 activities_df=st.session_state.activities_df,
                 favourite_names=selected_names,
+                selected_region=st.session_state.selected_region,
                 n_results=28,
             )
 
