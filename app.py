@@ -41,7 +41,6 @@ html, body, .stApp {
     background-color: #eef2f7;
     font-family: 'Segoe UI', sans-serif;
 }
-
 /* Hero */
 .hero {
     background: linear-gradient(135deg, #d0e8f7 0%, #b0d4f0 60%, #90c0e8 100%);
@@ -50,6 +49,7 @@ html, body, .stApp {
     margin-bottom: 1.8rem;
     color: #1a3a5c;
 }
+            
 .hero-title {
     font-size: 2.6rem;
     font-weight: 800;
