@@ -65,7 +65,7 @@ html, body, .stApp {
 .step-heading {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #1a3a5c;
+    color: #1a3a5c !important;
     margin-bottom: 0.2rem;
 }
 .step-caption {
