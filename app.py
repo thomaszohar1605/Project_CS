@@ -188,7 +188,14 @@ li[role="option"]:hover,
     background-color: #b0d4f0 !important;
     color: #1a3a5c !important;
 }
-
+            
+/* Placeholder text in dropdowns */
+[data-baseweb="select"] [data-testid="stSelectboxPlaceholder"],
+[data-baseweb="select"] placeholder,
+div[data-baseweb="select"] span {
+    color: #4a9fd4 !important;
+}
+            
 </style>
 """, unsafe_allow_html=True)
 
