@@ -14,7 +14,18 @@ st.set_page_config(
 )
 
 # ── Global CSS ────────────────────────────────────────────────────────────────
-
+/* Force all text to navy blue */
+html, body, .stApp, p, span, div, label, h1, h2, h3, h4, h5, h6,
+.stMarkdown, .stMarkdown p, .stMarkdown span,
+.stText, .stCheckbox label, .stCheckbox span,
+.stSelectbox label, .stRadio label,
+.stSlider label, .stDateInput label,
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] span,
+[data-baseweb="select"] span,
+.stButton p {
+    color: #1a3a5c !important;
+}
 st.markdown("""
 <style>
 
