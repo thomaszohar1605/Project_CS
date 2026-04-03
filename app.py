@@ -14,6 +14,9 @@ st.set_page_config(
 )
 
 # ── Global CSS ────────────────────────────────────────────────────────────────
+st.markdown("""
+<style>
+
 /* Force all text to navy blue */
 html, body, .stApp, p, span, div, label, h1, h2, h3, h4, h5, h6,
 .stMarkdown, .stMarkdown p, .stMarkdown span,
@@ -26,8 +29,13 @@ html, body, .stApp, p, span, div, label, h1, h2, h3, h4, h5, h6,
 .stButton p {
     color: #1a3a5c !important;
 }
-st.markdown("""
-<style>
+
+/* Hide sidebar */
+[data-testid="collapsedControl"] { display: none; }
+...rest of your CSS...
+
+</style>
+""", unsafe_allow_html=True)
 
 /* Hide sidebar */
 [data-testid="collapsedControl"] { display: none; }
