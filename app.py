@@ -164,6 +164,31 @@ label, .stMarkdown p, .stMarkdown li {
     font-size: 0.85rem;
 }
 
+/* Dropdown menu background */
+ul[data-testid="stSelectboxVirtualDropdown"],
+[data-baseweb="popover"],
+[data-baseweb="menu"],
+[role="listbox"],
+[role="option"] {
+    background-color: #e8f4fd !important;
+    color: #1a3a5c !important;
+}
+
+/* Each option in the dropdown */
+li[role="option"],
+[data-baseweb="menu"] li,
+[role="option"] span {
+    background-color: #e8f4fd !important;
+    color: #1a3a5c !important;
+}
+
+/* Hovered option */
+li[role="option"]:hover,
+[role="option"]:hover {
+    background-color: #b0d4f0 !important;
+    color: #1a3a5c !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
