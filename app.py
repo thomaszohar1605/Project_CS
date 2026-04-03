@@ -44,11 +44,11 @@ html, body, .stApp {
 
 /* Hero */
 .hero {
-    background: linear-gradient(135deg, #1a3a5c 0%, #2e6da4 60%, #4a9fd4 100%);
+    background: linear-gradient(135deg, #d0e8f7 0%, #b0d4f0 60%, #90c0e8 100%);
     border-radius: 1.4rem;
     padding: 2rem 2.4rem 1.6rem 2.4rem;
     margin-bottom: 1.8rem;
-    color: white;
+    color: #1a3a5c;
 }
 .hero-title {
     font-size: 2.6rem;
