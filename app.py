@@ -14,6 +14,7 @@ st.set_page_config(
 )
 
 # ── Global CSS ────────────────────────────────────────────────────────────────
+
 st.markdown("""
 <style>
 
@@ -29,13 +30,6 @@ html, body, .stApp, p, span, div, label, h1, h2, h3, h4, h5, h6,
 .stButton p {
     color: #1a3a5c !important;
 }
-
-/* Hide sidebar */
-[data-testid="collapsedControl"] { display: none; }
-...rest of your CSS...
-
-</style>
-""", unsafe_allow_html=True)
 
 /* Hide sidebar */
 [data-testid="collapsedControl"] { display: none; }
@@ -61,13 +55,15 @@ html, body, .stApp {
     font-weight: 800;
     letter-spacing: -0.02em;
     margin-bottom: 0.3rem;
+    color: white !important;
 }
 .hero-subtitle {
     font-size: 1.05rem;
     opacity: 0.85;
+    color: white !important;
 }
 
-/* Progress bar — 5 steps */
+/* Progress bar - 5 steps */
 .prog-step {
     padding: 0.45rem 0.5rem;
     border-radius: 0.6rem;
@@ -75,10 +71,10 @@ html, body, .stApp {
     font-size: 0.82rem;
     font-weight: 600;
     background: #d1dde8;
-    color: #5a7a9a;
+    color: #5a7a9a !important;
 }
-.prog-step.done    { background: #34d399; color: #064e3b; }
-.prog-step.current { background: #2e6da4; color: white;   }
+.prog-step.done    { background: #34d399; color: #064e3b !important; }
+.prog-step.current { background: #2e6da4; color: white !important; }
 
 /* Step headings */
 .step-heading {
@@ -89,7 +85,7 @@ html, body, .stApp {
 }
 .step-caption {
     font-size: 0.9rem;
-    color: #6a8aaa;
+    color: #6a8aaa !important;
     margin-bottom: 1rem;
 }
 
@@ -100,14 +96,14 @@ html, body, .stApp {
     border-radius: 0.8rem;
     padding: 0.7rem 1rem;
     font-size: 0.92rem;
-    color: #1a3a5c;
+    color: #1a3a5c !important;
     margin-bottom: 0.8rem;
 }
 
 /* Activity cards */
 .act-meta {
     font-size: 0.82rem;
-    color: #5a8aaa;
+    color: #5a8aaa !important;
     margin-top: 0.1rem;
     margin-bottom: 0.3rem;
 }
@@ -115,7 +111,7 @@ html, body, .stApp {
 /* Timetable */
 .tt-header {
     font-weight: 700;
-    color: #1a3a5c;
+    color: #1a3a5c !important;
     font-size: 0.88rem;
     padding: 0.4rem 0;
     border-bottom: 2px solid #2e6da4;
@@ -126,14 +122,14 @@ html, body, .stApp {
     padding: 0.35rem 0.55rem;
     font-size: 0.80rem;
     margin-bottom: 0.25rem;
-    color: #1a3a5c;
+    color: #1a3a5c !important;
     font-weight: 500;
 }
 .tt-morning   { background: #fef9c3; }
 .tt-afternoon { background: #dcfce7; }
 .tt-evening   { background: #fee2e2; }
 .tt-night     { background: #ede9fe; }
-.tt-free      { background: #f1f5f9; color: #94a3b8; font-style: italic; }
+.tt-free      { background: #f1f5f9; color: #94a3b8 !important; font-style: italic; }
 
 /* Input fields */
 div[data-testid="stSelectbox"] div[role="combobox"],
@@ -142,6 +138,7 @@ div[data-testid="stTextInput"] input {
     border-radius: 0.6rem !important;
     border: 1px solid #b0c8de !important;
     font-size: 1rem !important;
+    color: #1a3a5c !important;
 }
 
 /* Labels */
@@ -153,7 +150,7 @@ label, .stMarkdown p, .stMarkdown li {
 /* Footer */
 .footer {
     text-align: center;
-    color: #8aa8c0;
+    color: #8aa8c0 !important;
     padding: 28px 0 8px 0;
     font-size: 0.85rem;
 }
@@ -173,6 +170,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ── Run ───────────────────────────────────────────────────────────────────────
+# ── Run app ───────────────────────────────────────────────────────────────────
 
 run_app()
