@@ -11,6 +11,9 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+<<<<<<< HEAD
+
+=======
 st.markdown("""
 <style>
 
@@ -197,14 +200,14 @@ st.markdown(
     '<div class="hero-title">🏔️ Swiss Vacation Planner</div>'
     '<div class="hero-subtitle">'
     "Tell us where you want to go and we'll build your perfect Swiss trip — day by day."
-    '</div>'
-    '</div>',
+    '</div>'    '</div>',
     unsafe_allow_html=True,
 )
 import streamlit as st
 import pandas as pd
 import pydeck as pdk
 
+<<<<<<< HEAD
 df = pd.read_csv("locations.csv")
 
 st.title("Swiss Activities Map")
@@ -231,3 +234,4 @@ st.pydeck_chart(pdk.Deck(
 
 st.dataframe(df)
 run_app()
+
