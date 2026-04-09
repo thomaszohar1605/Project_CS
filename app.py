@@ -207,7 +207,6 @@ import streamlit as st
 import pandas as pd
 import pydeck as pdk
 
-<<<<<<< HEAD
 df = pd.read_csv("locations.csv")
 
 st.title("Swiss Activities Map")
