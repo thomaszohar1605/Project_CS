@@ -14,7 +14,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-Hello
 
 
 df = pd.read_csv("locations.csv")
