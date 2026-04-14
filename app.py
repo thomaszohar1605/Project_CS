@@ -214,8 +214,12 @@ st.markdown(
 )
 
 # ── Activity Map ───────────────────────────────────────────────────────────────
-import os
-df = pd.read_csv(os.path.join(os.path.dirname(__file__), "locations.csv"))
+import pathlib
+try:
+    _CSV = pathlib.Path(__file__).resolve().parent / "locations.csv"
+except NameError:
+    _CSV = pathlib.Path("locations.csv")
+df = pd.read_csv(_CSV)
 
 st.markdown('<div class="step-heading">📍 Activity Locations across Switzerland</div>', unsafe_allow_html=True)
 
