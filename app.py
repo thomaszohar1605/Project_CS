@@ -1,9 +1,7 @@
-# app.py
-
-
 from __future__ import annotations
 
 import streamlit as st
+from functions import run_app
 import pandas as pd
 import pydeck as pdk
 
@@ -223,6 +221,7 @@ df = pd.read_csv(_CSV)
 
 st.markdown('<div class="step-heading">📍 Activity Locations across Switzerland</div>', unsafe_allow_html=True)
 
+df["icon"] = "📍"
 st.pydeck_chart(pdk.Deck(
     initial_view_state=pdk.ViewState(
         latitude=46.8,
@@ -232,11 +231,12 @@ st.pydeck_chart(pdk.Deck(
     ),
     layers=[
         pdk.Layer(
-            "ScatterplotLayer",
+            "TextLayer",
             data=df,
             get_position="[lon, lat]",
-            get_radius=500,
-            get_color=[46, 109, 164, 180],
+            get_text="icon",
+            get_size=20,
+            get_alignment_baseline="'bottom'",
             pickable=True,
         )
     ],
@@ -245,3 +245,4 @@ st.pydeck_chart(pdk.Deck(
 
 # ──────────────────────────────────────────────────────────────────────────────
 
+run_app()
