@@ -15,34 +15,6 @@ st.set_page_config(
 )
 
 
-
-df = pd.read_csv("locations.csv")
-
-st.title("Swiss Activities Map")
-
-st.pydeck_chart(pdk.Deck(
-    initial_view_state=pdk.ViewState(
-        latitude=46.8,
-        longitude=8.2,
-        zoom=7,
-        pitch=0,
-    ),
-    layers=[
-        pdk.Layer(
-            "ScatterplotLayer",
-            data=df,
-            get_position="[lon, lat]",
-            get_radius=500,
-            get_color=[255, 0, 0, 160],
-            pickable=True,
-        )
-    ],
-    tooltip={"text": "{name}"},
-))
-
-st.dataframe(df)
-
-
 st.markdown("""
 <style>
 
