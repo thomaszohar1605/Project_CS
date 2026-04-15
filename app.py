@@ -253,3 +253,9 @@ st.pydeck_chart(pdk.Deck(
 # ──────────────────────────────────────────────────────────────────────────────
 
 run_app()
+
+
+#Problem to solve:
+## Do we continue doing different town in Switzerland or focusing one by one
+## Need to classify the activities according to the best perdiod of the day to do (e.g Flon the evening not the morning)
+## Implement a budget 
