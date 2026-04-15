@@ -236,7 +236,7 @@ st.pydeck_chart(pdk.Deck(
             "ScatterplotLayer",
             data=df,
             get_position="[lon, lat]",
-            get_radius=800,
+            get_radius=75,
             get_color=[220, 38, 38, 200],
             get_line_color=[255, 255, 255],
             stroked=True,
