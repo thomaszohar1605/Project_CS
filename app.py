@@ -224,7 +224,6 @@ df = pd.read_csv(_CSV)
 
 st.markdown('<div class="step-heading">📍 Activity Locations across Switzerland</div>', unsafe_allow_html=True)
 
-df["icon"] = "📍"
 st.pydeck_chart(pdk.Deck(
     initial_view_state=pdk.ViewState(
         latitude=46.8,
@@ -234,12 +233,14 @@ st.pydeck_chart(pdk.Deck(
     ),
     layers=[
         pdk.Layer(
-            "TextLayer",
+            "ScatterplotLayer",
             data=df,
             get_position="[lon, lat]",
-            get_text="icon",
-            get_size=20,
-            get_alignment_baseline="'bottom'",
+            get_radius=800,
+            get_color=[46, 109, 164, 200],
+            get_line_color=[255, 255, 255],
+            stroked=True,
+            line_width_min_pixels=1,
             pickable=True,
         )
     ],
