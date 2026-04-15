@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import sys, os, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent) if "__file__" in dir() else os.getcwd())
+
 import streamlit as st
 from functions import run_app
 import pandas as pd
