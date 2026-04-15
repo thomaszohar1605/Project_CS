@@ -246,7 +246,7 @@ st.pydeck_chart(pdk.Deck(
     ],
     tooltip={
         "html": "{name}",
-        "style": {"color": "white", "backgroundColor": "#1a3a5c", "padding": "6px 10px", "borderRadius": "6px"},
+        "style": {"color": "white", "backgroundColor": "#000205", "padding": "6px 10px", "borderRadius": "6px"},
     },
 ))
 
