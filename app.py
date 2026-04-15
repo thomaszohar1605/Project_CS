@@ -238,7 +238,7 @@ st.pydeck_chart(pdk.Deck(
             get_position="[lon, lat]",
             get_radius=75,
             get_color=[220, 30, 30, 220],
-            get_line_color=[255, 255, 255],
+            get_line_color=[255, 255, 0],
             stroked=True,
             line_width_min_pixels=1,
             pickable=True,
