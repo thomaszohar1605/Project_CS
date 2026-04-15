@@ -237,14 +237,17 @@ st.pydeck_chart(pdk.Deck(
             data=df,
             get_position="[lon, lat]",
             get_radius=75,
-            get_color=[220, 30, 30, 220],
+            get_color=[220, 38, 38, 200],
             get_line_color=[255, 255, 255],
             stroked=True,
             line_width_min_pixels=1,
             pickable=True,
         )
     ],
-    tooltip={"text": "{name}"},
+    tooltip={
+        "html": "{name}",
+        "style": {"color": "white", "backgroundColor": "#1a3a5c", "padding": "6px 10px", "borderRadius": "6px"},
+    },
 ))
 
 # ──────────────────────────────────────────────────────────────────────────────
