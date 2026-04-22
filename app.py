@@ -8,7 +8,7 @@ from functions import run_app
 import pandas as pd
 import pydeck as pdk
 
-
+hallo
 st.set_page_config(
     page_title="Swiss Vacation Planner",
     page_icon="🏔️",
