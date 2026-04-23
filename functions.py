@@ -9,35 +9,19 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 
-CITIES = [
-    "Zurich", "Bern", "Lucerne", "Geneva", "Lausanne", "Montreux",
-    "Zermatt", "Interlaken", "Grindelwald", "Davos", "St. Moritz",
-    "Lugano", "Locarno", "St. Gallen", "Appenzell", "Chur",
+# Loaded dynamically from the CSV so the list is always in sync
+CATEGORIES = [
+    "Outdoor & Nature",
+    "Culture & History",
+    "Food & Drink",
+    "Nightlife & Entertainment",
+    "Relaxation & Wellness",
+    "Adventure & Sports",
 ]
-
-ACTIVITY_KEYWORDS: dict[str, list[str]] = {
-    "Outdoor & Nature":       ["Hike", "Ski", "Swim", "Paddle", "Cycle", "Walk", "Paraglid",
-                                "Kayak", "Climb", "Snowshoe", "Sled", "Gorge", "Glacier", "Lake",
-                                "Mountain", "Forest", "Botanical", "River", "Sunrise", "SUP"],
-    "Culture & History":      ["Museum", "Cathedral", "Old Town", "Monument", "Library", "UNESCO",
-                                "Tour", "Church", "Castle", "Abbey", "Historical", "Textile",
-                                "Photography", "Art", "Architecture", "Literary"],
-    "Food & Drink":           ["Fondue", "Wine", "Cheese", "Chocolate", "Food", "Dinner",
-                                "Tasting", "Raclette", "Brunch", "Aperitivo", "Beer", "Schnapps",
-                                "Cooking", "Gelato", "Farmers Market"],
-    "Nightlife & Entertainment": ["Night", "Bar", "Club", "Jazz", "Opera", "Comedy", "Festival",
-                                   "Concert", "Cinema", "Show", "Casino", "Pub Crawl", "Improv",
-                                   "Disco", "Ghost"],
-    "Relaxation & Wellness":  ["Spa", "Yoga", "Wellness", "Thermalbad", "Relax", "Meditation",
-                                "Picnic", "Stroll", "Promenade"],
-    "Adventure & Sports":     ["Skydiv", "Bungee", "Swing", "Rafting", "Via Ferrata", "Canyon",
-                                "Zip", "Abseil", "Paraglid", "Skate", "Basketball", "Bubble",
-                                "Escape Room", "Scavenger"],
-}
 
 SLOTS = ["Morning", "Afternoon", "Evening"]
 SLOT_CLASSES = {"Morning": "tt-morning", "Afternoon": "tt-afternoon", "Evening": "tt-evening"}
-SLOT_ICONS  = {"Morning": "🌅", "Afternoon": "☀️", "Evening": "🌙"}
+SLOT_ICONS   = {"Morning": "🌅", "Afternoon": "☀️", "Evening": "🌙"}
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -46,44 +30,65 @@ def load_activities() -> pd.DataFrame:
     return pd.read_csv(os.path.join(_HERE, "locations.csv"))
 
 
+def get_cities(df: pd.DataFrame) -> list[str]:
+    """Return sorted list of cities from the CSV."""
+    return sorted(df["city"].dropna().unique().tolist())
+
+
 def city_activities(df: pd.DataFrame, city: str) -> pd.DataFrame:
-    """Return rows whose name contains the city name (case-insensitive)."""
-    # Map city names to the keywords actually used in locations.csv
-    city_map = {
-        "St. Moritz": "St. Moritz",
-        "St. Gallen": "St. Gallen",
-    }
-    keyword = city_map.get(city, city)
-    return df[df["name"].str.contains(keyword, case=False, na=False)].reset_index(drop=True)
+    """Return all activities for the chosen city."""
+    return df[df["city"] == city].reset_index(drop=True)
 
 
 def filter_by_preferences(activities: pd.DataFrame, prefs: list[str]) -> pd.DataFrame:
+    """Keep only rows whose category matches one of the selected preferences."""
     if not prefs:
         return activities
-    keywords = []
-    for pref in prefs:
-        keywords.extend(ACTIVITY_KEYWORDS.get(pref, []))
-    mask = activities["name"].apply(
-        lambda name: any(kw.lower() in name.lower() for kw in keywords)
-    )
-    filtered = activities[mask]
-    return filtered if not filtered.empty else activities  # fall back to all if no match
+    filtered = activities[activities["category"].isin(prefs)]
+    return filtered if not filtered.empty else activities   # fall back if nothing matches
+
+
+def _best_slot(time_slot_str: str) -> str:
+    """Pick the first slot listed in the activity's time_slot field."""
+    if pd.isna(time_slot_str):
+        return random.choice(SLOTS)
+    parts = [s.strip() for s in str(time_slot_str).split("|")]
+    for slot in SLOTS:
+        if slot in parts:
+            return slot
+    return random.choice(SLOTS)
 
 
 def build_itinerary(activities: pd.DataFrame, num_days: int) -> list[dict]:
-    """Assign activities to morning/afternoon/evening slots across num_days."""
-    pool = activities["name"].tolist()
-    random.shuffle(pool)
+    """Assign activities to morning/afternoon/evening slots across num_days.
+
+    Activities are slotted according to their preferred time_slot from the CSV.
+    """
+    rows = activities.sample(frac=1).to_dict("records")   # shuffle
+    # Bucket by preferred slot
+    buckets: dict[str, list[str]] = {s: [] for s in SLOTS}
+    for row in rows:
+        slot = _best_slot(row.get("time_slot", ""))
+        buckets[slot].append(row["activity_name"])
+
     itinerary = []
-    idx = 0
     for day in range(1, num_days + 1):
         day_plan: dict[str, str] = {}
         for slot in SLOTS:
-            if idx < len(pool):
-                day_plan[slot] = pool[idx]
-                idx += 1
+            if buckets[slot]:
+                day_plan[slot] = buckets[slot].pop()
             else:
-                day_plan[slot] = "Free time — explore at your own pace"
+                # Try any remaining slot before falling back to free time
+                remaining = [a for s in SLOTS for a in buckets[s]]
+                if remaining:
+                    picked = remaining[0]
+                    for s in SLOTS:
+                        if picked in buckets[s]:
+                            buckets[s].remove(picked)
+                            break
+                    day_plan[slot] = picked
+                else:
+                    day_plan[slot] = "Free time — explore at your own pace"
         itinerary.append({"day": day, "slots": day_plan})
     return itinerary
 
@@ -113,9 +118,12 @@ def step_destination() -> None:
     st.markdown('<div class="step-caption">Pick a Swiss destination and how many days you have.</div>',
                 unsafe_allow_html=True)
 
+    df = load_activities()
+    cities = get_cities(df)
+
     col1, col2 = st.columns([2, 1])
     with col1:
-        city = st.selectbox("Destination", CITIES, index=0)
+        city = st.selectbox("Destination", cities, index=0)
     with col2:
         num_days = st.selectbox("Number of days", list(range(1, 8)), index=2)
 
@@ -135,7 +143,7 @@ def step_preferences() -> None:
 
     prefs = []
     cols = st.columns(3)
-    for i, category in enumerate(ACTIVITY_KEYWORDS):
+    for i, category in enumerate(CATEGORIES):
         with cols[i % 3]:
             if st.checkbox(category, value=False):
                 prefs.append(category)
