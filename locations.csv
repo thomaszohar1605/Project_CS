@@ -1,501 +1,189 @@
-name,lat,lon
-Zurich Old Town (Altstadt) Walk,47.3627,8.535
-Kunsthaus Zürich – Art Museum,47.3822,8.5535
-Zurich Lake Promenade,47.3746,8.5276
-Langstrasse Nightlife District,47.3627,8.5327
-Bahnhofstrasse Shopping,47.3685,8.5444
-Uetliberg Hike & Panorama,47.3861,8.5476
-Swiss National Museum,47.3906,8.5368
-Zurich Zoo,47.3873,8.5448
-Fraumünster Church – Chagall Windows,47.378,8.5559
-Grossmünster Cathedral Tower,47.3785,8.5516
-Zurich Botanical Garden,47.3878,8.544
-Rietberg Museum – World Cultures,47.3687,8.5354
-Zurich Street Food Festival,47.3649,8.535
-Lake Zurich Swimming & SUP,47.373,8.533
-Zurich Film Festival Screening,47.3813,8.545
-Sprüngli Chocolate Tasting,47.3668,8.5381
-Zurich by E-Bike Tour,47.3786,8.5472
-Hürlimann Spa & Thermalbad,47.3688,8.5277
-Zurich Opera House Performance,47.3682,8.555
-ETH Zurich Campus Tour,47.3713,8.5464
-Zurich Farmers Market (Bürkliplatz),47.3757,8.5346
-Zurich Christmas Markets,47.3698,8.5442
-Lake Zurich Ferry Ride,47.3685,8.5566
-Zurich Sunset Rooftop Bar,47.3633,8.53
-Zurich Fondue Dinner,47.3746,8.5286
-Cabaret Voltaire – Dada Experience,47.3778,8.5558
-Zurich West Industrial District Walk,47.3622,8.5483
-Zurich Yoga in the Park,47.3699,8.5459
-Zurich Vinyl & Music Shops,47.3755,8.5553
-Zurich Cycle Tour – Lakeside Loop,47.3769,8.5321
-Zurich Flea Market (Kanzlei),47.3709,8.5459
-Zurich Sunrise Hike (Zürichberg),47.3848,8.5429
-Bern Old Town (UNESCO) Walk,46.949,7.4324
-Bear Park (Bärenpark),46.9337,7.4603
-Bern Historical Museum,46.9423,7.4341
-Rose Garden (Rosengarten),46.9615,7.435
-Zytglogge Clock Tower Tour,46.9559,7.4554
-Bundeshaus Parliament Tour,46.9474,7.4489
-Bern Gurten Hill Picnic,46.9458,7.4388
-Zentrum Paul Klee Museum,46.9391,7.4418
-Aare River Swim,46.9526,7.4455
-Bern Arcade Shopping Stroll,46.9398,7.4425
-Einstein Museum Bern,46.9397,7.4345
-Bern Farmers Market (Bärenplatz),46.9603,7.4582
-Bern Jazz Festival,46.9532,7.4388
-Bern Christmas Market,46.9502,7.4466
-Bern Münster Cathedral,46.9388,7.4353
-Aare Rafting Half-Day,46.9471,7.4543
-Bern Street Art Walk (Matte),46.9626,7.4354
-Bern Cheese & Wine Tasting,46.959,7.4399
-Gurten Festival (Music),46.9458,7.4408
-Bern Onion Market (Zibelemärit),46.9464,7.4582
-Bern Natural History Museum,46.9631,7.4575
-Bern City Beach (Marzili),46.9609,7.4579
-Bern Old Town Fondue Night,46.9395,7.4444
-Bern Botanical Garden,46.9445,7.462
-Bern Photography Museum,46.9468,7.4451
-Bern City Tower Climb,46.9498,7.454
-Bern Sunset at Rosengarten,46.942,7.4615
-Bern E-Bike Day Tour,46.9555,7.4341
-Bern Sunday Antiques Market,46.9587,7.4371
-Bern International Jazz Festival (Late-Night),46.9387,7.4503
-Chapel Bridge & Water Tower,47.0423,8.2979
-Mount Pilatus Excursion,47.053,8.3129
-Lake Lucerne Boat Cruise,47.0509,8.3223
-Swiss Museum of Transport,47.0424,8.3062
-Lion Monument (Löwendenkmal),47.0442,8.3038
-Rigi – Queen of Mountains,47.0489,8.3243
-Old Town Walk Lucerne,47.0374,8.3007
-Glacier Garden Museum,47.0616,8.3207
-Lucerne Carnival (Fasnacht),47.0602,8.3154
-Hofkirche Church Visit,47.0648,8.3139
-Lucerne Christmas Market,47.0442,8.3142
-Stanserhorn CabriO Cable Car,47.0387,8.2975
-Lucerne Old Town Fondue Evening,47.0533,8.3158
-Lucerne Rowing on the Lake,47.0431,8.309
-KKL Lucerne Concert,47.038,8.307
-Lucerne Farmers Market,47.0583,8.3134
-Bürgenstock Resort Hike,47.0518,8.3071
-Lucerne Paddle Board (SUP),47.0617,8.3214
-Musegg Wall & Towers Walk,47.0602,8.3118
-Lucerne Art Museum (Kunstmuseum),47.0444,8.3213
-Lucerne Nature Museum,47.0622,8.3006
-Kriens Village Walk,47.0383,8.3177
-Lake Lucerne Sunset Cruise,47.0538,8.2989
-Lucerne Chocolate Tour,47.0645,8.3186
-Lucerne Night Photography Walk,47.0573,8.3043
-Lucerne Lido Swimming,47.0611,8.3186
-Mount Titlis Day Trip,47.0384,8.3205
-Lucerne Wine Tasting Evening,47.0597,8.3081
-Lucerne Lantern Festival,47.042,8.295
-Lucerne E-Bike Vineyard Tour,47.0611,8.3233
-Jet d'Eau Waterfront,46.2086,6.1402
-CERN Guided Tour,46.2055,6.1564
-Palais des Nations Visit,46.1948,6.1571
-Geneva Old Town (Vieille-Ville),46.1927,6.1412
-Red Cross Museum,46.2076,6.1435
-Lake Geneva Sailing Trip,46.197,6.1495
-Plainpalais Flea Market,46.2056,6.1498
-Parc des Bastions Stroll,46.2095,6.1391
-Patek Philippe Watch Museum,46.2093,6.1381
-Carouge Neighbourhood Walk,46.2148,6.1498
-Geneva Night Out (Pâquis),46.2017,6.1403
-Jardin Anglais Flower Clock,46.1932,6.1408
-Geneva Food Tour,46.2165,6.1467
-Mont Salève Day Trip,46.1894,6.1368
-Geneva Opera Evening,46.209,6.1421
-Musée d'Art et d'Histoire,46.1958,6.1424
-St. Pierre Cathedral & Tower,46.1945,6.1307
-Geneva Chocolate Workshop,46.1995,6.1528
-Lake Geneva E-Bike Tour,46.1961,6.1342
-Bains des Pâquis Beach,46.2037,6.1537
-Geneva Night Boat Cruise,46.2083,6.134
-Maison Tavel Museum,46.2042,6.1355
-Geneva Watchmaking Workshop,46.2119,6.1513
-Genthod Village Cycle,46.1947,6.1569
-Geneva Pub Crawl,46.1969,6.1537
-Vieille Ville Fondue Dinner,46.2094,6.1578
-Geneva Botanical Garden,46.2179,6.1549
-Palexpo Trade Fair Visit,46.2045,6.1531
-Geneva International Film Festival,46.2117,6.1424
-Lake Geneva Stand-Up Paddleboard,46.2085,6.1512
-Geneva Cheese & Raclette Evening,46.1976,6.1305
-Olympic Museum,46.5143,6.6335
-Lausanne Cathedral Visit,46.5116,6.6381
-Lausanne Lakeside (Ouchy) Walk,46.5066,6.6295
-Collection de l'Art Brut,46.5109,6.6299
-Lausanne Old Town Stroll,46.5222,6.6382
-Lausanne Nightlife (Flon District),46.5161,6.6175
-Lake Geneva Kayaking,46.5303,6.6459
-Sauvabelin Forest Walk & Tower,46.5271,6.6337
-Lausanne Wine & Cheese Evening,46.5113,6.6304
-Fondation de l'Hermitage,46.5251,6.6294
-Lausanne Flon Shopping,46.5085,6.636
-Lausanne Marathon Walk,46.5216,6.6181
-Vidy Beach & Picnic,46.5186,6.6188
-Mudac – Museum of Design,46.5145,6.6401
-Lausanne Beer Festival,46.5297,6.6249
-Lausanne Botanical Garden,46.5053,6.6335
-Lausanne Photography Festival,46.5242,6.6407
-Lausanne Palace Spa,46.5332,6.6233
-Lausanne University Campus Walk,46.5093,6.6211
-Lausanne Cheese Fondue Night,46.5112,6.6383
-Lake Geneva Sunset Cruise,46.5229,6.6397
-Lausanne Vevey Rail Tour,46.5336,6.6205
-Lausanne Antique Markets,46.525,6.646
-Lausanne Street Food Stalls,46.507,6.638
-Lausanne Night Photography Walk,46.5279,6.6428
-Chillon Castle,46.4457,6.9192
-Montreux Jazz Festival,46.4273,6.9109
-Montreux Lakeside Promenade,46.4417,6.9204
-Rochers-de-Naye Hike,46.4353,6.9206
-Montreux Christmas Market,46.4382,6.9247
-Montreux Flower Promenade Walk,46.4404,6.9118
-Lake Geneva Paddle Boarding,46.4381,6.9038
-Montreux Food & Wine Tour,46.4188,6.9221
-Freddie Mercury Statue & Walk,46.4301,6.914
-Vevey Market & Chaplin Statue,46.4417,6.9012
-Montreux Spa & Wellness Resort,46.4264,6.9221
-Riviera Folk Festival,46.4165,6.9241
-Territet Funicular Ride,46.4309,6.9184
-Villeneuve Nature Walk,46.4356,6.9104
-Montreux Wine & Cheese Evening,46.4228,6.9165
-Lake Geneva Night Cruise (Montreux),46.4304,6.9116
-Chillon Kayaking Experience,46.4261,6.9168
-Montreux Golden Pass Rail Journey,46.4198,6.9015
-Montreux Street Art Walk,46.4323,6.9186
-Montreux Casino & Entertainment,46.4307,6.9174
-Matterhorn Glacier Paradise,46.0142,7.7371
-Zermatt Ski & Snowboard,46.0111,7.7345
-Gorner Gorge Walk,46.0349,7.7507
-Zermatt Village Stroll,46.0095,7.7602
-Rothorn Summit Hike,46.0229,7.7482
-Zermatt Alpine Museum,46.0072,7.7623
-Horse-Drawn Sleigh Ride,46.0177,7.7363
-Matterhorn Museum (Zermatlantis),46.0102,7.751
-Zermatt Fondue & Raclette Dinner,46.0093,7.757
-Schwarzsee Lake Hike,46.0125,7.7498
-Zermatt Snow Hiking Tour,46.0315,7.7638
-Ice Climbing Lesson Zermatt,46.024,7.7563
-Five Lakes Walk,46.012,7.7539
-Zermatt Spa & Relax,46.008,7.7342
-Bachalpsee Lake Sunrise Hike (Zermatt),46.0144,7.741
-Zermatt Cross-Country Skiing,46.0193,7.7547
-Zermatt Summit Paragliding,46.0245,7.7539
-Alpine Cheese Farm Visit (Zermatt),46.022,7.7535
-Zermatt Night Tobogganing,46.0078,7.7391
-Zermatt Snowshoe Trek,46.0228,7.7428
-Zermatt Photography Tour,46.0267,7.7624
-Ried Glacier Viewpoint Walk,46.0081,7.7353
-Zermatt Apres-Ski Bar Hopping,46.0132,7.7368
-Harder Kulm Viewpoint,46.6886,7.8767
-Interlaken Skydiving,46.6794,7.8494
-Lake Brienz Boat Trip,46.6908,7.8757
-Schilthorn & Piz Gloria,46.6903,7.863
-Paragliding over Interlaken,46.6813,7.8683
-Canyon Swing,46.6921,7.8568
-Lake Thun Boat Cruise,46.6878,7.8618
-Interlaken Bungee Jump,46.7004,7.8603
-Interlaken Canyoning,46.691,7.8645
-Trummelbach Falls Visit,46.6822,7.8709
-Interlaken Old Town Stroll,46.6941,7.8543
-Interlaken Kayaking on River Aare,46.6844,7.8691
-Brienz Wood Carving Workshop,46.6896,7.8554
-Iseltwald Lake Walk,46.6878,7.8648
-Interlaken Mountain Biking,46.6987,7.862
-Interlaken Swiss Cheese Fondue Night,46.6863,7.8697
-Lauterbrunnen Valley Walk,46.6963,7.8776
-Interlaken Horse Riding,46.6828,7.8759
-Interlaken Via Ferrata Climbing,46.6972,7.8565
-Interlaken Snowshoeing,46.6993,7.8634
-Interlaken Escape Room,46.6803,7.8658
-Ballenberg Open-Air Museum,46.6758,7.8644
-Interlaken White Water Rafting,46.6876,7.8619
-Jungfraujoch Top of Europe,46.6304,8.0433
-First Cliff Walk,46.6108,8.0484
-Grindelwald Glacier Hike,46.6211,8.046
-Eiger North Face Viewpoint,46.6389,8.041
-First Flyer Zip Line,46.6272,8.0522
-Grindelwald Ski Area,46.6253,8.0398
-Bachalpsee Lake Hike,46.6291,8.0307
-Grindelwald Village Walk,46.6386,8.0363
-Pfingstegg Gondola & Hike,46.6351,8.0517
-Grindelwald Tobogganing,46.619,8.0477
-Meiringen Reichenbach Falls,46.6106,8.0282
-Grindelwald Cheese Fondue Night,46.6394,8.0485
-Alpine Flower Walk Kleine Scheidegg,46.6285,8.0523
-Grindelwald Paragliding,46.6366,8.0275
-Grindelwald Ice Magic Winter Festival,46.6207,8.0305
-Grindelwald Snowshoeing Tour,46.6333,8.0312
-Grindelwald Sunrise Hike (Kleine Scheidegg),46.6281,8.0333
-First Bike (Mountain Scooter),46.6233,8.0337
-Grindelwald Spa & Wellness,46.6336,8.0531
-Grindelwald Photography Walk,46.6228,8.0365
-Davos Mountain Biking,46.8009,9.8295
-Davos Parsenn Ski Area,46.7997,9.8365
-Davos Lake Walk,46.8054,9.8392
-Schatzalp Botanical Alpine Garden,46.8175,9.8417
-Davos Ice Rink & Curling,46.8088,9.8443
-Jakobshorn Snowboarding,46.8031,9.8491
-Davos Cross-Country Skiing,46.8064,9.8326
-Pischa Freeride Skiing,46.8085,9.8436
-Davos Glacier Trekking,46.807,9.8491
-Davos Spa & Wellness Hotel,46.8014,9.8394
-Sertig Valley Hike,46.7971,9.8444
-Davos Heidi Hike,46.8044,9.8511
-Flüela Pass Road Trip,46.8131,9.8297
-Davos Night Sledding,46.8124,9.8444
-Davos Apres-Ski (Promenade),46.8171,9.8262
-Davos Museum of Fine Arts,46.8099,9.8514
-Davos Winter Walking Trails,46.7992,9.8457
-Davos Summer Hiking Festival,46.8018,9.8422
-Klosters Village Day Trip,46.8129,9.8502
-Davos Snowshoe Adventure,46.789,9.8485
-St. Moritz Ski Resort (Corviglia),46.4898,9.8277
-Engadin Valley Hike,46.5105,9.8349
-St. Moritz Lake Promenade,46.4874,9.8542
-Diavolezza Glacier Experience,46.4861,9.8524
-Muottas Muragl Hike,46.5033,9.8481
-St. Moritz Gourmet Festival,46.5055,9.8304
-Segantini Museum,46.4979,9.838
-Maloja Pass Road Cycle,46.4943,9.8391
-St. Moritz Polo on Snow,46.4862,9.8464
-Sils Maria Village Walk,46.5125,9.8366
-White Turf Horse Racing on Ice,46.4869,9.8512
-Inn River Kayaking,46.5025,9.8437
-St. Moritz Wellness & Spa,46.4905,9.8296
-Pontresina Alpine School Hike,46.5062,9.832
-St. Moritz Snowkiting,46.4931,9.8302
-Fex Valley Walk,46.509,9.8301
-St. Moritz Luxury Shopping,46.4884,9.8456
-Bernina Express Rail Journey,46.5069,9.8329
-St. Moritz Ice Skating,46.4848,9.8481
-Engadin Ski Marathon (Spectate),46.4975,9.8491
-Lake Lugano Boat Tour,46.0038,8.9645
-Monte San Salvatore Hike,46.0147,8.9517
-Lugano Old Town & Piazza,46.0176,8.9379
-Lugano Wellness Spa,46.0093,8.9508
-Lugano Art Museum (LAC),45.9911,8.9543
-Monte Brè Cable Car & Views,46.0077,8.9526
-Lugano Waterfront Evening Walk,46.0185,8.952
-Ticino Wine Tasting,45.9917,8.9572
-Lugano Lido Beach,46.0118,8.9577
-Gandria Fishing Village Walk,45.9956,8.9463
-Swissminiatur Miniature Park,45.9916,8.9489
-Lugano Chocolate & Gelato Tour,45.9933,8.9638
-San Salvatore Summit Hike,45.9915,8.939
-Lugano Night Bar Hopping,46.0054,8.9537
-Ceresio Cycling Route,45.9924,8.9467
-Lugano Farmers Market,46.0147,8.9577
-Ciani Park Stroll,46.0067,8.9466
-Lugano Kayaking,46.0084,8.9428
-Lugano Carnival,45.9997,8.959
-Riva Caccia Waterfront Dinner,46.0141,8.9653
-Lugano Museum of Cultures,46.008,8.9369
-Villa Heleneum Gardens,45.9967,8.9415
-Lugano Paddle Tennis Club,45.9989,8.9363
-Lugano Open-Air Cinema,46.0007,8.9404
-Lugano Sunset Aperitivo,46.0111,8.9426
-Locarno Piazza Grande,46.1633,8.7955
-Madonna del Sasso Sanctuary,46.1764,8.8014
-Locarno Film Festival,46.1578,8.8029
-Lago Maggiore Ferry to Islands,46.173,8.799
-Cardada & Cimetta Gondola,46.1757,8.7878
-Locarno Old Town Walk,46.1616,8.8048
-Locarno Beach (Lido),46.1545,8.7963
-Valle Verzasca Day Trip,46.1621,8.7907
-Locarno Nightlife & Aperitivo,46.1629,8.7846
-Brissago Islands Botanical Garden,46.1645,8.8055
-Locarno Market Day,46.1773,8.7866
-Bungee Jumping Verzasca Dam,46.1537,8.812
-Locarno Wine & Food Evening,46.1703,8.8057
-Centovalli Railway Ride,46.1537,8.7941
-Locarno Carnival (Rabadan),46.1781,8.812
-Ronco sopra Ascona Village Walk,46.1604,8.8021
-Lago Maggiore Kayaking,46.1624,8.7946
-Locarno Sunset Aperitivo on Piazza,46.1684,8.7878
-Locarno Swimming at Lido,46.1636,8.8062
-Locarno Chocolate & Craft Workshop,46.1602,8.7888
-St. Gallen Abbey Library (UNESCO),47.4323,9.3814
-St. Gallen Old Town Walk,47.4327,9.3765
-Textile Museum St. Gallen,47.423,9.3894
-Drei Weieren Open-Air Pools,47.4282,9.3876
-St. Gallen Cathedral Tour,47.414,9.3637
-Bodensee (Lake Constance) Day Trip,47.4177,9.3634
-St. Gallen Farmers Market,47.4231,9.3634
-St. Gallen Open Air Concert,47.4354,9.3874
-Rorschach Lakeside Walk,47.4234,9.3783
-St. Gallen Art Museum,47.423,9.386
-St. Gallen Night Stroll (Innenstadt),47.4238,9.3662
-Alpstein Panorama Day Hike,47.4365,9.372
-St. Gallen Christmas Market,47.4147,9.3691
-St. Gallen Beer & Sausage Evening,47.4252,9.3665
-Wil Castle & Village Walk,47.4218,9.3719
-St. Gallen University Library Visit,47.4332,9.3811
-Gossau Zoo Day Trip,47.4299,9.3702
-St. Gallen Street Food Night,47.4367,9.3879
-Appenzell Village & Cheese Trail,47.3209,9.4057
-Alpstein Hiking (Säntis Summit),47.3285,9.4131
-Appenzell Folklore Show,47.328,9.4189
-Appenzell Museum of Culture,47.3416,9.4174
-Seealpsee Lake Hike,47.3361,9.4079
-Wildkirchli Cave Walk,47.3221,9.4016
-Appenzell Cheese Farm Tour,47.3235,9.3993
-Ebenalp Cliff Hike,47.3197,9.4183
-Appenzell Traditional Dinner,47.3178,9.4053
-Brülisau Valley Winter Walk,47.328,9.4001
-Appenzell Embroidery Workshop,47.341,9.4002
-Hoher Kasten Cable Car,47.337,9.4023
-Appenzell Landsgemeinde (Town Assembly),47.3252,9.4177
-Appenzell Cycling Through Meadows,47.326,9.4195
-Schwendisee Swimming Lake,47.3277,9.4236
-Appenzell Night Walk & Stars,47.3252,9.4067
-Appenzell Herbal Schnapps Tasting,47.3412,9.4192
-Kronberg Toboggan Run,47.3359,9.4214
-Chur Old Town Stroll,46.838,9.5433
-Chur to Arosa Mountain Railway,46.8578,9.5261
-Rätisches Museum,46.848,9.5463
-Chur Cathedral Visit,46.8484,9.5284
-Chur Vineyards Walk,46.85,9.525
-Arosa Ski Day Trip,46.8357,9.5458
-Brambrüesch Hike,46.8586,9.522
-Rhine Gorge (Ruinaulta) Walk,46.8558,9.5221
-Chur Wine & Food Evening,46.8351,9.5203
-Lenzerheide Bike Park,46.8514,9.5397
-Chur Old Town Night Walk,46.8435,9.5269
-Chur Farmers Market,46.8587,9.5316
-Chur Swimming Pool (Obere Au),46.8528,9.5184
-Chur Kunsthaus (Art Gallery),46.8392,9.5308
-Lenzerheide Lake & Beach,46.8474,9.5378
-Chur Carnival (Chalandamarz),46.8641,9.5199
-Disentis Abbey Day Trip,46.8645,9.5345
-Chur Glacier Express Departure,46.854,9.5473
-Chur E-Bike Through Graubünden,46.8586,9.5282
-Flims Caumasee Lake Swim,46.858,9.54
-Zurich Sunrise Yoga (Uetliberg),47.3673,8.5342
-Zurich Comedy Club Night,47.3734,8.5472
-Zurich Pottery Workshop,47.3766,8.5393
-Zurich Bubble Football,47.389,8.5379
-Zurich Truffle & Fine Food Tour,47.3665,8.5465
-Bern Medieval Dungeons Tour,46.9615,7.4483
-Bern Escape Room Adventure,46.9452,7.4405
-Bern Cycling Tour (Aare Loop),46.9628,7.4484
-Lucerne Magic Show Evening,47.0534,8.3236
-Lucerne Alpine Cheese Tasting,47.0628,8.2991
-Geneva Escape Room,46.2189,6.1565
-Lausanne Cooking Class (Swiss Cuisine),46.5054,6.6315
-Lausanne Graffiti & Street Art Tour,46.5175,6.6199
-Lausanne Ghost Tour,46.5146,6.633
-Montreux Painting Workshop by the Lake,46.4179,6.902
-Montreux Boat Rental (Self-Drive),46.4391,6.9063
-Zermatt Sunrise Gondola & Breakfast,46.0096,7.76
-Interlaken Ghost Train Tour,46.6895,7.8604
-Interlaken Stand-Up Paddleboard (SUP),46.6765,7.8535
-Interlaken Chocolate Making Class,46.6881,7.8713
-Grindelwald Escape Room,46.613,8.0508
-Grindelwald Classic Ski Lesson,46.6181,8.0437
-Grindelwald Husky Sledding,46.6215,8.0508
-Grindelwald Mountain Yoga,46.6206,8.0289
-Davos Bob Run (Schatzalp),46.8098,9.834
-Davos Alpine Cheese Evening,46.8078,9.8416
-Davos Photography Hike,46.8098,9.8286
-St. Moritz Ice Golf Tournament,46.4907,9.8347
-St. Moritz Husky Sledding,46.4963,9.8547
-Lugano Fondue & Wine Night,46.0159,8.9623
-Lugano SUP on the Lake,46.0166,8.9438
-Lugano Painting Workshop,46.0084,8.9544
-Locarno Stand-Up Paddleboard,46.1712,8.814
-Locarno Ghost Walk (Old Town),46.1645,8.811
-Locarno Cooking Class (Ticino Food),46.1739,8.8133
-St. Gallen Escape Room,47.4146,9.3809
-St. Gallen Hiking (Freudenberg),47.4355,9.3686
-St. Gallen Cheese & Bread Evening,47.4215,9.3651
-Kreuzbleiche Park Picnic,47.4188,9.3819
-Appenzell Bouldering & Rock Climbing,47.3402,9.4085
-Appenzell Stargazing Night,47.3389,9.4092
-Appenzell Yodel Performance,47.3357,9.4182
-Appenzell Woodcarving Workshop,47.3173,9.3984
-Chur Rooftop Bar & Aperitivo,46.8637,9.5304
-Chur Alpine Botanical Walk,46.8633,9.5355
-Chur Christmas Market,46.8647,9.5417
-Zurich Rooftop Cinema,47.3757,8.5306
-Bern Night Kayak on Aare,46.9586,7.4535
-Lucerne Sunset Sailing,47.0406,8.3018
-Geneva Museum of Natural History,46.2066,6.1549
-Lausanne Canoeing on Lake,46.5328,6.6317
-Montreux Sunset Photography,46.4305,6.9008
-Zermatt Guided Glacier Walk,46.0195,7.7346
-Interlaken Sunset Paragliding,46.6814,7.8702
-Grindelwald Sunset Alpenglow Walk,46.6285,8.0436
-Davos Nordic Walking Tour,46.8058,9.8234
-St. Moritz Cross-Country Ski Lesson,46.4901,9.8485
-Lugano Rooftop Aperitivo,46.0096,8.9486
-Locarno Sunset Sail on Lago Maggiore,46.1583,8.7927
-St. Gallen Museum Night,47.4154,9.3785
-Appenzell Paragliding,47.3412,9.3976
-Chur Summer Night Festival,46.8597,9.5224
-Zurich Improv Comedy Show,47.3813,8.5317
-Bern City Scavenger Hunt,46.9515,7.4552
-Lucerne City Scavenger Hunt,47.0368,8.3046
-Geneva Rooftop Brunch,46.1948,6.1315
-Lausanne Rooftop Brunch,46.5266,6.6177
-Montreux Classical Music Concert,46.4191,6.9195
-Zermatt Stargazing Tour,46.0295,7.7603
-Interlaken Zip-Line Adventure,46.6976,7.8734
-Grindelwald Nordic Walking,46.6189,8.0275
-Davos Street Festival,46.793,9.8503
-St. Moritz Hiking with Llamas,46.4921,9.8295
-Lugano Garden Tour (Villa Ciani),45.9993,8.9543
-Locarno Vintage Market,46.1629,8.8093
-St. Gallen Ghost Tour,47.4278,9.3781
-Appenzell River Bathing,47.3426,9.4039
-Chur Cycling to Felsberg,46.8619,9.5247
-Zurich Jazz Club Night,47.3683,8.5461
-Bern Comedy Night,46.9461,7.4494
-Lucerne Ghost Walk (Old Town),47.0622,8.2997
-Geneva Kayaking on the Rhône,46.197,6.1456
-Lausanne Jazz Festival,46.524,6.6324
-Montreux Stargazing Night,46.4184,6.9133
-Zermatt Mountain Yoga Retreat,46.0332,7.7368
-Interlaken River Tubing,46.6885,7.8545
-Grindelwald Glacier Ice Cave,46.6156,8.0501
-Davos Forest Bathing Walk,46.7957,9.8472
-St. Moritz Glacier Hiking,46.5034,9.8409
-Lugano Sailing Lesson,45.9957,8.9518
-Locarno Jazz Night,46.1688,8.7866
-St. Gallen Textile Tour,47.4195,9.3674
-Appenzell Sunrise Alpine Walk,47.3178,9.3971
-Chur Skateboarding Park,46.8437,9.5259
-Zurich Architecture Walk,47.3792,8.5356
-Bern Photography Walk,46.9434,7.4367
-Lucerne Sunrise Hike (Rigi),47.0488,8.3226
-Zurich Street Basketball,47.3691,8.5514
-Zurich Tram City Tour,47.3786,8.545
-Bern Sunrise Walk (Gurten),46.9481,7.4579
-Bern Rooftop Sunset Bar,46.9383,7.4568
-Lucerne Retro Tram Tour,47.0407,8.3039
-Geneva Roller Skating (Promenade),46.2054,6.1343
-Geneva Street Art Walk,46.1918,6.1342
-Lausanne Street Dance Event,46.5258,6.6196
-Montreux Vintage Jazz Bar Night,46.4384,6.918
-Zermatt Afternoon Tea (Alpine Hut),46.0195,7.7365
-Interlaken Abseiling,46.6745,7.8615
-Grindelwald Ice Hockey Match,46.6131,8.0542
-Davos Snowball Games Social Event,46.8174,9.8445
-St. Moritz Curling Lesson,46.4898,9.84
-Lugano Mountain Scooter Ride,46.0002,8.9645
-Locarno Art Gallery Evening,46.1543,8.7951
-St. Gallen Literary Walk,47.4391,9.3889
-Appenzell Cow Festival (Alpabzug),47.3184,9.4093
-Chur Summer Open-Air Cinema,46.8438,9.5207
-Zurich River Lido (Flussbad),47.3896,8.5492
-Bern Craft Beer Tasting,46.9475,7.4552
-Lucerne Craft Beer Tasting,47.0354,8.2969
-Geneva River Promenade Walk,46.1928,6.1399
-Lausanne Cinema Outdoor,46.5088,6.6251
-Montreux Winter Walk Along Lake,46.4188,6.9006
-Zermatt Ski Instructor Session,46.0127,7.7491
-Interlaken Cycling (Thun-Interlaken Route),46.6927,7.8662
-Grindelwald Winter Wellness,46.6347,8.0292
+name,city,activity_name,category,time_slot,indoor_outdoor,seasons,weather_suitability,description,max_useful_days
+Zurich - Old Town Walking Tour,Zurich,Old Town Walking Tour,Culture & History,Morning|Afternoon,outdoor,spring|summer|fall,clear|rainy,Explore the medieval Lindenhügel and Niederdorf quarters with guild houses and painted fountains.,7
+Zurich - Lake Zurich Boat Trip,Zurich,Lake Zurich Boat Trip,Outdoor & Nature,Afternoon,outdoor,spring|summer,clear,Scenic cruise on Lake Zurich with views of the Alps and the city skyline.,7
+Zurich - Kunsthaus Museum,Zurich,Kunsthaus Museum,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,One of Switzerland's premier art museums with works from Monet to Giacometti and a new extension.,7
+Zurich - Thermalbad & Spa,Zurich,Thermalbad & Spa,Relaxation & Wellness,Morning|Afternoon|Evening,indoor,spring|summer|fall|winter,any,Historic brewery converted into a rooftop thermal bath with Roman-Irish ritual bathing and city views.,7
+Zurich - Langstrasse Bar & Club Night,Zurich,Langstrasse Bar & Club Night,Nightlife & Entertainment,Evening,both,spring|summer|fall|winter,any,Zurich's most vibrant nightlife strip packed with dive bars craft cocktail spots and techno clubs.,7
+Zurich - Uetliberg Sunrise Hike,Zurich,Uetliberg Sunrise Hike,Outdoor & Nature,Morning,outdoor,spring|summer|fall,clear,Early morning hike to Zurich's local mountain for panoramic city and lake views at dawn.,7
+Zurich - Swiss National Museum,Zurich,Swiss National Museum,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Switzerland's largest cultural history museum housed in a castle-like building near the main station.,7
+Zurich - Fondue Dinner at Zeughauskeller,Zurich,Fondue Dinner at Zeughauskeller,Food & Drink,Evening,indoor,spring|summer|fall|winter,any,Classic Swiss fondue and raclette in a historic 15th-century armoury in the heart of the city.,7
+Zurich - Street Food Market at Hardturm,Zurich,Street Food Market at Hardturm,Food & Drink,Afternoon|Evening,outdoor,spring|summer|fall,clear|rainy,Rotating food markets and pop-ups near the Limmat river with dozens of street food cuisines.,7
+Zurich - Zurich Zoo,Zurich,Zurich Zoo,Outdoor & Nature,Morning|Afternoon,both,spring|summer|fall,clear|rainy,One of Europe's top zoos with a vast Masoala rainforest hall and Kaeng Krachan elephant park.,7
+Zurich - Lindt Home of Chocolate,Zurich,Lindt Home of Chocolate,Food & Drink,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Immersive chocolate museum with a 9m chocolate fountain tasting bars and the history of Swiss chocolate.,7
+Zurich - WOW Museum,Zurich,WOW Museum,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Interactive art and illusion museum with kaleidoscope rooms mirror mazes and photo-worthy installations.,7
+Zurich - Lake Zurich Swimming at Strandbad,Zurich,Lake Zurich Swimming at Strandbad,Outdoor & Nature,Morning|Afternoon,outdoor,summer,clear,Swim in the lake from one of Zurich's beloved open-air lido beaches on the shores of the Zürichsee.,7
+Zurich - City Bike Tour,Zurich,City Bike Tour,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Guided cycling tour covering the Old Town riverside districts and lakeside promenades on a city bike.,7
+Zurich - Museum Rietberg,Zurich,Museum Rietberg,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Outstanding collection of non-European art in a lakeside villa surrounded by a sculpture park.,7
+Zurich - Hürlimann Brewery & Beer Tasting,Zurich,Hürlimann Brewery & Beer Tasting,Food & Drink,Afternoon|Evening,indoor,spring|summer|fall|winter,any,Tour of the historic Hürlimann brewery complex followed by craft beer tasting in the cellar bar.,7
+Zurich - Cabaret Voltaire & Dada Tour,Zurich,Cabaret Voltaire & Dada Tour,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Visit the birthplace of the Dada art movement in the Niederdorf and explore the provocative permanent collection.,7
+Zurich - Bürkliplatz Flea Market,Zurich,Bürkliplatz Flea Market,Food & Drink,Morning,outdoor,spring|summer|fall,clear,Zurich's most popular lakeside flea market with antiques vintage clothing street snacks and local finds.,7
+Zurich - Dolder Ice Rink,Zurich,Dolder Ice Rink,Adventure & Sports,Morning|Afternoon,outdoor,winter,clear|snowy,Skate on Europe's largest natural outdoor ice rink with stunning panoramic views over the city.,7
+Zurich - Kreis 5 Gallery & Bar Hop,Zurich,Kreis 5 Gallery & Bar Hop,Nightlife & Entertainment,Evening,both,spring|summer|fall|winter,any,Zurich's creative industrial district: art galleries design shops and some of the city's coolest bars.,7
+Zurich - Zurich Old Town Food Tour,Zurich,Zurich Old Town Food Tour,Food & Drink,Morning|Afternoon,both,spring|summer|fall|winter,any,Guided tasting walk through the Old Town sampling Swiss street food cheese chocolate and local wine.,7
+Bern - Old Town Walking Tour,Bern,Old Town Walking Tour,Culture & History,Morning|Afternoon,outdoor,spring|summer|fall,clear|rainy,UNESCO-listed medieval arcades clock tower and painted fountains in Switzerland's federal capital.,4
+Bern - Federal Palace Tour,Bern,Federal Palace Tour,Culture & History,Morning|Afternoon,both,spring|summer|fall|winter,any,Free guided tours of Switzerland's parliament building under its landmark sandstone dome.,4
+Bern - Bear Park,Bern,Bear Park,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Watch Bern's heraldic bears roam freely in a spacious riverside natural enclosure below the Old Town.,4
+Bern - Rose Garden Viewpoint,Bern,Rose Garden Viewpoint,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer,clear,Elevated terraced park with 200 rose varieties and the most celebrated panoramic view over the Old Town.,4
+Bern - Aare River Float,Bern,Aare River Float,Outdoor & Nature,Afternoon,outdoor,summer,clear,Iconic local experience of floating down the crystal-clear turquoise Aare through the city with locals.,4
+Bern - Bern Historical Museum,Bern,Bern Historical Museum,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Switzerland's second largest historical museum including the world-class Einstein Museum on the ground floor.,4
+Bern - Gurten Hill Walk,Bern,Gurten Hill Walk,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Bern's local mountain reachable by funicular with a children's park woodland trails and broad Alpine views.,4
+Bern - Restaurant Hopping in Old Town,Bern,Restaurant Hopping in Old Town,Food & Drink,Evening,both,spring|summer|fall|winter,any,Sample Bernese classics: rösti bärner plättli and local craft beer in the arcaded Old Town restaurants.,4
+Bern - Bern E-Bike City Tour,Bern,Bern E-Bike City Tour,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Guided e-bike tour covering the Old Town rose garden Aare loop and the Marzili district.,4
+Bern - Zytglogge Clock Tower Tour,Bern,Zytglogge Clock Tower Tour,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Guided access inside Bern's medieval clock tower to see the 500-year-old astronomical mechanism.,4
+Bern - Bern Cheese & Wine Evening,Bern,Bern Cheese & Wine Evening,Food & Drink,Evening,indoor,spring|summer|fall|winter,any,Private tasting of Swiss regional cheeses paired with Bernese wines in a traditional wine cellar.,4
+Bern - Kunstmuseum Bern,Bern,Kunstmuseum Bern,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Switzerland's oldest art museum with works spanning 800 years including Paul Klee and Ferdinand Hodler.,4
+Lucerne - Chapel Bridge & Water Tower,Lucerne,Chapel Bridge & Water Tower,Culture & History,Morning|Afternoon,outdoor,spring|summer|fall,clear|rainy,Walk across Europe's oldest wooden covered bridge adorned with 17th-century painted panels inside.,3
+Lucerne - Lake Lucerne Paddle Steamer Cruise,Lucerne,Lake Lucerne Paddle Steamer Cruise,Outdoor & Nature,Afternoon,outdoor,spring|summer,clear,Historic Belle Époque paddle steamer cruising the fjord-like lake surrounded by towering Alps.,3
+Lucerne - Mount Pilatus Golden Round Trip,Lucerne,Mount Pilatus Golden Round Trip,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Classic round-trip combining the world's steepest cogwheel railway and a panoramic cable car descent.,3
+Lucerne - Swiss Museum of Transport,Lucerne,Swiss Museum of Transport,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Switzerland's most visited museum covering the complete history of trains planes automobiles and space.,3
+Lucerne - Old Town & Lion Monument,Lucerne,Old Town & Lion Monument,Culture & History,Morning|Afternoon,outdoor,spring|summer|fall,clear|rainy,Explore Lucerne's painted facades and the deeply moving dying lion sculpture carved directly into rock.,3
+Lucerne - Fasnacht Carnival,Lucerne,Fasnacht Carnival,Nightlife & Entertainment,Morning|Afternoon|Evening,both,winter,any,One of Switzerland's wildest carnival celebrations with masked processions loud music and elaborate costumes.,3
+Lucerne - KKL Concert Evening,Lucerne,KKL Concert Evening,Culture & History,Evening,indoor,spring|summer|fall|winter,any,World-class classical music performance in Jean Nouvel's iconic lakeside concert hall.,3
+Lucerne - Mount Rigi Excursion,Lucerne,Mount Rigi Excursion,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,The Queen of the Mountains: cogwheel train or cable car to 1798m for sweeping views over six lakes.,3
+Lucerne - Gletschergarten,Lucerne,Gletschergarten,Culture & History,Morning|Afternoon,both,spring|summer|fall,clear|rainy,Glacier garden with 20-million-year-old rock potholes a mirror maze and a relief map of Switzerland.,3
+Lucerne - Lucerne Boat & Swim Day,Lucerne,Lucerne Boat & Swim Day,Outdoor & Nature,Afternoon,outdoor,summer,clear,Rent a paddleboat or kayak on the lake and swim from the public lido on the shores of the Vierwaldstättersee.,3
+Geneva - Jet d'Eau & Old Town,Geneva,Jet d'Eau & Old Town,Culture & History,Morning|Afternoon,outdoor,spring|summer,clear,Geneva's 140m water jet on the lake plus St. Peter's Cathedral and the Reformation Monument.,5
+Geneva - CERN Guided Tour,Geneva,CERN Guided Tour,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Free guided tour of the world's largest particle physics laboratory and birthplace of the web.,5
+Geneva - UN and Red Cross Museum,Geneva,UN and Red Cross Museum,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Guided tour of the Palais des Nations and the deeply moving International Red Cross Museum.,5
+Geneva - Lake Geneva Promenade,Geneva,Lake Geneva Promenade,Relaxation & Wellness,Morning|Afternoon|Evening,outdoor,spring|summer|fall,clear,Stroll the Quai du Mont-Blanc with flower clocks Alpine views and the famous lakeside fountain.,5
+Geneva - Carouge Neighbourhood & Nightlife,Geneva,Carouge Neighbourhood & Nightlife,Nightlife & Entertainment,Afternoon|Evening,both,spring|summer|fall|winter,any,Geneva's bohemian Sardinian quarter filled with independent boutiques cafés artists and lively bars.,5
+Geneva - Bains des Pâquis,Geneva,Bains des Pâquis,Relaxation & Wellness,Morning|Afternoon,outdoor,summer,clear,Open-air lakeside baths beloved by locals for swimming sunbathing and the weekend fondue brunch.,5
+Geneva - Patek Philippe Museum,Geneva,Patek Philippe Museum,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Extraordinary collection spanning five centuries of watchmaking history from Geneva's legendary manufacture.,5
+Geneva - Fine Dining in Eaux-Vives,Geneva,Fine Dining in Eaux-Vives,Food & Drink,Evening,indoor,spring|summer|fall|winter,any,Geneva's top gastronomic district with Michelin-starred restaurants and classic brasseries side by side.,5
+Geneva - E-Bike Panorama Tour,Geneva,E-Bike Panorama Tour,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Guided e-bike tour taking in the UN district the lake the Old Town and the flower clock in one loop.,5
+Geneva - Cheese & Chocolate Tasting Tour,Geneva,Cheese & Chocolate Tasting Tour,Food & Drink,Morning|Afternoon,both,spring|summer|fall|winter,any,Guided tasting walk through Geneva's food market and artisan shops sampling Swiss cheeses and chocolates.,5
+Geneva - City Boat & Sightseeing Tour,Geneva,City Boat & Sightseeing Tour,Culture & History,Afternoon,outdoor,spring|summer,clear,Guided boat tour around the harbour with commentary on Geneva's history and the lake's landmarks.,5
+Geneva - Chamonix Mont-Blanc Day Trip,Geneva,Chamonix Mont-Blanc Day Trip,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Full-day excursion to Chamonix with the Aiguille du Midi cable car and views of the Mont Blanc massif.,5
+Geneva - Museum of Art & History,Geneva,Museum of Art & History,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Geneva's largest museum with vast collections of fine art applied arts and archaeology.,5
+Geneva - Conservatory Botanic Garden,Geneva,Conservatory Botanic Garden,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Free botanic garden on the lakeside with deer deer enclosures glasshouses and a rose garden.,5
+Geneva - Plainpalais Flea Market,Geneva,Plainpalais Flea Market,Food & Drink,Morning,outdoor,spring|summer|fall,clear,Geneva's famous twice-weekly flea market where locals and dealers sell antiques clothes and curiosities.,5
+Geneva - Pâquis Bar & Nightlife,Geneva,Pâquis Bar & Nightlife,Nightlife & Entertainment,Evening,both,spring|summer|fall|winter,any,The Pâquis neighbourhood is Geneva's most cosmopolitan nightlife spot: diverse bars live music and clubs.,5
+Lausanne - Olympic Museum,Lausanne,Olympic Museum,Culture & History,Morning|Afternoon,both,spring|summer|fall|winter,any,The world's largest Olympic museum with immersive sport exhibitions and a lakeside sculpture park.,3
+Lausanne - Cathedral Notre-Dame,Lausanne,Cathedral Notre-Dame,Culture & History,Morning|Afternoon,both,spring|summer|fall|winter,any,Gothic cathedral with a medieval rosette window and a rooftop terrace with Alpine lake views.,3
+Lausanne - Ouchy Lakefront Promenade,Lausanne,Ouchy Lakefront Promenade,Relaxation & Wellness,Morning|Afternoon|Evening,outdoor,spring|summer|fall,clear,Lausanne's lakeside district with gardens boat rentals cycle paths and terraced restaurants.,3
+Lausanne - Collection de l'Art Brut,Lausanne,Collection de l'Art Brut,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Unique world-leading museum dedicated to visionary outsider and self-taught artists.,3
+Lausanne - Flon District Nightlife,Lausanne,Flon District Nightlife,Nightlife & Entertainment,Evening,indoor,spring|summer|fall|winter,any,Lausanne's converted industrial district packed with clubs bars concert venues and late-night food.,3
+Lausanne - E-Bike Lavaux Tour,Lausanne,E-Bike Lavaux Tour,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Guided e-bike ride through the UNESCO Lavaux vineyard terraces above the lake with stops for wine tasting.,3
+Lausanne - Platform 10 Arts District,Lausanne,Platform 10 Arts District,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,New arts district housing the Musée Cantonal des Beaux-Arts the Photo Elysée and MUDAC design museum.,3
+Lausanne - Lausanne Underground Tour,Lausanne,Lausanne Underground Tour,Culture & History,Morning|Afternoon,both,spring|summer|fall|winter,any,Guided tour through Lausanne's historic underground tunnels and the city's unique multilevel geography.,3
+Lausanne - Lausanne Evening Food Walk,Lausanne,Lausanne Evening Food Walk,Food & Drink,Evening,both,spring|summer|fall|winter,any,Guided evening tasting tour of Lausanne's best restaurants wine bars and artisan food shops.,3
+Montreux - Château de Chillon,Montreux,Château de Chillon,Culture & History,Morning|Afternoon,both,spring|summer|fall|winter,any,Switzerland's most visited monument: a stunning island castle on Lake Geneva immortalised by Lord Byron.,3
+Montreux - Montreux Jazz Festival,Montreux,Montreux Jazz Festival,Nightlife & Entertainment,Afternoon|Evening,both,summer,any,Legendary two-week music festival drawing world-class artists across all genres to the lakeside stage.,3
+Montreux - Lavaux Vineyard Terraces Walk,Montreux,Lavaux Vineyard Terraces Walk,Food & Drink,Morning|Afternoon,outdoor,spring|summer|fall,clear,Hike through UNESCO-listed terraced vineyards above the lake with wine tasting at local domaines.,3
+Montreux - Rochers-de-Naye Alpine Hike,Montreux,Rochers-de-Naye Alpine Hike,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Rack railway or hike to 2042m with marmots wildflowers and sweeping Alpine panoramas.,3
+Montreux - Riviera Promenade Stroll,Montreux,Riviera Promenade Stroll,Relaxation & Wellness,Morning|Afternoon|Evening,outdoor,spring|summer|fall,clear,Belle Époque waterfront walk lined with flowers statues palm trees and lakeside café terraces.,3
+Montreux - Freddie Mercury Walking Tour,Montreux,Freddie Mercury Walking Tour,Culture & History,Morning|Afternoon,outdoor,spring|summer|fall|winter,any,Follow the trail of Queen's frontman through Montreux: statue studios and the places he loved most.,3
+Montreux - Glacier 3000 Day Trip,Montreux,Glacier 3000 Day Trip,Outdoor & Nature,Morning|Afternoon,both,spring|summer|fall|winter,clear|snowy,Bus and cable car excursion to 3000m with a suspension bridge glacier walk and snow fun park.,3
+Montreux - Lake Riviera Boat Cruise,Montreux,Lake Riviera Boat Cruise,Outdoor & Nature,Afternoon,outdoor,spring|summer,clear,Scenic boat cruise along the Montreux Riviera past Chillon Castle and the flowering Lavaux shores.,3
+Montreux - Montreux Evening Bar Scene,Montreux,Montreux Evening Bar Scene,Nightlife & Entertainment,Evening,both,spring|summer|fall|winter,any,Montreux's lakeside bars and piano lounges make for a sophisticated and relaxed evening atmosphere.,3
+Zermatt - Matterhorn Glacier Paradise,Zermatt,Matterhorn Glacier Paradise,Outdoor & Nature,Morning|Afternoon,both,spring|summer|fall|winter,clear|snowy,Cable car to Europe's highest station at 3883m with glaciers an ice palace and 38 Alpine peaks in view.,5
+Zermatt - Skiing & Snowboarding,Zermatt,Skiing & Snowboarding,Adventure & Sports,Morning|Afternoon,outdoor,winter,clear|snowy,360km of world-famous ski runs from beginner to expert directly under the iconic Matterhorn.,5
+Zermatt - Gornergrat Railway,Zermatt,Gornergrat Railway,Outdoor & Nature,Morning|Afternoon,both,spring|summer|fall|winter,clear,Cogwheel train to 3089m overlooking 29 peaks above 4000m including Monte Rosa and the Matterhorn.,5
+Zermatt - Five Lakes Walk,Zermatt,Five Lakes Walk,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Classic 10km trail connecting five mountain lakes each perfectly reflecting the Matterhorn silhouette.,5
+Zermatt - Summer Alpine Hiking,Zermatt,Summer Alpine Hiking,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer,clear,Hundreds of kilometres of marked trails through high-altitude meadows glaciers and rocky ridgelines.,5
+Zermatt - Village Fondue Evening,Zermatt,Village Fondue Evening,Food & Drink,Afternoon|Evening,both,spring|summer|fall|winter,any,Classic Swiss fondue and raclette in Zermatt's charming car-free village restaurants and mountain chalets.,5
+Zermatt - Ski Touring & Off-Piste,Zermatt,Ski Touring & Off-Piste,Adventure & Sports,Morning|Afternoon,outdoor,winter|spring,clear|snowy,Guided ski touring through remote backcountry terrain above Zermatt with certified mountain guides.,5
+Zermatt - Breithorn Summit Tour,Zermatt,Breithorn Summit Tour,Adventure & Sports,Morning,outdoor,summer|fall,clear,Guided high-altitude ascent of the 4164m Breithorn: one of the most accessible 4000m peaks in the Alps.,5
+Zermatt - Glacier Hiking Tour,Zermatt,Glacier Hiking Tour,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer,clear,Guided walk on the Gorner Glacier with crampons and ice axes exploring crevasses and seracs.,5
+Zermatt - Via Ferrata Matterhorn,Zermatt,Via Ferrata Matterhorn,Adventure & Sports,Morning|Afternoon,outdoor,summer|fall,clear,Fixed-rope climbing route on the lower flanks of the Matterhorn with dramatic vertical rock faces.,5
+Zermatt - Snow Tubing & Snow Park,Zermatt,Snow Tubing & Snow Park,Adventure & Sports,Afternoon,outdoor,winter,clear|snowy,Fun snow tubing runs and beginner snow parks at the base of the ski area suitable for all ages.,5
+Zermatt - Matterhorn Museum Zermatlantis,Zermatt,Matterhorn Museum Zermatlantis,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Underground museum telling the story of Zermatt the first Matterhorn ascent and alpine village life.,5
+Zermatt - Mountain E-Bike Tour,Zermatt,Mountain E-Bike Tour,Adventure & Sports,Morning|Afternoon,outdoor,summer|fall,clear,Guided e-mountain bike tour on Zermatt's summer trail network with Matterhorn views throughout.,5
+Zermatt - Zermatt Nightlife & Après-Ski,Zermatt,Zermatt Nightlife & Après-Ski,Nightlife & Entertainment,Evening,both,spring|summer|fall|winter,any,Zermatt's compact village comes alive after dark with lively après-ski bars wine cellars and live music.,5
+Zermatt - Heliskiing Experience,Zermatt,Heliskiing Experience,Adventure & Sports,Morning,outdoor,winter|spring,clear|snowy,Helicopter drop on pristine off-piste terrain for an unforgettable private powder skiing experience.,5
+Interlaken - Skydiving over the Alps,Interlaken,Skydiving over the Alps,Adventure & Sports,Morning|Afternoon,outdoor,spring|summer|fall,clear,Tandem skydive from 4000m with a full view of Eiger Mönch and Jungfrau on the way down.,4
+Interlaken - Paragliding from Beatenberg,Interlaken,Paragliding from Beatenberg,Adventure & Sports,Morning|Afternoon,outdoor,spring|summer|fall,clear,Tandem paraglide from Beatenberg ridge soaring down to Interlaken with the Bernese Alps spread below.,4
+Interlaken - Jungfraujoch Top of Europe,Interlaken,Jungfraujoch Top of Europe,Outdoor & Nature,Morning|Afternoon,both,spring|summer|fall|winter,clear,Train journey to 3454m UNESCO site with an ice palace Aletsch glacier and a research station.,4
+Interlaken - Canyoning in Saxeten,Interlaken,Canyoning in Saxeten,Adventure & Sports,Morning|Afternoon,outdoor,spring|summer|fall,clear,Guided canyon descent with jumps slides and abseils through mountain gorges near Interlaken.,4
+Interlaken - Lake Thun & Brienz Cruise,Interlaken,Lake Thun & Brienz Cruise,Outdoor & Nature,Afternoon,outdoor,spring|summer,clear,Double-lake boat trip framed by turquoise waterfalls steep cliffs and the full Bernese Alps range.,4
+Interlaken - Bungee Jumping Stockhorn,Interlaken,Bungee Jumping Stockhorn,Adventure & Sports,Morning|Afternoon,outdoor,spring|summer|fall,clear,One of Europe's highest bungee jumps at 134m above a spectacular mountain gorge.,4
+Interlaken - Town Walk & Street Dining,Interlaken,Town Walk & Street Dining,Food & Drink,Afternoon|Evening,both,spring|summer|fall|winter,any,Relaxed evening along Höheweg promenade with Swiss and international dining options.,4
+Interlaken - River Rafting on the Lütschine,Interlaken,River Rafting on the Lütschine,Adventure & Sports,Morning|Afternoon,outdoor,spring|summer|fall,clear,White-water raft down the glacial Lütschine river with professional guides through Alpine gorges.,4
+Interlaken - Harder Kulm Viewpoint,Interlaken,Harder Kulm Viewpoint,Outdoor & Nature,Morning|Afternoon,both,spring|summer|fall,clear,Funicular to the Two Lakes Bridge at 1322m: the iconic split-view of Lake Thun and Lake Brienz.,4
+Interlaken - Canyon Swing Gletscherschlucht,Interlaken,Canyon Swing Gletscherschlucht,Adventure & Sports,Morning|Afternoon,outdoor,spring|summer|fall,clear,Free-fall swing into the glacier canyon gorge: one of the world's biggest adrenaline swings.,4
+Interlaken - Monster Scooter Mountain Descent,Interlaken,Monster Scooter Mountain Descent,Adventure & Sports,Morning|Afternoon,outdoor,spring|summer|fall,clear,Ride an oversized scooter down the mountain from Grindelwald First on a 4km winding descent.,4
+Interlaken - Interlaken Evening Bar Scene,Interlaken,Interlaken Evening Bar Scene,Nightlife & Entertainment,Evening,both,spring|summer|fall|winter,any,Interlaken has a buzzing après-adventure bar scene with outdoor terraces DJ nights and sports bars.,4
+Grindelwald - First Cliff Walk,Grindelwald,First Cliff Walk,Adventure & Sports,Morning|Afternoon,outdoor,spring|summer|fall,clear,Breathtaking suspended cliff walk at 2168m with direct views of the Eiger North Face and valley below.,4
+Grindelwald - Bachalpsee Hike,Grindelwald,Bachalpsee Hike,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Classic easy 2-hour hike to a mountain lake perfectly reflecting the Schreckhorn and Finsteraarhorn.,4
+Grindelwald - Skiing & Snowboarding,Grindelwald,Skiing & Snowboarding,Adventure & Sports,Morning|Afternoon,outdoor,winter,clear|snowy,Ski the Jungfrau Ski Region connecting Grindelwald Wengen and Mürren across 213km of pisted runs.,4
+Grindelwald - Eiger Trail Walk,Grindelwald,Eiger Trail Walk,Outdoor & Nature,Morning|Afternoon,outdoor,summer|fall,clear,Iconic trail skirting the base of the legendary Eiger North Face with up-close views of the rock wall.,4
+Grindelwald - Jungfraujoch Excursion,Grindelwald,Jungfraujoch Excursion,Outdoor & Nature,Morning|Afternoon,both,spring|summer|fall|winter,clear,Journey to the Top of Europe directly from Grindelwald Terminal on the V-Cableway gondola.,4
+Grindelwald - Alpine Cheese Fondue Evening,Grindelwald,Alpine Cheese Fondue Evening,Food & Drink,Afternoon|Evening,indoor,spring|summer|fall|winter,any,Traditional Swiss fondue in a cosy chalet restaurant with sweeping valley and mountain views.,4
+Grindelwald - First Flieger Zip Line,Grindelwald,First Flieger Zip Line,Adventure & Sports,Morning|Afternoon,outdoor,spring|summer|fall,clear,High-speed zip line from Grindelwald First over the valley with panoramic views of the Bernese Alps.,4
+Grindelwald - Männlichen Royal Walk,Grindelwald,Männlichen Royal Walk,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Europe's longest panoramic ridge walk with unobstructed views of Eiger Mönch and Jungfrau.,4
+Grindelwald - Glacier Canyon Walk,Grindelwald,Glacier Canyon Walk,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Guided walk through the dramatic Grindelwald glacier canyon with meltwater pools and rock formations.,4
+Grindelwald - Ski School & Lessons,Grindelwald,Ski School & Lessons,Adventure & Sports,Morning|Afternoon,outdoor,winter,clear|snowy,Private or group ski and snowboard lessons for all levels with certified instructors on the Grindelwald slopes.,4
+Grindelwald - Nighttime Sledding,Grindelwald,Nighttime Sledding,Nightlife & Entertainment,Evening,outdoor,winter,clear|snowy,Thrilling night sled run down the illuminated Grindelwald-First slope followed by a fondue dinner.,4
+Grindelwald - Grindelwald Village Walk & Craft Beer,Grindelwald,Grindelwald Village Walk & Craft Beer,Food & Drink,Afternoon|Evening,both,spring|summer|fall|winter,any,Stroll through Grindelwald village stopping at the local brewery and mountain taverns for regional craft beer.,4
+Davos - Skiing & Snowboarding Parsenn,Davos,Skiing & Snowboarding Parsenn,Adventure & Sports,Morning|Afternoon,outdoor,winter,clear|snowy,One of Switzerland's largest ski areas: 300km of runs spanning five interconnected mountains above Davos.,4
+Davos - Cross-Country Skiing,Davos,Cross-Country Skiing,Adventure & Sports,Morning|Afternoon,outdoor,winter,clear|snowy,75km of perfectly groomed cross-country ski trails through the wide high-altitude Davos valley.,4
+Davos - Mountain Biking,Davos,Mountain Biking,Adventure & Sports,Morning|Afternoon,outdoor,summer|fall,clear,600km of marked mountain bike trails from relaxed valley routes to technical downhill runs.,4
+Davos - Davosersee Lake Walk,Davos,Davosersee Lake Walk,Relaxation & Wellness,Morning|Afternoon,outdoor,spring|summer|fall,clear,Peaceful walk around the alpine lake with wellness stops wellness cafés and views of surrounding mountains.,4
+Davos - Kirchner Museum,Davos,Kirchner Museum,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Largest collection of Ernst Ludwig Kirchner's expressionist work in an award-winning purpose-built building.,4
+Davos - Schatzalp Spa & Wellness,Davos,Schatzalp Spa & Wellness,Relaxation & Wellness,Morning|Afternoon|Evening,indoor,spring|summer|fall|winter,any,Historic Art Nouveau sanatorium turned hotel with full spa treatments and panoramic mountain terraces.,4
+Davos - Paragliding Tandem Flight,Davos,Paragliding Tandem Flight,Adventure & Sports,Morning|Afternoon,outdoor,spring|summer|fall,clear,Tandem paraglide launching from the slopes above Davos with breathtaking views over the Landwasser valley.,4
+Davos - Fat Bike Snow Tour,Davos,Fat Bike Snow Tour,Adventure & Sports,Morning|Afternoon,outdoor,winter,clear|snowy,Guided fat bike tour on snow-covered trails through the Davos forest and along the frozen valley floor.,4
+Davos - Ice Skating on Natural Ice,Davos,Ice Skating on Natural Ice,Adventure & Sports,Morning|Afternoon,outdoor,winter,clear|snowy,Skate on one of Europe's largest natural outdoor ice rinks on the Davos lake when temperatures allow.,4
+Davos - Snowshoeing in Sertig Valley,Davos,Snowshoeing in Sertig Valley,Outdoor & Nature,Morning|Afternoon,outdoor,winter,clear|snowy,Guided snowshoe tour into the remote and spectacularly beautiful Sertig Valley above Davos.,4
+Davos - Davos Klosters Wine & Dine,Davos,Davos Klosters Wine & Dine,Food & Drink,Evening,indoor,spring|summer|fall|winter,any,Dinner at one of Davos's best mountain restaurants with local Graubünden specialities and regional wine.,4
+Davos - Davos Nightlife & Après-Ski,Davos,Davos Nightlife & Après-Ski,Nightlife & Entertainment,Evening,both,winter,any,Davos has a vibrant après-ski scene with live music bars hotel lounges and the famous Cabanna Club.,4
+St. Moritz - Skiing & Snowboarding Corviglia,St. Moritz,Skiing & Snowboarding Corviglia,Adventure & Sports,Morning|Afternoon,outdoor,winter,clear|snowy,Glamorous ski area with 350km of runs and the world's most legendary après-ski and mountain restaurant scene.,4
+St. Moritz - White Turf & Ice Events,St. Moritz,White Turf & Ice Events,Nightlife & Entertainment,Afternoon,outdoor,winter,clear|snowy,Unique events on the frozen St. Moritz lake: ice polo world cup and White Turf horse racing on ice.,4
+St. Moritz - Engadin Lake Walk,St. Moritz,Engadin Lake Walk,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Serene walks along the turquoise Engadin lakes surrounded by larch forests and snow-capped peaks.,4
+St. Moritz - Segantini Museum,St. Moritz,Segantini Museum,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Dedicated museum displaying the luminous Alpine landscapes of Giovanni Segantini in a domed stone building.,4
+St. Moritz - Fine Dining & Après-Ski,St. Moritz,Fine Dining & Après-Ski,Food & Drink,Afternoon|Evening,indoor,spring|summer|fall|winter,any,St. Moritz's world-class restaurant scene from Michelin-starred dining to rustic mountain hut cuisine.,4
+St. Moritz - Cresta Run & Bobsled,St. Moritz,Cresta Run & Bobsled,Adventure & Sports,Morning,outdoor,winter,clear|snowy,Ride the legendary 1200m Cresta toboggan run or join a guided pilot bobsled on the Olympic track.,4
+St. Moritz - Paragliding Tandem Engadin,St. Moritz,Paragliding Tandem Engadin,Adventure & Sports,Morning|Afternoon,outdoor,spring|summer|fall,clear,Tandem paraglide over the Engadin valley with views of the lake the peaks and the surrounding larch forests.,4
+St. Moritz - Diavolezza Glacier Hike,St. Moritz,Diavolezza Glacier Hike,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Cable car to 2978m followed by a guided glacier walk on the Pers Glacier with Bernina massif views.,4
+St. Moritz - Engadin E-Bike Tour,St. Moritz,Engadin E-Bike Tour,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Guided e-bike tour around the Engadin valley lakes and through the larch forests above St. Moritz.,4
+St. Moritz - Engadin Museum,St. Moritz,Engadin Museum,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Regional museum in a traditional Engadin house exploring the history art and culture of the Upper Engadin.,4
+St. Moritz - St. Moritz Nightlife & Casino,St. Moritz,St. Moritz Nightlife & Casino,Nightlife & Entertainment,Evening,indoor,spring|summer|fall|winter,any,St. Moritz glitters at night: the Casino the King's Social House and glamorous hotel bars set the scene.,4
+St. Moritz - Via Serlas Luxury Shopping,St. Moritz,Via Serlas Luxury Shopping,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Browse the luxury boutiques of Via Serlas: St. Moritz's answer to the Champs-Élysées in the Alps.,4
+Lugano - Lake Lugano Boat Trip,Lugano,Lake Lugano Boat Trip,Outdoor & Nature,Afternoon,outdoor,spring|summer,clear,Scenic cruise to Gandria fishing village and around Monte San Salvatore on the Italian-Swiss lake.,4
+Lugano - Monte San Salvatore Hike,Lugano,Monte San Salvatore Hike,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Hike or funicular to 912m with a dramatic 360-degree panorama over Lugano lake and the Alps.,4
+Lugano - Old Town & Piazza della Riforma,Lugano,Old Town & Piazza della Riforma,Culture & History,Morning|Afternoon|Evening,both,spring|summer|fall|winter,any,Lugano's pedestrianised piazza painted churches and arcaded lanes in the sunny Ticino capital.,4
+Lugano - MASI Art Museum,Lugano,MASI Art Museum,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Major contemporary and modern art museum in a restored Renaissance palazzo on the main square.,4
+Lugano - Gandria Village Walk,Lugano,Gandria Village Walk,Culture & History,Morning|Afternoon,outdoor,spring|summer|fall,clear,Picturesque car-free fishing village clinging to a steep hillside above the lake reached by boat.,4
+Lugano - Aperitivo & Cocktail Bar Scene,Lugano,Aperitivo & Cocktail Bar Scene,Nightlife & Entertainment,Evening,both,spring|summer|fall|winter,any,Lugano's elegant Italian-influenced aperitivo scene in rooftop bars and lakefront terraces.,4
+Lugano - Parco Civico Lakefront Stroll,Lugano,Parco Civico Lakefront Stroll,Relaxation & Wellness,Morning|Afternoon,outdoor,spring|summer|fall,clear,Relaxing walk through Lugano's lakeside public park with exotic plants sculptures and swans.,4
+Lugano - Monte Brè Funicular & Summit,Lugano,Monte Brè Funicular & Summit,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Steep funicular to 925m Monte Brè: the sunniest mountain in Switzerland with a charming summit village.,4
+Lugano - Swissminiatur,Lugano,Swissminiatur,Culture & History,Morning|Afternoon,outdoor,spring|summer|fall,clear,Outdoor park featuring 1:25 scale replicas of Switzerland's most famous buildings bridges and landmarks.,4
+Lugano - Hermann Hesse Museum,Lugano,Hermann Hesse Museum,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Museum in Montagnola dedicated to Nobel Prize-winning author Hermann Hesse who lived his last years in Ticino.,4
+Lugano - Brissago Islands Day Trip,Lugano,Brissago Islands Day Trip,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer,clear,Boat trip to the subtropical botanical gardens on the Brissago Islands in Lake Maggiore.,4
+Lugano - Lugano Nightlife & Clubs,Lugano,Lugano Nightlife & Clubs,Nightlife & Entertainment,Evening,indoor,spring|summer|fall|winter,any,Lugano has a surprisingly lively nightlife: rooftop bars club nights and live jazz in the Old Town.,4
+Locarno - Locarno Film Festival,Locarno,Locarno Film Festival,Culture & History,Afternoon|Evening,outdoor,summer,any,International festival screening blockbusters and arthouse films on the giant Piazza Grande outdoor screen.,3
+Locarno - Madonna del Sasso Sanctuary,Locarno,Madonna del Sasso Sanctuary,Culture & History,Morning|Afternoon,both,spring|summer|fall|winter,any,Pilgrimage church high above the town reachable by funicular with sweeping views over Lake Maggiore.,3
+Locarno - Lake Maggiore Beach,Locarno,Lake Maggiore Beach,Relaxation & Wellness,Morning|Afternoon,outdoor,spring|summer,clear,Palm-lined lakeside beaches with a warm Mediterranean microclimate: swimming sunbathing and paddling.,3
+Locarno - Cardada-Cimetta Hike,Locarno,Cardada-Cimetta Hike,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Cable car and chairlift to 1672m followed by alpine meadow walks with lake panoramas.,3
+Locarno - Old Town & Evening Piazzas,Locarno,Old Town & Evening Piazzas,Culture & History,Morning|Afternoon|Evening,both,spring|summer|fall|winter,any,Arcaded streets Visconti castle ruins and vibrant evening piazzas in Ticino's Italian-speaking canton.,3
+Locarno - Centovalli Railway,Locarno,Centovalli Railway,Culture & History,Morning|Afternoon,both,spring|summer|fall|winter,any,Scenic narrow-gauge train through the Hundred Valleys to Domodossola: one of Europe's most beautiful rail journeys.,3
+Locarno - Brissago Islands Boat Trip,Locarno,Brissago Islands Boat Trip,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer,clear,Boat trip to the subtropical botanical gardens on the Brissago Islands in the middle of Lake Maggiore.,3
+Locarno - Verzasca Valley & Bungee Jump,Locarno,Verzasca Valley & Bungee Jump,Adventure & Sports,Morning|Afternoon,outdoor,spring|summer|fall,clear,Drive to the emerald Verzasca river valley for wild swimming or the famous 220m Verzasca Dam bungee jump.,3
+Locarno - Locarno Bar & Piazza Nightlife,Locarno,Locarno Bar & Piazza Nightlife,Nightlife & Entertainment,Evening,both,spring|summer|fall|winter,any,Locarno's piazzas fill up at night with aperitivo bars wine terraces and occasional live music events.,3
+St. Gallen - Abbey Library,St. Gallen,Abbey Library,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,One of the world's oldest and most beautiful Baroque libraries: a UNESCO World Heritage site.,3
+St. Gallen - Old Town Walking Tour,St. Gallen,Old Town Walking Tour,Culture & History,Morning|Afternoon,outdoor,spring|summer|fall,clear|rainy,Explore the oriel-windowed buildings and market squares of the prosperous medieval textile city.,3
+St. Gallen - Textile Museum,St. Gallen,Textile Museum,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Traces St. Gallen's centuries-old embroidery and lace heritage that once clothed European royalty.,3
+St. Gallen - Säntis Mountain Hike,St. Gallen,Säntis Mountain Hike,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Cable car or serious hike to 2502m: the highest peak in eastern Switzerland with seven-country views.,3
+St. Gallen - Bratwurst & Local Food Evening,St. Gallen,Bratwurst & Local Food Evening,Food & Drink,Afternoon|Evening,both,spring|summer|fall|winter,any,The famous St. Gallen white sausage served with bread and mustard — a local staple not to miss.,3
+St. Gallen - Smartphone City Scavenger Hunt,St. Gallen,Smartphone City Scavenger Hunt,Culture & History,Morning|Afternoon,outdoor,spring|summer|fall,clear|rainy,Interactive self-guided city game using your phone to solve riddles and discover St. Gallen's hidden gems.,3
+St. Gallen - Hot Air Balloon Flight Ostschweiz,St. Gallen,Hot Air Balloon Flight Ostschweiz,Outdoor & Nature,Morning,outdoor,spring|summer|fall,clear,Private hot air balloon flight over eastern Switzerland and the Rhine valley at sunrise.,3
+St. Gallen - Bodensee Day Trip,St. Gallen,Bodensee Day Trip,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer,clear,Short train ride to Lake Constance for a lakeside stroll boat trip and the charming old town of Konstanz.,3
+St. Gallen - St. Gallen Nightlife & Bars,St. Gallen,St. Gallen Nightlife & Bars,Nightlife & Entertainment,Evening,both,spring|summer|fall|winter,any,St. Gallen's Old Town has a lively student-driven bar scene with wine bars cocktail lounges and club nights.,3
+Appenzell - Village & Town Hall Square,Appenzell,Village & Town Hall Square,Culture & History,Morning|Afternoon,outdoor,spring|summer|fall,clear|rainy,Colourful painted facades folk art shops and the Landsgemeinde square of Switzerland's most traditional canton.,3
+Appenzell - Ebenalp Hike & Wildkirchli Caves,Appenzell,Ebenalp Hike & Wildkirchli Caves,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Hike to 1644m cliff-face hermit caves and a mountain guesthouse with dramatic valley panoramas.,3
+Appenzell - Seealpsee Alpine Lake Walk,Appenzell,Seealpsee Alpine Lake Walk,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Gentle walk to a pristine alpine lake nestled in the Alpstein massif surrounded by steep cliff walls.,3
+Appenzell - Appenzell Museum,Appenzell,Appenzell Museum,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Folk art traditional costumes and the unusual political history of Switzerland's smallest full canton.,3
+Appenzell - Cheese & Schnapps Tasting,Appenzell,Cheese & Schnapps Tasting,Food & Drink,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Taste the region's pungent Appenzeller cheese and fiery local herbal schnapps direct from the dairy.,3
+Appenzell - Kronberg Toboggan Run,Appenzell,Kronberg Toboggan Run,Adventure & Sports,Morning|Afternoon,outdoor,spring|summer|fall|winter,clear|snowy,Europe's longest natural toboggan run at 4km winding down from the Kronberg mountain above Appenzell.,3
+Appenzell - Hoher Kasten Cable Car,Appenzell,Hoher Kasten Cable Car,Outdoor & Nature,Morning|Afternoon,both,spring|summer|fall,clear,Revolving cable car to 1794m summit with a rotating restaurant and views over seven countries.,3
+Appenzell - Göppelsberg Panorama Hike,Appenzell,Göppelsberg Panorama Hike,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Quiet and rewarding hike above Appenzell village with ridge-top views over the rolling Appenzellerland.,3
+Appenzell - Appenzell Evening & Local Pub,Appenzell,Appenzell Evening & Local Pub,Food & Drink,Evening,indoor,spring|summer|fall|winter,any,Spend the evening in one of Appenzell's traditional painted wooden inns with local beer and Appenzeller cuisine.,3
+Chur - Old Town Walk,Chur,Old Town Walk,Culture & History,Morning|Afternoon,outdoor,spring|summer|fall,clear|rainy,Switzerland's oldest city: Roman ruins medieval lanes the Bishop's Court and cobblestone market squares.,3
+Chur - Chur Cathedral,Chur,Chur Cathedral,Culture & History,Morning|Afternoon,both,spring|summer|fall|winter,any,Romanesque cathedral with a remarkable 15th-century carved altarpiece in the old diocesan capital.,3
+Chur - Rhaetische Bahn Scenic Train,Chur,Rhaetische Bahn Scenic Train,Culture & History,Morning|Afternoon,both,spring|summer|fall|winter,any,UNESCO World Heritage narrow-gauge railway through the Rhine Gorge and Albula pass with vertiginous viaducts.,3
+Chur - Brambrüesch Skiing,Chur,Brambrüesch Skiing,Adventure & Sports,Morning|Afternoon,outdoor,winter,clear|snowy,Local ski area with a gondola departing directly from the city: family-friendly runs above the rooftops of Chur.,3
+Chur - Calanda Mountain Hike,Chur,Calanda Mountain Hike,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Challenging hike up Chur's home mountain to 2805m with sweeping views over the Rhine valley below.,3
+Chur - Pinot Noir Wine Bar Evening,Chur,Pinot Noir Wine Bar Evening,Food & Drink,Evening,indoor,spring|summer|fall|winter,any,Graubünden is Switzerland's top Pinot Noir region — taste it in Chur's cosy wine bars and cellars.,3
+Chur - Rhine Gorge Ruinaulta Hike,Chur,Rhine Gorge Ruinaulta Hike,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Hike through the Swiss Grand Canyon: a dramatic Rhine Gorge with white rock walls and turquoise water.,3
+Chur - Chur E-Bike City Tour,Chur,Chur E-Bike City Tour,Outdoor & Nature,Morning|Afternoon,outdoor,spring|summer|fall,clear,Guided e-bike tour of Chur's old quarters the Rhine embankment and the surrounding vineyard slopes.,3
+Chur - Chur Museum of Fine Arts,Chur,Chur Museum of Fine Arts,Culture & History,Morning|Afternoon,indoor,spring|summer|fall|winter,any,Regional art museum with a focus on Graubünden artists and rotating contemporary exhibitions.,3
