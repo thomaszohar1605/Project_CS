@@ -213,15 +213,15 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ── Activity Map ───────────────────────────────────────────────────────────────
+# ── Activity Map ──────────────────────────────────────────────────────────────
 import pathlib
 try:
     _CSV = pathlib.Path(__file__).resolve().parent / "locations.csv"
 except NameError:
     _CSV = pathlib.Path("locations.csv")
-df = pd.read_csv(_CSV)
+df_raw = pd.read_csv(_CSV)
 
-st.markdown('<div class="step-heading">📍 Activity Locations across Switzerland</div>', unsafe_allow_html=True)
+st.markdown('<div class="step-heading">📍 Activities across Switzerland</div>', unsafe_allow_html=True)
 
 st.pydeck_chart(pdk.Deck(
     initial_view_state=pdk.ViewState(
@@ -233,9 +233,9 @@ st.pydeck_chart(pdk.Deck(
     layers=[
         pdk.Layer(
             "ScatterplotLayer",
-            data=df,
+            data=df_raw,
             get_position="[lon, lat]",
-            get_radius=75,
+            get_radius=1500,
             get_color=[220, 38, 38, 200],
             get_line_color=[255, 255, 255],
             stroked=True,
@@ -244,7 +244,7 @@ st.pydeck_chart(pdk.Deck(
         )
     ],
     tooltip={
-        "html": "{name}",
+        "html": "<b>{activity_name}</b><br/>{city}<br/><i>{category}</i>",
         "style": {"color": "white", "backgroundColor": "#000205", "padding": "6px 10px", "borderRadius": "6px"},
     },
 ))
