@@ -5,6 +5,8 @@ import random
 import pandas as pd
 import streamlit as st
 
+from weather import get_weather   # ← our small weather helper
+
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
 # ── Constants ──────────────────────────────────────────────────────────────────
@@ -28,6 +30,23 @@ SLOT_ICONS   = {"Morning": "🌅", "Afternoon": "☀️", "Evening": "🌙"}
 @st.cache_data
 def load_activities() -> pd.DataFrame:
     return pd.read_csv(os.path.join(_HERE, "locations.csv"))
+
+
+# ── Weather helper ────────────────────────────────────────────────────────────
+# Looks up a city's coordinates in our CSV, then asks Open-Meteo for the
+# forecast. The @st.cache_data line means Streamlit only calls the API
+# once per (city, num_days) combination — even if the page reruns.
+
+@st.cache_data(ttl=3600)   # cache the result for 1 hour
+def get_city_forecast(city: str, num_days: int) -> list[dict]:
+    df = load_activities()
+    rows_for_city = df[df["city"] == city]
+    if rows_for_city.empty:
+        return []
+    # Use the first activity's coordinates as the city's location.
+    lat = float(rows_for_city.iloc[0]["lat"])
+    lon = float(rows_for_city.iloc[0]["lon"])
+    return get_weather(lat, lon, num_days)
 
 
 def get_cities(df: pd.DataFrame) -> list[str]:
@@ -190,6 +209,9 @@ def step_itinerary() -> None:
         unsafe_allow_html=True,
     )
 
+    # Get the weather forecast for the chosen city, one entry per day.
+    forecast = get_city_forecast(city, num_days)
+
     # Timetable — lay days out in columns (max 3 per row)
     for row_start in range(0, num_days, 3):
         days_in_row = itinerary[row_start : row_start + 3]
@@ -200,6 +222,21 @@ def step_itinerary() -> None:
                     f'<div class="tt-header">Day {day_plan["day"]}</div>',
                     unsafe_allow_html=True,
                 )
+
+                # Show the weather for this day, if we have it.
+                # day_plan["day"] starts at 1, so the index is day - 1.
+                day_index = day_plan["day"] - 1
+                if day_index < len(forecast):
+                    w = forecast[day_index]
+                    col.markdown(
+                        f'<div style="font-size:0.85rem; color:#1a3a5c; '
+                        f'margin-bottom:0.5rem;">'
+                        f'{w["label"]} · {w["min"]}°/{w["max"]}°C · '
+                        f'rain {w["rain"]} mm'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
+
                 for slot, activity in day_plan["slots"].items():
                     is_free = activity.startswith("Free time")
                     css = "tt-free" if is_free else SLOT_CLASSES[slot]
