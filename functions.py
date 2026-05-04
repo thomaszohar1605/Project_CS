@@ -1,18 +1,15 @@
-from __future__ import annotations
-
 import os
 import random
 import pandas as pd
 import streamlit as st
 from ml_rating import save_rating, predict_rating, get_model_accuracy
+from weather import get_weather
 
-from weather import get_weather   # ← our small weather helper
+# This is the folder where our Python file lives
+# We use it to find the locations.csv file
+FOLDER = os.path.dirname(os.path.abspath(__file__))
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-
-# ── Constants ──────────────────────────────────────────────────────────────────
-
-# Loaded dynamically from the CSV so the list is always in sync
+# The 6 activity categories we support
 CATEGORIES = [
     "Outdoor & Nature",
     "Culture & History",
@@ -22,194 +19,285 @@ CATEGORIES = [
     "Adventure & Sports",
 ]
 
+# The 3 time slots of a day
 SLOTS = ["Morning", "Afternoon", "Evening"]
-SLOT_CLASSES = {"Morning": "tt-morning", "Afternoon": "tt-afternoon", "Evening": "tt-evening"}
-SLOT_ICONS   = {"Morning": "🌅", "Afternoon": "☀️", "Evening": "🌙"}
 
-# ── Helpers ────────────────────────────────────────────────────────────────────
+# CSS class for each slot (used for colouring in the timetable)
+SLOT_CLASSES = {
+    "Morning":   "tt-morning",
+    "Afternoon": "tt-afternoon",
+    "Evening":   "tt-evening",
+}
 
+# Emoji icon for each slot
+SLOT_ICONS = {
+    "Morning":   "🌅",
+    "Afternoon": "☀️",
+    "Evening":   "🌙",
+}
+
+
+# ------------------------------------------------------------------
+# Load the CSV file that contains all activities
+# @st.cache_data means Streamlit only reads the file once,
+# not every time the page refreshes
+# ------------------------------------------------------------------
 @st.cache_data
-def load_activities() -> pd.DataFrame:
-    return pd.read_csv(os.path.join(_HERE, "locations.csv"))
+def load_activities():
+    file_path = os.path.join(FOLDER, "locations.csv")
+    df = pd.read_csv(file_path)
+    return df
 
 
-# ── Weather helper ────────────────────────────────────────────────────────────
-# Looks up a city's coordinates in our CSV, then asks Open-Meteo for the
-# forecast. The @st.cache_data line means Streamlit only calls the API
-# once per (city, num_days) combination — even if the page reruns.
-
-@st.cache_data(ttl=3600)   # cache the result for 1 hour
-def get_city_forecast(city: str, num_days: int) -> list[dict]:
+# ------------------------------------------------------------------
+# Get the weather forecast for a city
+# We look up the city's coordinates in the CSV,
+# then call the weather API
+# The result is cached for 1 hour so we don't call the API too often
+# ------------------------------------------------------------------
+@st.cache_data(ttl=3600)
+def get_city_forecast(city, num_days):
     df = load_activities()
-    rows_for_city = df[df["city"] == city]
-    if rows_for_city.empty:
+
+    # Find the rows for this city
+    city_rows = df[df["city"] == city]
+
+    # If the city is not in the CSV, return an empty list
+    if city_rows.empty:
         return []
-    lat = float(rows_for_city.iloc[0]["lat"])
-    lon = float(rows_for_city.iloc[0]["lon"])
+
+    # Take the latitude and longitude from the first row
+    lat = float(city_rows.iloc[0]["lat"])
+    lon = float(city_rows.iloc[0]["lon"])
+
+    # Call the weather API and return the forecast
     return get_weather(lat, lon, num_days)
 
 
-def _is_rainy(label: str) -> bool:
-    """Return True if a weather label means it's better to stay indoors."""
-    label = label.lower()
-    return any(word in label for word in ("rain", "drizzle", "snow", "storm", "thunder"))
+# ------------------------------------------------------------------
+# Check if the weather is bad (rainy, snowy, stormy...)
+# Returns True if it's better to stay indoors
+# ------------------------------------------------------------------
+def is_bad_weather(weather_label):
+    bad_words = ["rain", "drizzle", "snow", "storm", "thunder"]
+    weather_label = weather_label.lower()
+    for word in bad_words:
+        if word in weather_label:
+            return True
+    return False
 
 
-def get_cities(df: pd.DataFrame) -> list[str]:
-    """Return sorted list of cities from the CSV."""
-    return sorted(df["city"].dropna().unique().tolist())
+# ------------------------------------------------------------------
+# Return a sorted list of all cities in the CSV
+# ------------------------------------------------------------------
+def get_cities(df):
+    cities = df["city"].dropna().unique().tolist()
+    cities = sorted(cities)
+    return cities
 
 
-def city_activities(df: pd.DataFrame, city: str) -> pd.DataFrame:
-    """Return all activities for the chosen city."""
-    return df[df["city"] == city].reset_index(drop=True)
+# ------------------------------------------------------------------
+# Return only the activities for the chosen city
+# ------------------------------------------------------------------
+def city_activities(df, city):
+    filtered = df[df["city"] == city]
+    filtered = filtered.reset_index(drop=True)
+    return filtered
 
 
-def filter_by_preferences(activities: pd.DataFrame, prefs: list[str]) -> pd.DataFrame:
-    """Keep only rows whose category matches one of the selected preferences."""
-    if not prefs:
+# ------------------------------------------------------------------
+# Keep only activities that match the user's chosen categories
+# If nothing matches (or no preference chosen), return everything
+# ------------------------------------------------------------------
+def filter_by_preferences(activities, prefs):
+    # If the user didn't pick any preference, return all activities
+    if len(prefs) == 0:
         return activities
+
+    # Keep only rows where the category is in the user's list
     filtered = activities[activities["category"].isin(prefs)]
-    return filtered if not filtered.empty else activities   # fall back if nothing matches
+
+    # If the filter removed everything, fall back to all activities
+    if filtered.empty:
+        return activities
+
+    return filtered
 
 
-def _best_slot(time_slot_str: str) -> str:
-    """Pick the first slot listed in the activity's time_slot field."""
-    if pd.isna(time_slot_str):
+# ------------------------------------------------------------------
+# Find the best time slot for an activity
+# The CSV has a "time_slot" column like "Morning|Afternoon"
+# We pick the first one we recognise
+# ------------------------------------------------------------------
+def get_best_slot(time_slot_value):
+    # If there's no value, pick a random slot
+    if pd.isna(time_slot_value):
         return random.choice(SLOTS)
-    parts = [s.strip() for s in str(time_slot_str).split("|")]
+
+    # Split by "|" to get a list of slots e.g. ["Morning", "Afternoon"]
+    parts = str(time_slot_value).split("|")
+    parts = [p.strip() for p in parts]
+
+    # Return the first slot that matches our list
     for slot in SLOTS:
         if slot in parts:
             return slot
+
+    # If nothing matched, pick randomly
     return random.choice(SLOTS)
 
 
-def _pick_activity(
-    bucket: list[dict],
-    used: set,
-    preferred: str,
-    strict: bool,
-) -> dict | None:
-    """
-    Find one unused activity from `bucket`.
+# ------------------------------------------------------------------
+# Build a day-by-day itinerary
+# Each day has Morning, Afternoon, Evening slots
+# We try to respect the weather (indoor on rainy days, outdoor on sunny days)
+# ------------------------------------------------------------------
+def build_itinerary(activities, num_days, forecast):
+    # Shuffle the activities so the order is random each time
+    activities = activities.sample(frac=1).reset_index(drop=True)
 
-    If `strict` is True, only return an activity that matches the weather
-    (`preferred` is "indoor" or "outdoor"; "both" is always accepted).
-    If `strict` is False, return any unused activity.
-    """
-    for row in bucket:
-        if row["activity_name"] in used:
-            continue
-        setting = str(row.get("indoor_outdoor", "")).lower()
-        if setting == preferred or setting == "both":
-            return row
+    # Convert the DataFrame to a list of dictionaries (easier to work with)
+    all_rows = activities.to_dict("records")
 
-    if strict:
-        return None
+    # Sort activities into buckets by their best time slot
+    # e.g. buckets["Morning"] = [list of morning activities]
+    buckets = {
+        "Morning":   [],
+        "Afternoon": [],
+        "Evening":   [],
+    }
+    for row in all_rows:
+        best_slot = get_best_slot(row.get("time_slot", ""))
+        buckets[best_slot].append(row)
 
-    # Loose fallback: take whatever is still unused.
-    for row in bucket:
-        if row["activity_name"] not in used:
-            return row
-    return None
+    # This set keeps track of activities we already placed
+    # so we don't repeat the same activity twice
+    already_used = set()
 
+    # This will be our final itinerary: a list of day plans
+    itinerary = []
 
-def build_itinerary(
-    activities: pd.DataFrame,
-    num_days: int,
-    forecast: list[dict] | None = None,
-) -> list[dict]:
-    """Assign activities to morning/afternoon/evening slots across num_days.
-
-    If a `forecast` is given, prefers INDOOR activities on rainy days
-    and OUTDOOR activities on clear days. Falls back to any activity
-    only if no weather-matching one is left.
-    """
-    if forecast is None:
-        forecast = []
-
-    # Shuffle activities and bucket them by their preferred time slot.
-    rows = activities.sample(frac=1).to_dict("records")
-    buckets: dict[str, list[dict]] = {s: [] for s in SLOTS}
-    for row in rows:
-        buckets[_best_slot(row.get("time_slot", ""))].append(row)
-
-    itinerary: list[dict] = []
-    used: set = set()   # activity names we've already placed
-
-    for day in range(1, num_days + 1):
-        # 1. Decide if this day should be indoor or outdoor.
-        day_index = day - 1
-        if day_index < len(forecast) and _is_rainy(forecast[day_index]["label"]):
-            preferred = "indoor"     # rainy day → stay inside
+    for day_number in range(1, num_days + 1):
+        # Check if this day is rainy or sunny
+        day_index = day_number - 1
+        if day_index < len(forecast) and is_bad_weather(forecast[day_index]["label"]):
+            prefer_indoor = True   # bad weather → stay inside
         else:
-            preferred = "outdoor"    # nice day → enjoy outside
+            prefer_indoor = False  # good weather → go outside
 
-        day_plan: dict[str, str] = {}
+        # Build the plan for this day (one activity per slot)
+        day_plan = {}
+
         for slot in SLOTS:
-            # 2. First try the slot's own bucket (strict: weather must match).
-            chosen = _pick_activity(buckets[slot], used, preferred, strict=True)
+            chosen_activity = None
 
-            # 3. Then try other buckets (still strict).
-            if chosen is None:
-                for other_slot in SLOTS:
-                    chosen = _pick_activity(buckets[other_slot], used, preferred, strict=True)
-                    if chosen is not None:
+            # Step 1: Try to find an activity in the right slot
+            # that also matches the weather preference
+            for row in buckets[slot]:
+                name = row["activity_name"]
+                setting = str(row.get("indoor_outdoor", "")).lower()
+
+                if name in already_used:
+                    continue  # skip activities we already used
+
+                if prefer_indoor and (setting == "indoor" or setting == "both"):
+                    chosen_activity = row
+                    break
+                elif not prefer_indoor and (setting == "outdoor" or setting == "both"):
+                    chosen_activity = row
+                    break
+
+            # Step 2: If we didn't find one, try all slots (still matching weather)
+            if chosen_activity is None:
+                for any_slot in SLOTS:
+                    for row in buckets[any_slot]:
+                        name = row["activity_name"]
+                        setting = str(row.get("indoor_outdoor", "")).lower()
+
+                        if name in already_used:
+                            continue
+
+                        if prefer_indoor and (setting == "indoor" or setting == "both"):
+                            chosen_activity = row
+                            break
+                        elif not prefer_indoor and (setting == "outdoor" or setting == "both"):
+                            chosen_activity = row
+                            break
+
+                    if chosen_activity is not None:
                         break
 
-            # 4. Last resort: take anything unused, even if weather doesn't match.
-            if chosen is None:
-                for other_slot in SLOTS:
-                    chosen = _pick_activity(buckets[other_slot], used, preferred, strict=False)
-                    if chosen is not None:
+            # Step 3: Last resort — just take any unused activity
+            if chosen_activity is None:
+                for any_slot in SLOTS:
+                    for row in buckets[any_slot]:
+                        name = row["activity_name"]
+                        if name not in already_used:
+                            chosen_activity = row
+                            break
+                    if chosen_activity is not None:
                         break
 
-            if chosen is not None:
-                day_plan[slot] = chosen["activity_name"]
-                used.add(chosen["activity_name"])
+            # Save the result for this slot
+            if chosen_activity is not None:
+                day_plan[slot] = chosen_activity["activity_name"]
+                already_used.add(chosen_activity["activity_name"])
             else:
                 day_plan[slot] = "Free time — explore at your own pace"
 
-        itinerary.append({"day": day, "slots": day_plan})
+        # Add this day to the itinerary
+        itinerary.append({"day": day_number, "slots": day_plan})
 
     return itinerary
 
 
-# ── Progress bar ───────────────────────────────────────────────────────────────
-
-def render_progress(current_step: int) -> None:
+# ------------------------------------------------------------------
+# Draw the progress bar at the top of the page
+# Shows which step the user is on (1, 2, or 3)
+# ------------------------------------------------------------------
+def render_progress(current_step):
     steps = ["1 · Destination", "2 · Preferences", "3 · Your Itinerary"]
-    cols = st.columns(len(steps))
-    for i, (col, label) in enumerate(zip(cols, steps)):
-        step_num = i + 1
-        if step_num < current_step:
-            css = "prog-step done"
-        elif step_num == current_step:
-            css = "prog-step current"
+    cols = st.columns(3)
+
+    for i in range(3):
+        step_number = i + 1
+        label = steps[i]
+
+        if step_number < current_step:
+            css_class = "prog-step done"      # already completed
+        elif step_number == current_step:
+            css_class = "prog-step current"   # currently on this step
         else:
-            css = "prog-step"
-        col.markdown(f'<div class="{css}">{label}</div>', unsafe_allow_html=True)
+            css_class = "prog-step"           # not reached yet
+
+        cols[i].markdown(f'<div class="{css_class}">{label}</div>', unsafe_allow_html=True)
+
     st.write("")
 
 
-# ── Step renderers ─────────────────────────────────────────────────────────────
-
-def step_destination() -> None:
+# ------------------------------------------------------------------
+# STEP 1 — Ask the user where they want to go and for how many days
+# ------------------------------------------------------------------
+def step_destination():
     render_progress(1)
-    st.markdown('<div class="step-heading">Where are you heading?</div>', unsafe_allow_html=True)
-    st.markdown('<div class="step-caption">Pick a Swiss destination and how many days you have.</div>',
-                unsafe_allow_html=True)
 
+    st.markdown('<div class="step-heading">Where are you heading?</div>', unsafe_allow_html=True)
+    st.markdown('<div class="step-caption">Pick a Swiss destination and how many days you have.</div>', unsafe_allow_html=True)
+
+    # Load the data and get the list of cities
     df = load_activities()
     cities = get_cities(df)
 
+    # Show the dropdowns side by side
     col1, col2 = st.columns([2, 1])
     with col1:
-        city = st.selectbox("Destination", cities, index=0)
+        city = st.selectbox("Destination", cities)
     with col2:
-        num_days = st.selectbox("Number of days", list(range(1, 8)), index=2)
+        num_days = st.selectbox("Number of days", [1, 2, 3, 4, 5, 6, 7], index=2)
 
     st.write("")
+
+    # When the user clicks Next, save their choices and go to step 2
     if st.button("Next →"):
         st.session_state["city"] = city
         st.session_state["num_days"] = num_days
@@ -217,60 +305,81 @@ def step_destination() -> None:
         st.rerun()
 
 
-def step_preferences() -> None:
+# ------------------------------------------------------------------
+# STEP 2 — Ask the user what kind of activities they enjoy
+# ------------------------------------------------------------------
+def step_preferences():
     render_progress(2)
-    st.markdown('<div class="step-heading">What do you enjoy?</div>', unsafe_allow_html=True)
-    st.markdown('<div class="step-caption">Choose one or more activity types — or skip to include everything.</div>',
-                unsafe_allow_html=True)
 
-    prefs = []
+    st.markdown('<div class="step-heading">What do you enjoy?</div>', unsafe_allow_html=True)
+    st.markdown('<div class="step-caption">Choose one or more activity types — or skip to include everything.</div>', unsafe_allow_html=True)
+
+    # Show checkboxes in 3 columns
+    selected_prefs = []
     cols = st.columns(3)
-    for i, category in enumerate(CATEGORIES):
-        with cols[i % 3]:
-            if st.checkbox(category, value=False):
-                prefs.append(category)
+
+    for i in range(len(CATEGORIES)):
+        category = CATEGORIES[i]
+        col = cols[i % 3]  # puts items into columns 0, 1, 2, 0, 1, 2, ...
+        with col:
+            if st.checkbox(category):
+                selected_prefs.append(category)
 
     st.write("")
+
     col_back, col_next = st.columns([1, 5])
+
     with col_back:
         if st.button("← Back"):
             st.session_state["step"] = 1
             st.rerun()
+
     with col_next:
         if st.button("Build my itinerary →"):
-            st.session_state["prefs"] = prefs
-            # Build itinerary now so it stays stable on re-renders
+            # Save the preferences
+            st.session_state["prefs"] = selected_prefs
+
+            # Load activities for the chosen city
             df = load_activities()
             acts = city_activities(df, st.session_state["city"])
+
+            # If somehow there are no activities, use all activities as a backup
             if acts.empty:
-                acts = df  # fallback: use all activities
-            acts = filter_by_preferences(acts, prefs)
+                acts = df
 
-            # Get the weather forecast so the itinerary can adapt to it.
-            forecast = get_city_forecast(
-                st.session_state["city"], st.session_state["num_days"]
-            )
+            # Filter by the user's preferences
+            acts = filter_by_preferences(acts, selected_prefs)
 
-            st.session_state["itinerary"] = build_itinerary(
-                acts, st.session_state["num_days"], forecast
-            )
+            # Get the weather forecast
+            forecast = get_city_forecast(st.session_state["city"], st.session_state["num_days"])
+
+            # Build the itinerary and save it
+            st.session_state["itinerary"] = build_itinerary(acts, st.session_state["num_days"], forecast)
             st.session_state["step"] = 3
             st.rerun()
 
 
-def step_itinerary() -> None:
+# ------------------------------------------------------------------
+# STEP 3 — Show the final itinerary to the user
+# ------------------------------------------------------------------
+def step_itinerary():
     render_progress(3)
 
-    city     = st.session_state["city"]
+    # Read saved values from the session
+    city = st.session_state["city"]
     num_days = st.session_state["num_days"]
-    prefs    = st.session_state.get("prefs", [])
+    prefs = st.session_state.get("prefs", [])
     itinerary = st.session_state["itinerary"]
 
-    st.markdown(f'<div class="step-heading">Your {num_days}-day {city} itinerary</div>',
-                unsafe_allow_html=True)
+    # Page heading
+    st.markdown(f'<div class="step-heading">Your {num_days}-day {city} itinerary</div>', unsafe_allow_html=True)
 
-    # Summary box
-    pref_text = ", ".join(prefs) if prefs else "All activities"
+    # Summary line showing the user's choices
+    if len(prefs) == 0:
+        pref_text = "All activities"
+    else:
+        pref_text = ", ".join(prefs)
+
     st.markdown(
         f'<div class="summary-box">'
         f'<strong>Destination:</strong> {city} &nbsp;|&nbsp; '
@@ -280,37 +389,44 @@ def step_itinerary() -> None:
         unsafe_allow_html=True,
     )
 
-    # Get the weather forecast for the chosen city, one entry per day.
+    # Get the weather forecast
     forecast = get_city_forecast(city, num_days)
 
-    # Timetable — lay days out in columns (max 3 per row)
+    # Show the timetable — max 3 days per row
     for row_start in range(0, num_days, 3):
-        days_in_row = itinerary[row_start : row_start + 3]
-        cols = st.columns(len(days_in_row))
-        for col, day_plan in zip(cols, days_in_row):
-            with col:
-                col.markdown(
-                    f'<div class="tt-header">Day {day_plan["day"]}</div>',
-                    unsafe_allow_html=True,
-                )
+        days_in_this_row = itinerary[row_start : row_start + 3]
+        cols = st.columns(len(days_in_this_row))
 
-                # Show the weather for this day, if we have it.
+        for i in range(len(days_in_this_row)):
+            day_plan = days_in_this_row[i]
+            col = cols[i]
+
+            with col:
+                # Day header
+                col.markdown(f'<div class="tt-header">Day {day_plan["day"]}</div>', unsafe_allow_html=True)
+
+                # Weather for this day (if available)
                 day_index = day_plan["day"] - 1
                 if day_index < len(forecast):
                     w = forecast[day_index]
                     col.markdown(
-                        f'<div style="font-size:0.85rem; color:#1a3a5c; '
-                        f'margin-bottom:0.5rem;">'
-                        f'{w["label"]} · {w["min"]}°/{w["max"]}°C · '
-                        f'rain {w["rain"]} mm'
+                        f'<div style="font-size:0.85rem; color:#1a3a5c; margin-bottom:0.5rem;">'
+                        f'{w["label"]} · {w["min"]}°/{w["max"]}°C · rain {w["rain"]} mm'
                         f'</div>',
                         unsafe_allow_html=True,
                     )
 
-                for slot, activity in day_plan["slots"].items():
-                    is_free = activity.startswith("Free time")
-                    css = "tt-free" if is_free else SLOT_CLASSES[slot]
-                    icon = "" if is_free else SLOT_ICONS[slot]
+                # Show each time slot
+                for slot in SLOTS:
+                    activity = day_plan["slots"][slot]
+
+                    if activity.startswith("Free time"):
+                        css = "tt-free"
+                        icon = ""
+                    else:
+                        css = SLOT_CLASSES[slot]
+                        icon = SLOT_ICONS[slot]
+
                     col.markdown(
                         f'<div class="tt-slot {css}">{icon} <strong>{slot}</strong><br>'
                         f'<span class="act-meta">{activity}</span></div>',
@@ -318,6 +434,8 @@ def step_itinerary() -> None:
                     )
 
     st.write("")
+
+    # Navigation buttons
     col_back, col_restart = st.columns([1, 5])
     with col_back:
         if st.button("← Change preferences"):
@@ -325,59 +443,81 @@ def step_itinerary() -> None:
             st.rerun()
     with col_restart:
         if st.button("Start over"):
-            for key in ["city", "num_days", "prefs", "itinerary", "step"]:
-                st.session_state.pop(key, None)
+            st.session_state.pop("city", None)
+            st.session_state.pop("num_days", None)
+            st.session_state.pop("prefs", None)
+            st.session_state.pop("itinerary", None)
+            st.session_state.pop("step", None)
             st.rerun()
 
-    # ── Rating block ───────────────────────────────────────────────────────────
+    # ------------------------------------------------------------------
+    # Rating section — let the user rate an activity from their itinerary
+    # ------------------------------------------------------------------
     st.markdown("---")
     st.markdown("### ⭐ Rate this activity")
 
-    # Collect all non-free activities from the itinerary
+    # Collect all activities from the itinerary (skip "Free time" entries)
     df_all = load_activities()
-    all_activities = [
-        activity
-        for day_plan in itinerary
-        for activity in day_plan["slots"].values()
-        if not activity.startswith("Free time")
-    ]
+    all_activities = []
 
-    if all_activities:
+    for day_plan in itinerary:
+        for slot in SLOTS:
+            activity = day_plan["slots"][slot]
+            if not activity.startswith("Free time"):
+                all_activities.append(activity)
+
+    if len(all_activities) > 0:
+        # Let the user pick which activity to rate
         activity_name = st.selectbox("Select an activity to rate:", all_activities)
 
-        # Look up category and duration from the CSV
-        row = df_all[df_all["activity_name"] == activity_name]
-        category      = row["category"].values[0]       if not row.empty else "Unknown"
-        duration_hours = float(row["max_useful_days"].values[0]) if not row.empty else 2.0
-        price_chf     = 0.0  # not in CSV, default to 0
+        # Look up the category and duration for that activity
+        matching_rows = df_all[df_all["activity_name"] == activity_name]
 
+        if not matching_rows.empty:
+            category = matching_rows["category"].values[0]
+            duration_hours = float(matching_rows["max_useful_days"].values[0])
+        else:
+            category = "Unknown"
+            duration_hours = 2.0
+
+        price_chf = 0.0  # we don't have price data, so we use 0
+
+        # Ask the ML model for a predicted rating
         prediction = predict_rating(activity_name, category, duration_hours, price_chf)
-        if prediction:
-            st.info(f"🤖 ML model prediction for this activity: {'⭐' * prediction} ({prediction}/5)")
+
+        if prediction is not None:
+            stars = "⭐" * prediction
+            st.info(f"🤖 ML model prediction for this activity: {stars} ({prediction}/5)")
         else:
             st.info("🤖 Not enough data yet for an ML prediction.")
 
+        # Let the user give their own rating
         user_rating = st.slider("Give your rating:", min_value=1, max_value=5, value=3, step=1)
 
         if st.button("✅ Submit my rating"):
             save_rating(activity_name, category, duration_hours, price_chf, user_rating)
-            st.success(f"Thank you! You rated **{activity_name}**: {'⭐' * user_rating}")
+            stars = "⭐" * user_rating
+            st.success(f"Thank you! You rated **{activity_name}**: {stars}")
 
+        # Show the model accuracy if we have enough data
         accuracy = get_model_accuracy()
-        if accuracy:
+        if accuracy is not None:
             st.caption(f"📊 Current ML model accuracy: {accuracy}%")
 
-    st.markdown('<div class="footer">Swiss Vacation Planner · Built with Streamlit</div>',
-                unsafe_allow_html=True)
+    st.markdown('<div class="footer">Swiss Vacation Planner · Built with Streamlit</div>', unsafe_allow_html=True)
 
 
-# ── Entry point ────────────────────────────────────────────────────────────────
-
-def run_app() -> None:
+# ------------------------------------------------------------------
+# Entry point — called from app.py
+# Decides which step to show based on st.session_state["step"]
+# ------------------------------------------------------------------
+def run_app():
+    # If this is the first time the app runs, start at step 1
     if "step" not in st.session_state:
         st.session_state["step"] = 1
 
     step = st.session_state["step"]
+
     if step == 1:
         step_destination()
     elif step == 2:
