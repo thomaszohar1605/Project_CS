@@ -4,6 +4,7 @@ import os
 import random
 import pandas as pd
 import streamlit as st
+from ml_rating import save_rating, predict_rating, get_model_accuracy
 
 from weather import get_weather   # ← our small weather helper
 
@@ -327,6 +328,44 @@ def step_itinerary() -> None:
             for key in ["city", "num_days", "prefs", "itinerary", "step"]:
                 st.session_state.pop(key, None)
             st.rerun()
+
+    # ── Rating block ───────────────────────────────────────────────────────────
+    st.markdown("---")
+    st.markdown("### ⭐ Rate this activity")
+
+    # Collect all non-free activities from the itinerary
+    df_all = load_activities()
+    all_activities = [
+        activity
+        for day_plan in itinerary
+        for activity in day_plan["slots"].values()
+        if not activity.startswith("Free time")
+    ]
+
+    if all_activities:
+        activity_name = st.selectbox("Select an activity to rate:", all_activities)
+
+        # Look up category and duration from the CSV
+        row = df_all[df_all["activity_name"] == activity_name]
+        category      = row["category"].values[0]       if not row.empty else "Unknown"
+        duration_hours = float(row["max_useful_days"].values[0]) if not row.empty else 2.0
+        price_chf     = 0.0  # not in CSV, default to 0
+
+        prediction = predict_rating(activity_name, category, duration_hours, price_chf)
+        if prediction:
+            st.info(f"🤖 ML model prediction for this activity: {'⭐' * prediction} ({prediction}/5)")
+        else:
+            st.info("🤖 Not enough data yet for an ML prediction.")
+
+        user_rating = st.slider("Give your rating:", min_value=1, max_value=5, value=3, step=1)
+
+        if st.button("✅ Submit my rating"):
+            save_rating(activity_name, category, duration_hours, price_chf, user_rating)
+            st.success(f"Thank you! You rated **{activity_name}**: {'⭐' * user_rating}")
+
+        accuracy = get_model_accuracy()
+        if accuracy:
+            st.caption(f"📊 Current ML model accuracy: {accuracy}%")
 
     st.markdown('<div class="footer">Swiss Vacation Planner · Built with Streamlit</div>',
                 unsafe_allow_html=True)

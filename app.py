@@ -5,6 +5,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent) if "__file__" in
 
 import streamlit as st
 from functions import run_app
+from ml_rating import save_rating, predict_rating, get_model_accuracy
 import pandas as pd
 import pydeck as pdk
 
