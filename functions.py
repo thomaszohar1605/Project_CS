@@ -43,10 +43,15 @@ def get_city_forecast(city: str, num_days: int) -> list[dict]:
     rows_for_city = df[df["city"] == city]
     if rows_for_city.empty:
         return []
-    # Use the first activity's coordinates as the city's location.
     lat = float(rows_for_city.iloc[0]["lat"])
     lon = float(rows_for_city.iloc[0]["lon"])
     return get_weather(lat, lon, num_days)
+
+
+def _is_rainy(label: str) -> bool:
+    """Return True if a weather label means it's better to stay indoors."""
+    label = label.lower()
+    return any(word in label for word in ("rain", "drizzle", "snow", "storm", "thunder"))
 
 
 def get_cities(df: pd.DataFrame) -> list[str]:
@@ -78,37 +83,94 @@ def _best_slot(time_slot_str: str) -> str:
     return random.choice(SLOTS)
 
 
-def build_itinerary(activities: pd.DataFrame, num_days: int) -> list[dict]:
+def _pick_activity(
+    bucket: list[dict],
+    used: set,
+    preferred: str,
+    strict: bool,
+) -> dict | None:
+    """
+    Find one unused activity from `bucket`.
+
+    If `strict` is True, only return an activity that matches the weather
+    (`preferred` is "indoor" or "outdoor"; "both" is always accepted).
+    If `strict` is False, return any unused activity.
+    """
+    for row in bucket:
+        if row["activity_name"] in used:
+            continue
+        setting = str(row.get("indoor_outdoor", "")).lower()
+        if setting == preferred or setting == "both":
+            return row
+
+    if strict:
+        return None
+
+    # Loose fallback: take whatever is still unused.
+    for row in bucket:
+        if row["activity_name"] not in used:
+            return row
+    return None
+
+
+def build_itinerary(
+    activities: pd.DataFrame,
+    num_days: int,
+    forecast: list[dict] | None = None,
+) -> list[dict]:
     """Assign activities to morning/afternoon/evening slots across num_days.
 
-    Activities are slotted according to their preferred time_slot from the CSV.
+    If a `forecast` is given, prefers INDOOR activities on rainy days
+    and OUTDOOR activities on clear days. Falls back to any activity
+    only if no weather-matching one is left.
     """
-    rows = activities.sample(frac=1).to_dict("records")   # shuffle
-    # Bucket by preferred slot
-    buckets: dict[str, list[str]] = {s: [] for s in SLOTS}
-    for row in rows:
-        slot = _best_slot(row.get("time_slot", ""))
-        buckets[slot].append(row["activity_name"])
+    if forecast is None:
+        forecast = []
 
-    itinerary = []
+    # Shuffle activities and bucket them by their preferred time slot.
+    rows = activities.sample(frac=1).to_dict("records")
+    buckets: dict[str, list[dict]] = {s: [] for s in SLOTS}
+    for row in rows:
+        buckets[_best_slot(row.get("time_slot", ""))].append(row)
+
+    itinerary: list[dict] = []
+    used: set = set()   # activity names we've already placed
+
     for day in range(1, num_days + 1):
+        # 1. Decide if this day should be indoor or outdoor.
+        day_index = day - 1
+        if day_index < len(forecast) and _is_rainy(forecast[day_index]["label"]):
+            preferred = "indoor"     # rainy day → stay inside
+        else:
+            preferred = "outdoor"    # nice day → enjoy outside
+
         day_plan: dict[str, str] = {}
         for slot in SLOTS:
-            if buckets[slot]:
-                day_plan[slot] = buckets[slot].pop()
+            # 2. First try the slot's own bucket (strict: weather must match).
+            chosen = _pick_activity(buckets[slot], used, preferred, strict=True)
+
+            # 3. Then try other buckets (still strict).
+            if chosen is None:
+                for other_slot in SLOTS:
+                    chosen = _pick_activity(buckets[other_slot], used, preferred, strict=True)
+                    if chosen is not None:
+                        break
+
+            # 4. Last resort: take anything unused, even if weather doesn't match.
+            if chosen is None:
+                for other_slot in SLOTS:
+                    chosen = _pick_activity(buckets[other_slot], used, preferred, strict=False)
+                    if chosen is not None:
+                        break
+
+            if chosen is not None:
+                day_plan[slot] = chosen["activity_name"]
+                used.add(chosen["activity_name"])
             else:
-                # Try any remaining slot before falling back to free time
-                remaining = [a for s in SLOTS for a in buckets[s]]
-                if remaining:
-                    picked = remaining[0]
-                    for s in SLOTS:
-                        if picked in buckets[s]:
-                            buckets[s].remove(picked)
-                            break
-                    day_plan[slot] = picked
-                else:
-                    day_plan[slot] = "Free time — explore at your own pace"
+                day_plan[slot] = "Free time — explore at your own pace"
+
         itinerary.append({"day": day, "slots": day_plan})
+
     return itinerary
 
 
@@ -182,7 +244,15 @@ def step_preferences() -> None:
             if acts.empty:
                 acts = df  # fallback: use all activities
             acts = filter_by_preferences(acts, prefs)
-            st.session_state["itinerary"] = build_itinerary(acts, st.session_state["num_days"])
+
+            # Get the weather forecast so the itinerary can adapt to it.
+            forecast = get_city_forecast(
+                st.session_state["city"], st.session_state["num_days"]
+            )
+
+            st.session_state["itinerary"] = build_itinerary(
+                acts, st.session_state["num_days"], forecast
+            )
             st.session_state["step"] = 3
             st.rerun()
 
@@ -224,7 +294,6 @@ def step_itinerary() -> None:
                 )
 
                 # Show the weather for this day, if we have it.
-                # day_plan["day"] starts at 1, so the index is day - 1.
                 day_index = day_plan["day"] - 1
                 if day_index < len(forecast):
                     w = forecast[day_index]
