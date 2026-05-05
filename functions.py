@@ -2,7 +2,7 @@ import os
 import random
 import pandas as pd
 import streamlit as st
-
+from ml_rating import save_rating, predict_rating, get_model_accuracy
 from weather import get_weather
 
 # This is the folder where our Python file lives
@@ -36,8 +36,12 @@ SLOT_ICONS = {
     "Evening":   "🌙",
 }
 
-#location.csv reader
 
+# ------------------------------------------------------------------
+# Load the CSV file that contains all activities
+# @st.cache_data means Streamlit only reads the file once,
+# not every time the page refreshes
+# ------------------------------------------------------------------
 @st.cache_data
 def load_activities():
     file_path = os.path.join(FOLDER, "locations.csv")
@@ -45,8 +49,12 @@ def load_activities():
     return df
 
 
-
-# Weather reader 
+# ------------------------------------------------------------------
+# Get the weather forecast for a city
+# We look up the city's coordinates in the CSV,
+# then call the weather API
+# The result is cached for 1 hour so we don't call the API too often
+# ------------------------------------------------------------------
 @st.cache_data(ttl=3600)
 def get_city_forecast(city, num_days):
     df = load_activities()
@@ -441,7 +449,6 @@ def step_itinerary():
             st.session_state.pop("itinerary", None)
             st.session_state.pop("step", None)
             st.rerun()
-
 
 # ------------------------------------------------------------------
 # Entry point — called from app.py
