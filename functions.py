@@ -245,8 +245,10 @@ def build_itinerary(activities, num_days, forecast):
                         if name in already_used:
                             continue
 
-                        if not is_allowed_in_slot(row, any_slot):
-                            continue  # respect slot restrictions even in fallback
+                        # Check against 'slot' (where we want to place it),
+                        # NOT 'any_slot' (where it came from)
+                        if not is_allowed_in_slot(row, slot):
+                            continue
 
                         if prefer_indoor and (setting == "indoor" or setting == "both"):
                             chosen_activity = row
@@ -263,7 +265,8 @@ def build_itinerary(activities, num_days, forecast):
                 for any_slot in SLOTS:
                     for row in buckets[any_slot]:
                         name = row["activity_name"]
-                        if name not in already_used and is_allowed_in_slot(row, any_slot):
+                        # Again, check against 'slot' (destination), not 'any_slot' (source)
+                        if name not in already_used and is_allowed_in_slot(row, slot):
                             chosen_activity = row
                             break
                     if chosen_activity is not None:
