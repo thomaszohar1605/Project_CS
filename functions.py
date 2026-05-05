@@ -36,6 +36,31 @@ SLOT_ICONS = {
     "Evening":   "🌙",
 }
 
+# Some categories only make sense at certain times of day.
+# This dictionary defines which slots are ALLOWED for each category.
+# Any category not listed here can go in any slot.
+CATEGORY_ALLOWED_SLOTS = {
+    "Nightlife & Entertainment": ["Evening"],
+    "Relaxation & Wellness":     ["Morning", "Afternoon"],
+}
+
+
+def is_allowed_in_slot(row, slot):
+    """
+    Check if an activity is allowed to be placed in a given time slot.
+    For example, nightlife activities can only go in the Evening slot.
+    Returns True if the activity is allowed, False if not.
+    """
+    category = row.get("category", "")
+
+    # If this category has slot restrictions, check them
+    if category in CATEGORY_ALLOWED_SLOTS:
+        allowed = CATEGORY_ALLOWED_SLOTS[category]
+        return slot in allowed
+
+    # If no restriction is defined for this category, it's allowed anywhere
+    return True
+
 
 # ------------------------------------------------------------------
 # Load the CSV file that contains all activities
@@ -192,13 +217,16 @@ def build_itinerary(activities, num_days, forecast):
             chosen_activity = None
 
             # Step 1: Try to find an activity in the right slot
-            # that also matches the weather preference
+            # that also matches the weather preference AND is allowed in this slot
             for row in buckets[slot]:
                 name = row["activity_name"]
                 setting = str(row.get("indoor_outdoor", "")).lower()
 
                 if name in already_used:
                     continue  # skip activities we already used
+
+                if not is_allowed_in_slot(row, slot):
+                    continue  # skip if this category doesn't belong in this slot
 
                 if prefer_indoor and (setting == "indoor" or setting == "both"):
                     chosen_activity = row
@@ -217,6 +245,9 @@ def build_itinerary(activities, num_days, forecast):
                         if name in already_used:
                             continue
 
+                        if not is_allowed_in_slot(row, any_slot):
+                            continue  # respect slot restrictions even in fallback
+
                         if prefer_indoor and (setting == "indoor" or setting == "both"):
                             chosen_activity = row
                             break
@@ -227,12 +258,12 @@ def build_itinerary(activities, num_days, forecast):
                     if chosen_activity is not None:
                         break
 
-            # Step 3: Last resort — just take any unused activity
+            # Step 3: Last resort — take any unused activity that is allowed in this slot
             if chosen_activity is None:
                 for any_slot in SLOTS:
                     for row in buckets[any_slot]:
                         name = row["activity_name"]
-                        if name not in already_used:
+                        if name not in already_used and is_allowed_in_slot(row, any_slot):
                             chosen_activity = row
                             break
                     if chosen_activity is not None:
