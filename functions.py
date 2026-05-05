@@ -2,7 +2,7 @@ import os
 import random
 import pandas as pd
 import streamlit as st
-from ml_rating import save_rating, predict_rating, get_model_accuracy
+
 from weather import get_weather
 
 # This is the folder where our Python file lives
