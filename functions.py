@@ -36,12 +36,8 @@ SLOT_ICONS = {
     "Evening":   "🌙",
 }
 
+#location.csv reader
 
-# ------------------------------------------------------------------
-# Load the CSV file that contains all activities
-# @st.cache_data means Streamlit only reads the file once,
-# not every time the page refreshes
-# ------------------------------------------------------------------
 @st.cache_data
 def load_activities():
     file_path = os.path.join(FOLDER, "locations.csv")
@@ -49,12 +45,8 @@ def load_activities():
     return df
 
 
-# ------------------------------------------------------------------
-# Get the weather forecast for a city
-# We look up the city's coordinates in the CSV,
-# then call the weather API
-# The result is cached for 1 hour so we don't call the API too often
-# ------------------------------------------------------------------
+
+# Weather reader 
 @st.cache_data(ttl=3600)
 def get_city_forecast(city, num_days):
     df = load_activities()
