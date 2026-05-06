@@ -2,12 +2,13 @@ import os
 import random
 import pandas as pd
 import streamlit as st
-from ml_rating import save_rating, predict_rating, get_model_accuracy
+from ml_rating import save_rating, predict_rating, get_model_accuracy, get_neighbours
 from weather import get_weather
 
 # This is the folder where our Python file lives
-# We use it to find the locations.csv file
+# We use it to find the locations.csv and ratings.csv files
 FOLDER = os.path.dirname(os.path.abspath(__file__))
+RATINGS_FILE = os.path.join(FOLDER, "ratings.csv")
 
 # The 6 activity categories we support
 CATEGORIES = [
@@ -483,6 +484,98 @@ def step_itinerary():
             st.session_state.pop("itinerary", None)
             st.session_state.pop("step", None)
             st.rerun()
+
+    # ------------------------------------------------------------------
+    # SECTION: Activity Reviews — show average ratings from ratings.csv
+    # ------------------------------------------------------------------
+    st.markdown("---")
+    st.markdown("### 📊 Activity Reviews")
+
+    df_all = load_activities()
+    df_ratings = pd.read_csv(RATINGS_FILE) if os.path.exists(RATINGS_FILE) else pd.DataFrame()
+
+    if df_ratings.empty:
+        st.info("No reviews yet. Be the first to rate an activity below!")
+    else:
+        # Calculate average rating and number of reviews per activity
+        summary = (
+            df_ratings.groupby("activity_name")["rating"]
+            .agg(average="mean", reviews="count")
+            .reset_index()
+        )
+        summary["average"] = summary["average"].round(1)
+
+        # Add a stars column for visual display
+        summary["stars"] = summary["average"].apply(lambda x: "⭐" * round(x))
+
+        # Sort by highest average rating first
+        summary = summary.sort_values("average", ascending=False).reset_index(drop=True)
+
+        # Rename columns for display
+        summary.columns = ["Activity", "Avg Rating", "# Reviews", "Stars"]
+
+        st.dataframe(summary[["Activity", "Stars", "Avg Rating", "# Reviews"]], use_container_width=True)
+
+    # ------------------------------------------------------------------
+    # SECTION: Rate an activity + ML prediction with explanation
+    # ------------------------------------------------------------------
+    st.markdown("---")
+    st.markdown("### ⭐ Rate an activity")
+
+    # Collect all non-free activities from the itinerary
+    all_activities = []
+    for day_plan in itinerary:
+        for slot in SLOTS:
+            activity = day_plan["slots"][slot]
+            if not activity.startswith("Free time"):
+                all_activities.append(activity)
+
+    if len(all_activities) > 0:
+        # Let the user pick which activity to rate
+        activity_name = st.selectbox("Select an activity to rate:", all_activities)
+
+        # Look up the category and duration for that activity
+        matching_rows = df_all[df_all["activity_name"] == activity_name]
+        if not matching_rows.empty:
+            category = matching_rows["category"].values[0]
+            duration_hours = float(matching_rows["max_useful_days"].values[0])
+        else:
+            category = "Unknown"
+            duration_hours = 2.0
+
+        price_chf = 0.0
+
+        # Show the ML prediction
+        prediction = predict_rating(activity_name, category, duration_hours, price_chf)
+
+        if prediction is not None:
+            st.info(f"🤖 ML model prediction: {'⭐' * prediction} ({prediction}/5)")
+
+            # Explain WHY: show the 3 similar activities the model used
+            neighbours = get_neighbours(activity_name, category, duration_hours, price_chf)
+            if neighbours:
+                st.markdown("**💡 Why this score? The model looked at these similar activities:**")
+                for n in neighbours:
+                    stars = "⭐" * n["rating"]
+                    st.markdown(f"- {n['name']} → {stars} ({n['rating']}/5)")
+        else:
+            st.info("🤖 Not enough data yet for an ML prediction.")
+
+        # Let the user give their own rating
+        user_rating = st.slider("Your rating:", min_value=1, max_value=5, value=3, step=1)
+
+        if st.button("✅ Submit my rating"):
+            save_rating(activity_name, category, duration_hours, price_chf, user_rating)
+            stars = "⭐" * user_rating
+            st.success(f"Thank you! You rated **{activity_name}**: {stars}")
+
+        # Show the model accuracy if we have enough data
+        accuracy = get_model_accuracy()
+        if accuracy is not None:
+            st.caption(f"📊 Current ML model accuracy: {accuracy}%")
+
+    st.markdown('<div class="footer">Swiss Vacation Planner · Built with Streamlit</div>', unsafe_allow_html=True)
+
 
 # ------------------------------------------------------------------
 # Entry point — called from app.py
