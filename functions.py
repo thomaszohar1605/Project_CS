@@ -486,41 +486,12 @@ def step_itinerary():
             st.rerun()
 
     # ------------------------------------------------------------------
-    # SECTION: Activity Reviews — show average ratings from ratings.csv
-    # ------------------------------------------------------------------
-    st.markdown("---")
-    st.markdown("### 📊 Activity Reviews")
-
-    df_all = load_activities()
-    df_ratings = pd.read_csv(RATINGS_FILE) if os.path.exists(RATINGS_FILE) else pd.DataFrame()
-
-    if df_ratings.empty:
-        st.info("No reviews yet. Be the first to rate an activity below!")
-    else:
-        # Calculate average rating and number of reviews per activity
-        summary = (
-            df_ratings.groupby("activity_name")["rating"]
-            .agg(average="mean", reviews="count")
-            .reset_index()
-        )
-        summary["average"] = summary["average"].round(1)
-
-        # Add a stars column for visual display
-        summary["stars"] = summary["average"].apply(lambda x: "⭐" * round(x))
-
-        # Sort by highest average rating first
-        summary = summary.sort_values("average", ascending=False).reset_index(drop=True)
-
-        # Rename columns for display
-        summary.columns = ["Activity", "Avg Rating", "# Reviews", "Stars"]
-
-        st.dataframe(summary[["Activity", "Stars", "Avg Rating", "# Reviews"]], use_container_width=True)
-
-    # ------------------------------------------------------------------
     # SECTION: Rate an activity + ML prediction with explanation
     # ------------------------------------------------------------------
     st.markdown("---")
     st.markdown("### ⭐ Rate an activity")
+
+    df_all = load_activities()
 
     # Collect all non-free activities from the itinerary
     all_activities = []
@@ -545,21 +516,21 @@ def step_itinerary():
 
         price_chf = 0.0
 
-        # Show the ML prediction
+        # Show the ML prediction and explain it
         prediction = predict_rating(activity_name, category, duration_hours, price_chf)
 
         if prediction is not None:
-            st.info(f"🤖 ML model prediction: {'⭐' * prediction} ({prediction}/5)")
+            st.info(f"🤖 Based on how past users rated similar **{category}** activities, we predict: {'⭐' * prediction} ({prediction}/5)")
 
-            # Explain WHY: show the 3 similar activities the model used
+            # Show the 3 similar activities the model used to make its decision
             neighbours = get_neighbours(activity_name, category, duration_hours, price_chf)
             if neighbours:
-                st.markdown("**💡 Why this score? The model looked at these similar activities:**")
+                st.markdown("**💡 The model based this on these similar past ratings:**")
                 for n in neighbours:
                     stars = "⭐" * n["rating"]
-                    st.markdown(f"- {n['name']} → {stars} ({n['rating']}/5)")
+                    st.markdown(f"- {n['name']} was rated {stars} ({n['rating']}/5)")
         else:
-            st.info("🤖 Not enough data yet for an ML prediction.")
+            st.info("🤖 Not enough ratings yet to make a prediction. Be the first to rate!")
 
         # Let the user give their own rating
         user_rating = st.slider("Your rating:", min_value=1, max_value=5, value=3, step=1)
