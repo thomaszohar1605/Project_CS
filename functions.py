@@ -519,18 +519,13 @@ def step_itinerary():
         # Show the ML prediction and explain it
         prediction = predict_rating(activity_name, category, duration_hours, price_chf)
 
-        if prediction is not None:
-            st.info(f"🤖 Based on how past users rated similar **{category}** activities, we predict: {'⭐' * prediction} ({prediction}/5)")
-
-            # Show the 3 similar activities the model used to make its decision
-            neighbours = get_neighbours(activity_name, category, duration_hours, price_chf)
-            if neighbours:
-                st.markdown("**💡 The model based this on these similar past ratings:**")
-                for n in neighbours:
-                    stars = "⭐" * n["rating"]
-                    st.markdown(f"- {n['name']} was rated {stars} ({n['rating']}/5)")
-        else:
-            st.info("🤖 Not enough ratings yet to make a prediction. Be the first to rate!")
+        # Show the 3 similar activities the model used to make its decision
+        neighbours = get_neighbours(activity_name, category, duration_hours, price_chf)
+        if neighbours:
+            st.markdown("**💡 Similar activities rated by past users:**")
+            for n in neighbours:
+                stars = "⭐" * n["rating"]
+                st.markdown(f"- {n['name']} was rated {stars} ({n['rating']}/5)")
 
         # Let the user give their own rating
         user_rating = st.slider("Your rating:", min_value=1, max_value=5, value=3, step=1)
