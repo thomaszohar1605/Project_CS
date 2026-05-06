@@ -5,6 +5,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent) if "__file__" in
 
 import streamlit as st
 from functions import run_app
+from ml_rating import save_rating, predict_rating, get_model_accuracy
 import pandas as pd
 import pydeck as pdk
 
@@ -213,7 +214,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Map 
+# ── Activity Map ──────────────────────────────────────────────────────────────
 import pathlib
 try:
     _CSV = pathlib.Path(__file__).resolve().parent / "locations.csv"
@@ -249,5 +250,12 @@ st.pydeck_chart(pdk.Deck(
     },
 ))
 
+# ──────────────────────────────────────────────────────────────────────────────
 
 run_app()
+
+
+#Problem to solve:
+## Do we continue doing different town in Switzerland or focusing one by one
+## Need to classify the activities according to the best perdiod of the day to do (e.g Flon the evening not the morning)
+## Implement a budget 
