@@ -2,7 +2,7 @@ import os
 import random
 import pandas as pd
 import streamlit as st
-from ml_rating import save_rating, predict_rating, get_model_accuracy, get_neighbours
+from ml_rating import save_rating, predict_rating, get_model_accuracy, get_neighbours, extract_keyword
 from weather import get_weather
 
 # This is the folder where our Python file lives
@@ -514,13 +514,12 @@ def step_itinerary():
             category = "Unknown"
             duration_hours = 2.0
 
-        price_chf = 0.0
-
-        # Show the ML prediction and explain it
-        prediction = predict_rating(activity_name, category, duration_hours, price_chf)
+        # Extract the keyword from the activity name
+        # e.g. "Kunsthaus Museum" → "museum", "City Bike Tour" → "bike"
+        keyword = extract_keyword(activity_name)
 
         # Show the 3 similar activities the model used to make its decision
-        neighbours = get_neighbours(activity_name, category, duration_hours, price_chf)
+        neighbours = get_neighbours(activity_name, category, duration_hours, keyword)
         if neighbours:
             st.markdown("**💡 Similar activities rated by past users:**")
             for n in neighbours:
@@ -531,7 +530,7 @@ def step_itinerary():
         user_rating = st.slider("Your rating:", min_value=1, max_value=5, value=3, step=1)
 
         if st.button("✅ Submit my rating"):
-            save_rating(activity_name, category, duration_hours, price_chf, user_rating)
+            save_rating(activity_name, category, duration_hours, keyword, user_rating)
             stars = "⭐" * user_rating
             st.success(f"Thank you! You rated **{activity_name}**: {stars}")
 
