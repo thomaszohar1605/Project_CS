@@ -2,7 +2,7 @@ import os
 import random
 import pandas as pd
 import streamlit as st
-from ml_rating import build_itinerary_knn, save_rating, load_user_ratings, extract_keyword
+from ml_rating import build_itinerary_knn
 from weather import get_weather
 
 FOLDER = os.path.dirname(os.path.abspath(__file__))
@@ -242,9 +242,6 @@ def step_destination():
     df = load_activities()
     cities = get_cities(df)
 
-    # Ask for a name so the app can remember preferences across visits
-    username = st.text_input("Your name", placeholder="e.g. Gustav")
-
     col1, col2 = st.columns([2, 1])
     with col1:
         city = st.selectbox("Destination", cities)
@@ -253,10 +250,6 @@ def step_destination():
 
     st.write("")
     if st.button("Next →"):
-        if not username.strip():
-            st.warning("Please enter your name so we can remember your preferences.")
-            return
-        st.session_state["username"] = username.strip().lower()
         st.session_state["city"] = city
         st.session_state["num_days"] = num_days
         st.session_state["step"] = 2
@@ -269,28 +262,8 @@ def step_destination():
 def step_rating():
     render_progress(2)
 
-    username = st.session_state.get("username", "")
-    city     = st.session_state.get("city", "")
+    city = st.session_state.get("city", "")
 
-    # ── Returning user: skip straight to the itinerary ────────────
-    past_ratings = load_user_ratings(username)
-    if len(past_ratings) >= 6:
-        st.markdown(
-            f'<div class="step-heading">Welcome back, {username.capitalize()}! 👋</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            f'<div class="step-caption">We found your {len(past_ratings)} past ratings — '
-            f'building your personalised itinerary now.</div>',
-            unsafe_allow_html=True,
-        )
-        st.session_state["knn_ratings"] = past_ratings
-        st.session_state.pop("itinerary", None)
-        st.session_state["step"] = 3
-        st.rerun()
-        return
-
-    # ── New user: pick one activity per category ───────────────────
     st.markdown('<div class="step-heading">Rate these activities</div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="step-caption">'
@@ -336,14 +309,6 @@ def step_rating():
             st.rerun()
     with col_next:
         if st.button("Build my personalised itinerary →"):
-            # Save each rating to ratings.csv linked to the username
-            for name, rating in ratings.items():
-                row = df_all[df_all["activity_name"] == name]
-                category = row["category"].values[0] if not row.empty else "Unknown"
-                duration = float(row["max_useful_days"].values[0]) if not row.empty else 2.0
-                keyword  = extract_keyword(name)
-                save_rating(username, name, category, duration, keyword, rating)
-
             st.session_state["knn_ratings"] = [
                 {"activity_name": name, "rating": rating}
                 for name, rating in ratings.items()
@@ -361,7 +326,6 @@ def step_itinerary():
 
     city     = st.session_state["city"]
     num_days = st.session_state["num_days"]
-    username = st.session_state.get("username", "")
 
     # Build itinerary once and cache it
     if "itinerary" not in st.session_state:
@@ -407,7 +371,6 @@ def step_itinerary():
 
     st.markdown(
         f'<div class="summary-box">'
-        f'<strong>Traveller:</strong> {username.capitalize()} &nbsp;|&nbsp; '
         f'<strong>Destination:</strong> {city} &nbsp;|&nbsp; '
         f'<strong>Days:</strong> {num_days}'
         f'</div>',
@@ -473,7 +436,7 @@ def step_itinerary():
     with col_restart:
         if st.button("Start over"):
             for key in ["city", "num_days", "itinerary", "forecast",
-                        "step", "knn_ratings", "username"]:
+                        "step", "knn_ratings"]:
                 st.session_state.pop(key, None)
             st.rerun()
 
