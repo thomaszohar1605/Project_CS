@@ -248,7 +248,7 @@ st.pydeck_chart(pdk.Deck(
         "html": "<b>{activity_name}</b><br/>{city}<br/><i>{category}</i>",
         "style": {
             "color": "white",
-            "backgroundColor": "#000205",
+            "backgroundColor": "#EDF1F6",
             "padding": "6px 10px",
             "borderRadius": "6px",
         },
