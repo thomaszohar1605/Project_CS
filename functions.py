@@ -215,11 +215,10 @@ def build_itinerary(activities, num_days, forecast):
 def render_progress(current_step):
     steps = [
         "1 · Destination",
-        "2 · Preferences",
-        "3 · Rate Activities",
-        "4 · Your Itinerary",
+        "2 · Rate Activities",
+        "3 · Your Itinerary",
     ]
-    cols = st.columns(4)
+    cols = st.columns(3)
     for i, label in enumerate(steps):
         step_number = i + 1
         if step_number < current_step:
@@ -265,87 +264,56 @@ def step_destination():
 
 
 # ------------------------------------------------------------------
-# STEP 2 — Preferences
-# ------------------------------------------------------------------
-def step_preferences():
-    render_progress(2)
-    st.markdown('<div class="step-heading">What do you enjoy?</div>', unsafe_allow_html=True)
-    st.markdown('<div class="step-caption">Choose one or more activity types — or skip to include everything.</div>', unsafe_allow_html=True)
-
-    selected_prefs = []
-    cols = st.columns(3)
-    for i, category in enumerate(CATEGORIES):
-        with cols[i % 3]:
-            if st.checkbox(category):
-                selected_prefs.append(category)
-
-    st.write("")
-    col_back, col_next = st.columns([1, 5])
-    with col_back:
-        if st.button("← Back"):
-            st.session_state["step"] = 1
-            st.rerun()
-    with col_next:
-        if st.button("Next →"):
-            st.session_state["prefs"] = selected_prefs
-
-            df = load_activities()
-            acts = city_activities(df, st.session_state["city"])
-            if acts.empty:
-                acts = df
-            acts = filter_by_preferences(acts, selected_prefs)
-
-            n_sample = min(5, len(acts))
-            sample_df = acts.sample(n=n_sample).reset_index(drop=True)
-            st.session_state["sample_activities"] = sample_df.to_dict("records")
-            st.session_state["filtered_activities"] = acts
-
-            st.session_state["step"] = 3
-            st.rerun()
-
-
-# ------------------------------------------------------------------
-# STEP 3 — Rate 5 sample activities
+# STEP 2 — Rate one activity per category (6 total)
 # ------------------------------------------------------------------
 def step_rating():
-    render_progress(3)
+    render_progress(2)
 
     username = st.session_state.get("username", "")
+    city     = st.session_state.get("city", "")
 
-    # Check if this user already has past ratings saved
+    # ── Returning user: skip straight to the itinerary ────────────
     past_ratings = load_user_ratings(username)
-
-    if len(past_ratings) >= 5:
-        # We already know this user — skip straight to the itinerary
+    if len(past_ratings) >= 6:
         st.markdown(
             f'<div class="step-heading">Welcome back, {username.capitalize()}! 👋</div>',
             unsafe_allow_html=True,
         )
         st.markdown(
-            '<div class="step-caption">'
-            f'We found your {len(past_ratings)} past ratings — '
-            'building your personalised itinerary now.'
-            '</div>',
+            f'<div class="step-caption">We found your {len(past_ratings)} past ratings — '
+            f'building your personalised itinerary now.</div>',
             unsafe_allow_html=True,
         )
         st.session_state["knn_ratings"] = past_ratings
         st.session_state.pop("itinerary", None)
-        st.session_state["step"] = 4
+        st.session_state["step"] = 3
         st.rerun()
         return
 
-    # New user — ask them to rate 5 sample activities
+    # ── New user: pick one activity per category ───────────────────
     st.markdown('<div class="step-heading">Rate these activities</div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="step-caption">'
-        'Rate each activity from 1 (not for me) to 5 (love it) — '
-        'the ML model will use these to personalise your itinerary.'
+        'Give each activity a score from 1 (not for me) to 5 (love it). '
+        'The ML model uses these to build your personalised itinerary.'
         '</div>',
         unsafe_allow_html=True,
     )
 
-    sample = st.session_state.get("sample_activities", [])
     df_all = load_activities()
+    city_df = city_activities(df_all, city)
+
+    # Pick exactly one activity per category — guaranteed 6 sliders
+    sample = []
+    for category in CATEGORIES:
+        # First try to find one from the chosen city
+        cat_rows = city_df[city_df["category"] == category]
+        if cat_rows.empty:
+            # Fall back to any city if this category has no local activity
+            cat_rows = df_all[df_all["category"] == category]
+        if not cat_rows.empty:
+            chosen = cat_rows.sample(1).iloc[0].to_dict()
+            sample.append(chosen)
 
     ratings = {}
     for act in sample:
@@ -364,16 +332,16 @@ def step_rating():
     col_back, col_next = st.columns([1, 5])
     with col_back:
         if st.button("← Back"):
-            st.session_state["step"] = 2
+            st.session_state["step"] = 1
             st.rerun()
     with col_next:
         if st.button("Build my personalised itinerary →"):
-            # Save each rating to ratings.csv with the username
+            # Save each rating to ratings.csv linked to the username
             for name, rating in ratings.items():
                 row = df_all[df_all["activity_name"] == name]
-                category      = row["category"].values[0] if not row.empty else "Unknown"
-                duration      = float(row["max_useful_days"].values[0]) if not row.empty else 2.0
-                keyword       = extract_keyword(name)
+                category = row["category"].values[0] if not row.empty else "Unknown"
+                duration = float(row["max_useful_days"].values[0]) if not row.empty else 2.0
+                keyword  = extract_keyword(name)
                 save_rating(username, name, category, duration, keyword, rating)
 
             st.session_state["knn_ratings"] = [
@@ -381,28 +349,25 @@ def step_rating():
                 for name, rating in ratings.items()
             ]
             st.session_state.pop("itinerary", None)
-            st.session_state["step"] = 4
+            st.session_state["step"] = 3
             st.rerun()
 
 
 # ------------------------------------------------------------------
-# STEP 4 — KNN-ranked itinerary with weather
+# STEP 3 — KNN-ranked itinerary with weather
 # ------------------------------------------------------------------
 def step_itinerary():
-    render_progress(4)
+    render_progress(3)
 
     city     = st.session_state["city"]
     num_days = st.session_state["num_days"]
-    prefs    = st.session_state.get("prefs", [])
+    username = st.session_state.get("username", "")
 
     # Build itinerary once and cache it
     if "itinerary" not in st.session_state:
 
-        acts_raw = st.session_state.get("filtered_activities", None)
-        if acts_raw is None:
-            df = load_activities()
-            acts_raw = city_activities(df, city)
-            acts_raw = filter_by_preferences(acts_raw, prefs)
+        df = load_activities()
+        acts_raw = city_activities(df, city)
 
         # ── Weather API call (shown to user via spinner) ──────────────
         with st.spinner("📡 Fetching weather forecast…"):
@@ -440,12 +405,11 @@ def step_itinerary():
         unsafe_allow_html=True,
     )
 
-    pref_text = ", ".join(prefs) if prefs else "All activities"
     st.markdown(
         f'<div class="summary-box">'
+        f'<strong>Traveller:</strong> {username.capitalize()} &nbsp;|&nbsp; '
         f'<strong>Destination:</strong> {city} &nbsp;|&nbsp; '
-        f'<strong>Days:</strong> {num_days} &nbsp;|&nbsp; '
-        f'<strong>Interests:</strong> {pref_text}'
+        f'<strong>Days:</strong> {num_days}'
         f'</div>',
         unsafe_allow_html=True,
     )
@@ -501,16 +465,15 @@ def step_itinerary():
     # ── Navigation ────────────────────────────────────────────────────
     col_back, col_restart = st.columns([1, 5])
     with col_back:
-        if st.button("← Change preferences"):
+        if st.button("← Re-rate activities"):
             st.session_state["step"] = 2
             st.session_state.pop("itinerary", None)
             st.session_state.pop("forecast", None)
             st.rerun()
     with col_restart:
         if st.button("Start over"):
-            for key in ["city", "num_days", "prefs", "itinerary", "forecast",
-                        "step", "knn_ratings", "sample_activities",
-                        "filtered_activities"]:
+            for key in ["city", "num_days", "itinerary", "forecast",
+                        "step", "knn_ratings", "username"]:
                 st.session_state.pop(key, None)
             st.rerun()
 
@@ -531,8 +494,6 @@ def run_app():
     if step == 1:
         step_destination()
     elif step == 2:
-        step_preferences()
-    elif step == 3:
         step_rating()
-    elif step == 4:
+    elif step == 3:
         step_itinerary()
