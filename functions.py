@@ -274,50 +274,18 @@ def step_rating():
 
     sample = st.session_state.get("sample_activities", [])
 
-    # Table header
-    h_left, h_right = st.columns([3, 2])
-    with h_left:
-        st.markdown(
-            "<div style='background:#dce8f0;padding:0.5rem 0.8rem;"
-            "border-radius:0.6rem 0 0 0.6rem;font-weight:700;'>"
-            "Activity</div>",
-            unsafe_allow_html=True,
-        )
-    with h_right:
-        st.markdown(
-            "<div style='background:#dce8f0;padding:0.5rem 0.8rem;"
-            "border-radius:0 0.6rem 0.6rem 0;font-weight:700;"
-            "display:flex;justify-content:space-between;'>"
-            "<span>Your rating</span>"
-            "<span style='font-weight:400;font-size:0.8rem;'>1 = not for me · 5 = love it</span>"
-            "</div>",
-            unsafe_allow_html=True,
-        )
-
     ratings = {}
     for act in sample:
         name = act["activity_name"]
         cat  = act.get("category", "")
-        desc = act.get("description", "")
-
-        left, right = st.columns([3, 2])
-        with left:
-            st.markdown(
-                f"<div style='background:#f8fbff;padding:0.5rem 0.8rem;"
-                f"border-bottom:1px solid #dce8f0;'>"
-                f"<strong>{name}</strong><br>"
-                f"<span style='font-size:0.8rem;color:#4a7a9b;'>{cat}</span><br>"
-                f"<span style='font-size:0.78rem;color:#6a8aab;'>{desc[:90]}{'…' if len(desc)>90 else ''}</span>"
-                f"</div>",
-                unsafe_allow_html=True,
-            )
-        with right:
-            ratings[name] = st.slider(
-                label=f"_{name}",          # underscore prefix hides the label
-                min_value=1, max_value=5, value=3, step=1,
-                key=f"knn_rate_{name}",
-                label_visibility="collapsed",
-            )
+        st.markdown(f"**{name}** · *{cat}*")
+        ratings[name] = st.slider(
+            label=f"Rating for {name}",
+            min_value=1, max_value=5, value=3, step=1,
+            key=f"knn_rate_{name}",
+            label_visibility="collapsed",
+        )
+        st.write("")
 
     st.write("")
     col_back, col_next = st.columns([1, 5])
@@ -400,25 +368,7 @@ def step_itinerary():
         unsafe_allow_html=True,
     )
 
-    # ── Weather summary row ───────────────────────────────────────────
-    if forecast:
-        st.markdown("**🌤 Weather forecast:**")
-        wcols = st.columns(min(num_days, 7))
-        for i, w in enumerate(forecast[:num_days]):
-            with wcols[i]:
-                st.markdown(
-                    f"<div style='background:#e8f4fd;border-radius:0.6rem;"
-                    f"padding:0.4rem 0.5rem;text-align:center;font-size:0.8rem;'>"
-                    f"<strong>Day {i+1}</strong><br>"
-                    f"{w['label']}<br>"
-                    f"{w['min']}° / {w['max']}°C<br>"
-                    f"🌧 {w['rain']} mm"
-                    f"</div>",
-                    unsafe_allow_html=True,
-                )
-        st.write("")
-
-    # ── Timetable ─────────────────────────────────────────────────────
+    # ── Timetable (no weather inside — shown separately below) ───────
     for row_start in range(0, num_days, 3):
         days_in_this_row = itinerary[row_start: row_start + 3]
         cols = st.columns(len(days_in_this_row))
@@ -429,17 +379,6 @@ def step_itinerary():
                     f'<div class="tt-header">Day {day_plan["day"]}</div>',
                     unsafe_allow_html=True,
                 )
-
-                # Inline weather under day header
-                day_index = day_plan["day"] - 1
-                if day_index < len(forecast):
-                    w = forecast[day_index]
-                    cols[i].markdown(
-                        f'<div style="font-size:0.8rem;color:#1a3a5c;margin-bottom:0.4rem;">'
-                        f'{w["label"]} · {w["min"]}°/{w["max"]}°C · 🌧 {w["rain"]} mm'
-                        f'</div>',
-                        unsafe_allow_html=True,
-                    )
 
                 for slot in SLOTS:
                     activity = day_plan["slots"][slot]
@@ -456,6 +395,24 @@ def step_itinerary():
                         f'</div>',
                         unsafe_allow_html=True,
                     )
+
+    # ── Weather forecast (below the timetable) ────────────────────────
+    if forecast:
+        st.write("")
+        st.markdown("**🌤 Weather forecast:**")
+        wcols = st.columns(min(num_days, 7))
+        for i, w in enumerate(forecast[:num_days]):
+            with wcols[i]:
+                st.markdown(
+                    f"<div style='background:#e8f4fd;border-radius:0.6rem;"
+                    f"padding:0.4rem 0.5rem;text-align:center;font-size:0.8rem;'>"
+                    f"<strong>Day {i+1}</strong><br>"
+                    f"{w['label']}<br>"
+                    f"{w['min']}° / {w['max']}°C<br>"
+                    f"🌧 {w['rain']} mm"
+                    f"</div>",
+                    unsafe_allow_html=True,
+                )
 
     st.write("")
 
