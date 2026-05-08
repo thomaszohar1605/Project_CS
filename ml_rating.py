@@ -101,7 +101,8 @@ def build_itinerary_knn(
     # Guard: fall back to shuffled order if feature columns are missing
     missing = [c for c in FEATURE_COLS if c not in df.columns]
     if missing:
-        return df["activity_name"].sample(frac=1).tolist()
+        names = df["activity_name"].sample(frac=1).tolist()
+        return names, {n: 0.0 for n in names}
 
     X = df[FEATURE_COLS].fillna(0).values
     scaler = MinMaxScaler()
@@ -132,7 +133,8 @@ def build_itinerary_knn(
 
     # If no ratings matched candidates at all, return shuffled
     if not like_vecs and not dislike_vecs and not neutral_vecs:
-        return df["activity_name"].sample(frac=1).tolist()
+        names = df["activity_name"].sample(frac=1).tolist()
+        return names, {n: 0.0 for n in names}
 
     # Build like / dislike vectors (fall back to neutral if one side is empty)
     if like_vecs:
@@ -167,4 +169,5 @@ def build_itinerary_knn(
     # Sort candidates best → worst
     order = np.argsort(scores)[::-1]
     ranked_names = df.iloc[order]["activity_name"].tolist()
-    return ranked_names
+    scores_dict  = {df.iloc[i]["activity_name"]: scores[i] for i in range(len(df))}
+    return ranked_names, scores_dict

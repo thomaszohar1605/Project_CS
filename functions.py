@@ -344,7 +344,11 @@ def step_itinerary():
             if knn_ratings:
                 # Add the numeric columns the KNN needs (derived from locations.csv)
                 acts_with_features = add_features(acts_raw)
-                ranked_names, scores_dict = build_itinerary_knn(knn_ratings, acts_with_features)
+                result = build_itinerary_knn(knn_ratings, acts_with_features)
+                if isinstance(result, tuple):
+                    ranked_names, scores_dict = result
+                else:
+                    ranked_names, scores_dict = result, {}
                 name_order   = {name: i for i, name in enumerate(ranked_names)}
                 acts_copy    = acts_raw.copy()
                 acts_copy["_knn_rank"] = acts_copy["activity_name"].map(
