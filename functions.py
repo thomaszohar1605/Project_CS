@@ -2,7 +2,7 @@ import os
 import random
 import pandas as pd
 import streamlit as st
-from ml_rating import build_itinerary_knn
+from ml_rating import build_itinerary_knn, save_rating, load_user_ratings, extract_keyword
 from weather import get_weather
 
 FOLDER = os.path.dirname(os.path.abspath(__file__))
@@ -78,6 +78,45 @@ def filter_by_preferences(activities, prefs):
         return activities
     filtered = activities[activities["category"].isin(prefs)]
     return filtered if not filtered.empty else activities
+
+
+def add_features(df):
+    """
+    Create the numeric columns that the KNN model needs.
+
+    locations.csv stores information as text (e.g. category = "Outdoor & Nature").
+    The KNN model can only work with numbers, so we convert each piece of
+    information into a 0 or 1 column:
+      - 0 means "no"  (this activity is NOT outdoor)
+      - 1 means "yes" (this activity IS outdoor)
+
+    This is called one-hot encoding — it is the standard way to turn
+    text categories into numbers for machine learning.
+    """
+    df = df.copy()
+
+    # --- Category features ---
+    # Each category gets its own column.
+    # A hike gets feat_outdoor = 1 and all other category columns = 0.
+    df["feat_outdoor"]   = (df["category"] == "Outdoor & Nature").astype(int)
+    df["feat_culture"]   = (df["category"] == "Culture & History").astype(int)
+    df["feat_food"]      = (df["category"] == "Food & Drink").astype(int)
+    df["feat_nightlife"] = (df["category"] == "Nightlife & Entertainment").astype(int)
+    df["feat_wellness"]  = (df["category"] == "Relaxation & Wellness").astype(int)
+    df["feat_adventure"] = (df["category"] == "Adventure & Sports").astype(int)
+    df["feat_nature"]    = (df["category"] == "Outdoor & Nature").astype(int)
+
+    # --- Duration feature ---
+    # How many days the activity is useful for (already a number, just rename it)
+    df["feat_duration"]  = df["max_useful_days"].fillna(2)
+
+    # --- Time slot features ---
+    # If an activity's time_slot contains "Morning", feat_morning = 1, otherwise 0
+    df["feat_morning"]   = df["time_slot"].str.contains("Morning",   na=False).astype(int)
+    df["feat_afternoon"] = df["time_slot"].str.contains("Afternoon", na=False).astype(int)
+    df["feat_evening"]   = df["time_slot"].str.contains("Evening",   na=False).astype(int)
+
+    return df
 
 
 def get_best_slot(time_slot_value):
@@ -204,6 +243,9 @@ def step_destination():
     df = load_activities()
     cities = get_cities(df)
 
+    # Ask for a name so the app can remember preferences across visits
+    username = st.text_input("Your name", placeholder="e.g. Gustav")
+
     col1, col2 = st.columns([2, 1])
     with col1:
         city = st.selectbox("Destination", cities)
@@ -212,6 +254,10 @@ def step_destination():
 
     st.write("")
     if st.button("Next →"):
+        if not username.strip():
+            st.warning("Please enter your name so we can remember your preferences.")
+            return
+        st.session_state["username"] = username.strip().lower()
         st.session_state["city"] = city
         st.session_state["num_days"] = num_days
         st.session_state["step"] = 2
@@ -263,6 +309,32 @@ def step_preferences():
 # ------------------------------------------------------------------
 def step_rating():
     render_progress(3)
+
+    username = st.session_state.get("username", "")
+
+    # Check if this user already has past ratings saved
+    past_ratings = load_user_ratings(username)
+
+    if len(past_ratings) >= 5:
+        # We already know this user — skip straight to the itinerary
+        st.markdown(
+            f'<div class="step-heading">Welcome back, {username.capitalize()}! 👋</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            '<div class="step-caption">'
+            f'We found your {len(past_ratings)} past ratings — '
+            'building your personalised itinerary now.'
+            '</div>',
+            unsafe_allow_html=True,
+        )
+        st.session_state["knn_ratings"] = past_ratings
+        st.session_state.pop("itinerary", None)
+        st.session_state["step"] = 4
+        st.rerun()
+        return
+
+    # New user — ask them to rate 5 sample activities
     st.markdown('<div class="step-heading">Rate these activities</div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="step-caption">'
@@ -273,6 +345,7 @@ def step_rating():
     )
 
     sample = st.session_state.get("sample_activities", [])
+    df_all = load_activities()
 
     ratings = {}
     for act in sample:
@@ -295,11 +368,18 @@ def step_rating():
             st.rerun()
     with col_next:
         if st.button("Build my personalised itinerary →"):
+            # Save each rating to ratings.csv with the username
+            for name, rating in ratings.items():
+                row = df_all[df_all["activity_name"] == name]
+                category      = row["category"].values[0] if not row.empty else "Unknown"
+                duration      = float(row["max_useful_days"].values[0]) if not row.empty else 2.0
+                keyword       = extract_keyword(name)
+                save_rating(username, name, category, duration, keyword, rating)
+
             st.session_state["knn_ratings"] = [
                 {"activity_name": name, "rating": rating}
                 for name, rating in ratings.items()
             ]
-            # Clear cached itinerary so step 4 rebuilds with new ratings
             st.session_state.pop("itinerary", None)
             st.session_state["step"] = 4
             st.rerun()
@@ -332,7 +412,9 @@ def step_itinerary():
         knn_ratings = st.session_state.get("knn_ratings", [])
         with st.spinner("🤖 Running KNN model to personalise your itinerary…"):
             if knn_ratings:
-                ranked_names = build_itinerary_knn(knn_ratings, acts_raw)
+                # Add the numeric columns the KNN needs (derived from locations.csv)
+                acts_with_features = add_features(acts_raw)
+                ranked_names = build_itinerary_knn(knn_ratings, acts_with_features)
                 name_order   = {name: i for i, name in enumerate(ranked_names)}
                 acts_copy    = acts_raw.copy()
                 acts_copy["_knn_rank"] = acts_copy["activity_name"].map(

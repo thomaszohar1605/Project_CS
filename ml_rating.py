@@ -32,20 +32,37 @@ def extract_keyword(activity_name: str) -> str:
     return "other"
 
 
-def save_rating(activity_name, category, duration_hours, keyword, rating):
+def save_rating(username, activity_name, category, duration_hours, keyword, rating):
+    # Create the file with a header if it does not exist yet
     if not os.path.exists(RATINGS_FILE):
         pd.DataFrame(columns=[
-            "activity_name", "category", "duration_hours", "keyword", "rating"
+            "username", "activity_name", "category", "duration_hours", "keyword", "rating"
         ]).to_csv(RATINGS_FILE, index=False)
     df = pd.read_csv(RATINGS_FILE)
     df = pd.concat([df, pd.DataFrame([{
-        "activity_name": activity_name,
-        "category": category,
+        "username":       username,
+        "activity_name":  activity_name,
+        "category":       category,
         "duration_hours": duration_hours,
-        "keyword": keyword,
-        "rating": rating,
+        "keyword":        keyword,
+        "rating":         rating,
     }])], ignore_index=True)
     df.to_csv(RATINGS_FILE, index=False)
+
+
+def load_user_ratings(username):
+    """
+    Read ratings.csv and return only the rows for this user.
+    Returns a list of dicts: [{"activity_name": ..., "rating": ...}, ...]
+    Returns an empty list if the user has no past ratings.
+    """
+    if not os.path.exists(RATINGS_FILE):
+        return []
+    df = pd.read_csv(RATINGS_FILE)
+    if "username" not in df.columns:
+        return []
+    user_rows = df[df["username"] == username]
+    return user_rows[["activity_name", "rating"]].to_dict("records")
 
 
 def predict_rating(activity_name, category, duration_hours, keyword):
