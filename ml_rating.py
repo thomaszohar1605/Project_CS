@@ -1,17 +1,21 @@
-import pandas as pd
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
+# ml_rating.py  — full replacement
+from __future__ import annotations
 import os
+import numpy as np
+import pandas as pd
+from sklearn.neighbors import NearestNeighbors
+from sklearn.preprocessing import MinMaxScaler
 
-RATINGS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ratings.csv")
+# Feature columns that must exist in locations.csv after running generate_features.py
+FEATURE_COLS = [
+    "feat_outdoor", "feat_duration",
+    "feat_morning", "feat_afternoon", "feat_evening",
+    "feat_adventure", "feat_culture", "feat_food",
+    "feat_nature", "feat_nightlife", "feat_wellness",
+]
 
-# List of keywords we look for in activity names.
-# The first keyword found in the name is used.
+# ---------- legacy helpers kept so existing imports don't break ----------
 
-# More specific keywords come first so they take priority.
-# e.g. "City Bike Tour" → "bike" (not "tour")
-# e.g. "Brewery Beer Tasting" → "tasting" (not "bar")
 KEYWORDS = [
     "museum", "hike", "kayak", "bike", "ski", "swimming", "boat",
     "spa", "balloon", "climbing", "tasting", "dinner", "restaurant",
@@ -19,145 +23,115 @@ KEYWORDS = [
     "library", "meditation", "bar", "club", "walk", "tour",
 ]
 
+RATINGS_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "ratings.csv"
+)
 
-def extract_keyword(activity_name):
-    """
-    Look at the activity name and return the first matching keyword.
-    For example:
-      "Kunsthaus Museum"       → "museum"
-      "Uetliberg Sunrise Hike" → "hike"
-      "Thermalbad & Spa"       → "spa"
-      "City Bike Tour"         → "bike"
-    If no keyword matches, return "other".
-    """
+
+def extract_keyword(activity_name: str) -> str:
     name = activity_name.lower()
-    for keyword in KEYWORDS:
-        if keyword in name:
-            return keyword
+    for kw in KEYWORDS:
+        if kw in name:
+            return kw
     return "other"
 
 
 def save_rating(activity_name, category, duration_hours, keyword, rating):
-    # Create the file with a header if it does not exist yet
     if not os.path.exists(RATINGS_FILE):
-        df = pd.DataFrame(columns=["activity_name", "category",
-                                    "duration_hours", "keyword", "rating"])
-        df.to_csv(RATINGS_FILE, index=False)
-
+        pd.DataFrame(columns=[
+            "activity_name", "category", "duration_hours", "keyword", "rating"
+        ]).to_csv(RATINGS_FILE, index=False)
     df = pd.read_csv(RATINGS_FILE)
-
-    new_row = {
+    df = pd.concat([df, pd.DataFrame([{
         "activity_name": activity_name,
-        "category":      category,
+        "category": category,
         "duration_hours": duration_hours,
-        "keyword":        keyword,
-        "rating":         rating,
-    }
-    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+        "keyword": keyword,
+        "rating": rating,
+    }])], ignore_index=True)
     df.to_csv(RATINGS_FILE, index=False)
 
 
 def predict_rating(activity_name, category, duration_hours, keyword):
-    if not os.path.exists(RATINGS_FILE):
-        return None
-    df = pd.read_csv(RATINGS_FILE)
-    if len(df) < 5:
-        return None
-
-    # Encode category as a number
-    df["category_code"] = df["category"].astype("category").cat.codes
-    all_categories = df["category"].astype("category").cat.categories.tolist()
-    category_code = all_categories.index(category) if category in all_categories else -1
-
-    # Encode keyword as a number
-    df["keyword_code"] = df["keyword"].astype("category").cat.codes
-    all_keywords = df["keyword"].astype("category").cat.categories.tolist()
-    keyword_code = all_keywords.index(keyword) if keyword in all_keywords else -1
-
-    X = df[["category_code", "duration_hours", "keyword_code"]]
-    y = df["rating"]
-
-    scaler = MinMaxScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    model = KNeighborsClassifier(n_neighbors=3)
-    model.fit(X_scaled, y)
-
-    new_activity = [[category_code, duration_hours, keyword_code]]
-    new_activity_scaled = scaler.transform(new_activity)
-
-    predicted_rating = model.predict(new_activity_scaled)
-    return int(predicted_rating[0])
+    return None   # not used in new flow
 
 
 def get_neighbours(activity_name, category, duration_hours, keyword):
-    """
-    Return the 3 most similar activities the model used to make its prediction.
-    Each neighbour is a dict: {"name": ..., "rating": ..., "keyword": ...}
-    """
-    if not os.path.exists(RATINGS_FILE):
-        return []
-    df = pd.read_csv(RATINGS_FILE)
-    if len(df) < 5:
-        return []
-
-    # Encode category
-    df["category_code"] = df["category"].astype("category").cat.codes
-    all_categories = df["category"].astype("category").cat.categories.tolist()
-    category_code = all_categories.index(category) if category in all_categories else -1
-
-    # Encode keyword
-    df["keyword_code"] = df["keyword"].astype("category").cat.codes
-    all_keywords = df["keyword"].astype("category").cat.categories.tolist()
-    keyword_code = all_keywords.index(keyword) if keyword in all_keywords else -1
-
-    X = df[["category_code", "duration_hours", "keyword_code"]]
-    y = df["rating"]
-
-    scaler = MinMaxScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    model = KNeighborsClassifier(n_neighbors=3)
-    model.fit(X_scaled, y)
-
-    new_activity = [[category_code, duration_hours, keyword_code]]
-    new_activity_scaled = scaler.transform(new_activity)
-
-    # Get the 3 closest neighbours
-    distances, indices = model.kneighbors(new_activity_scaled)
-
-    neighbours = []
-    for i in indices[0]:
-        neighbours.append({
-            "name":    df.iloc[i]["activity_name"],
-            "rating":  int(df.iloc[i]["rating"]),
-            "keyword": df.iloc[i]["keyword"],
-        })
-
-    return neighbours
+    return []     # not used in new flow
 
 
 def get_model_accuracy():
-    if not os.path.exists(RATINGS_FILE):
-        return None
-    df = pd.read_csv(RATINGS_FILE)
-    if len(df) < 10:
-        return None
+    return None   # not used in new flow
 
-    df["category_code"] = df["category"].astype("category").cat.codes
-    df["keyword_code"]  = df["keyword"].astype("category").cat.codes
 
-    X = df[["category_code", "duration_hours", "keyword_code"]]
-    y = df["rating"]
+# ---------- NEW: KNN-based itinerary builder ----------
+
+def _weight(rating: int) -> float:
+    """Non-linear weight: punishes low ratings, rewards high ones."""
+    return (rating / 3.0) ** 2
+
+
+def build_itinerary_knn(
+    rated_activities: list[dict],   # [{"activity_name": str, "rating": int}, ...]
+    candidate_df: pd.DataFrame,     # all activities for this city, with FEATURE_COLS
+    n_neighbors: int = 40,
+) -> list[str]:
+    """
+    Given a small set of rated activities, return all candidate activities
+    ranked by KNN cosine similarity to the user's preference profile.
+
+    Parameters
+    ----------
+    rated_activities : list of dicts with keys "activity_name" and "rating"
+    candidate_df     : DataFrame of city activities, must include FEATURE_COLS
+    n_neighbors      : how many neighbors the KNN considers
+
+    Returns
+    -------
+    List of activity_name strings, best match first.
+    """
+    # 1. Build feature matrix for all candidates
+    df = candidate_df.copy().reset_index(drop=True)
+
+    # Guard: if feature columns are missing, fall back to shuffled order
+    missing = [c for c in FEATURE_COLS if c not in df.columns]
+    if missing:
+        return df["activity_name"].sample(frac=1).tolist()
+
+    X = df[FEATURE_COLS].fillna(0).values
 
     scaler = MinMaxScaler()
     X_scaled = scaler.fit_transform(X)
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X_scaled, y, test_size=0.3, random_state=42
-    )
-    model = KNeighborsClassifier(n_neighbors=3)
-    model.fit(X_train, y_train)
+    # 2. Build user preference vector from rated activities
+    rated_map = {r["activity_name"]: r["rating"] for r in rated_activities}
 
-    accuracy = model.score(X_test, y_test)
-    return round(accuracy * 100, 1)
+    vecs, weights = [], []
+    for _, row in df.iterrows():
+        name = row["activity_name"]
+        if name in rated_map:
+            rating = rated_map[name]
+            vecs.append(X_scaled[_])
+            weights.append(_weight(rating))
+
+    if not vecs:
+        # No overlap between rated names and candidates — return random order
+        return df["activity_name"].sample(frac=1).tolist()
+
+    vecs = np.array(vecs)
+    weights = np.array(weights)
+    user_vector = np.average(vecs, axis=0, weights=weights)
+
+    # 3. Fit KNN on all candidates and find nearest neighbors
+    k = min(n_neighbors, len(df))
+    knn = NearestNeighbors(metric="cosine", n_neighbors=k)
+    knn.fit(X_scaled)
+
+    _, indices = knn.kneighbors(user_vector.reshape(1, -1))
+    ranked_names = df.iloc[indices[0]]["activity_name"].tolist()
+
+    # 4. Append any activities not yet in the ranked list (tail)
+    ranked_set = set(ranked_names)
+    tail = [n for n in df["activity_name"] if n not in ranked_set]
+
+    return ranked_names + tail
