@@ -1,6 +1,7 @@
 import os
 import random
 import pandas as pd
+import plotly.express as px
 import streamlit as st
 from ml_rating import build_itinerary_knn
 from weather import get_weather
@@ -343,15 +344,17 @@ def step_itinerary():
             if knn_ratings:
                 # Add the numeric columns the KNN needs (derived from locations.csv)
                 acts_with_features = add_features(acts_raw)
-                ranked_names = build_itinerary_knn(knn_ratings, acts_with_features)
+                ranked_names, scores_dict = build_itinerary_knn(knn_ratings, acts_with_features)
                 name_order   = {name: i for i, name in enumerate(ranked_names)}
                 acts_copy    = acts_raw.copy()
                 acts_copy["_knn_rank"] = acts_copy["activity_name"].map(
                     lambda n: name_order.get(n, 9999)
                 )
                 acts_sorted = acts_copy.sort_values("_knn_rank").drop(columns=["_knn_rank"])
+                st.session_state["knn_scores"] = scores_dict
             else:
                 acts_sorted = acts_raw
+                st.session_state["knn_scores"] = {}
 
         # ── Build timetable (order is now KNN-ranked) ─────────────────
         st.session_state["itinerary"] = build_itinerary(acts_sorted, num_days, forecast)
@@ -404,6 +407,48 @@ def step_itinerary():
                         f'</div>',
                         unsafe_allow_html=True,
                     )
+
+    # ── KNN score chart ───────────────────────────────────────────────
+    scores_dict = st.session_state.get("knn_scores", {})
+    if scores_dict:
+        st.write("")
+        st.markdown("**🤖 How the ML model scored your activities**")
+        st.caption(
+            "Each bar is an activity available in your destination. "
+            "A positive score means the model thinks you'll enjoy it (similar to what you rated highly). "
+            "A negative score means it resembles something you disliked."
+        )
+
+        df_all_feats = load_activities()
+        chart_df = pd.DataFrame([
+            {
+                "activity": name,
+                "score": round(score, 3),
+                "category": df_all_feats.loc[
+                    df_all_feats["activity_name"] == name, "category"
+                ].values[0] if name in df_all_feats["activity_name"].values else "Unknown",
+            }
+            for name, score in scores_dict.items()
+        ])
+        chart_df = chart_df.sort_values("score", ascending=False).head(20)
+
+        fig = px.bar(
+            chart_df,
+            x="score",
+            y="activity",
+            color="category",
+            orientation="h",
+            labels={"score": "KNN score", "activity": "", "category": "Category"},
+            title="Top 20 recommended activities (by ML score)",
+            height=520,
+        )
+        fig.update_layout(
+            yaxis={"categoryorder": "total ascending"},
+            legend_title_text="Category",
+            margin=dict(l=10, r=10, t=40, b=10),
+        )
+        fig.add_vline(x=0, line_width=1, line_dash="dash", line_color="grey")
+        st.plotly_chart(fig, use_container_width=True)
 
     # ── Weather forecast (below the timetable) ────────────────────────
     if forecast:
