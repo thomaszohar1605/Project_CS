@@ -1,4 +1,3 @@
-# ml_rating.py  — full replacement
 from __future__ import annotations
 import os
 import numpy as np
@@ -6,15 +5,12 @@ import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import MinMaxScaler
 
-# Feature columns that must exist in locations.csv after running generate_features.py
 FEATURE_COLS = [
     "feat_outdoor", "feat_duration",
     "feat_morning", "feat_afternoon", "feat_evening",
     "feat_adventure", "feat_culture", "feat_food",
     "feat_nature", "feat_nightlife", "feat_wellness",
 ]
-
-# ---------- legacy helpers kept so existing imports don't break ----------
 
 KEYWORDS = [
     "museum", "hike", "kayak", "bike", "ski", "swimming", "boat",
@@ -53,85 +49,105 @@ def save_rating(activity_name, category, duration_hours, keyword, rating):
 
 
 def predict_rating(activity_name, category, duration_hours, keyword):
-    return None   # not used in new flow
+    return None
 
 
 def get_neighbours(activity_name, category, duration_hours, keyword):
-    return []     # not used in new flow
+    return []
 
 
 def get_model_accuracy():
-    return None   # not used in new flow
-
-
-# ---------- NEW: KNN-based itinerary builder ----------
-
-def _weight(rating: int) -> float:
-    """Non-linear weight: punishes low ratings, rewards high ones."""
-    return (rating / 3.0) ** 2
+    return None
 
 
 def build_itinerary_knn(
-    rated_activities: list[dict],   # [{"activity_name": str, "rating": int}, ...]
-    candidate_df: pd.DataFrame,     # all activities for this city, with FEATURE_COLS
+    rated_activities: list[dict],
+    candidate_df: pd.DataFrame,
     n_neighbors: int = 40,
 ) -> list[str]:
     """
-    Given a small set of rated activities, return all candidate activities
-    ranked by KNN cosine similarity to the user's preference profile.
+    Rank candidate activities by how well they match the user's preferences.
 
-    Parameters
-    ----------
-    rated_activities : list of dicts with keys "activity_name" and "rating"
-    candidate_df     : DataFrame of city activities, must include FEATURE_COLS
-    n_neighbors      : how many neighbors the KNN considers
+    Key idea: instead of a weighted average (which collapses low/high ratings
+    toward the same point when features are similar), we compute two separate
+    vectors — a LIKE vector and a DISLIKE vector — and score each candidate as:
 
-    Returns
-    -------
-    List of activity_name strings, best match first.
+        score = cosine_similarity(candidate, like_vector)
+                - cosine_similarity(candidate, dislike_vector)
+
+    This means activities similar to what the user liked rank HIGH, and
+    activities similar to what the user disliked rank LOW — even when the
+    underlying feature vectors are nearly identical across the candidate pool.
     """
-    # 1. Build feature matrix for all candidates
     df = candidate_df.copy().reset_index(drop=True)
 
-    # Guard: if feature columns are missing, fall back to shuffled order
+    # Guard: fall back to shuffled order if feature columns are missing
     missing = [c for c in FEATURE_COLS if c not in df.columns]
     if missing:
         return df["activity_name"].sample(frac=1).tolist()
 
     X = df[FEATURE_COLS].fillna(0).values
-
     scaler = MinMaxScaler()
     X_scaled = scaler.fit_transform(X)
 
-    # 2. Build user preference vector from rated activities
     rated_map = {r["activity_name"]: r["rating"] for r in rated_activities}
 
-    vecs, weights = [], []
-    for _, row in df.iterrows():
-        name = row["activity_name"]
-        if name in rated_map:
-            rating = rated_map[name]
-            vecs.append(X_scaled[_])
-            weights.append(_weight(rating))
+    like_vecs    = []   # ratings 4–5
+    dislike_vecs = []   # ratings 1–2
+    neutral_vecs = []   # rating 3
 
-    if not vecs:
-        # No overlap between rated names and candidates — return random order
+    for pos, row in enumerate(df.itertuples(index=False)):
+        name = row.activity_name
+        if name not in rated_map:
+            continue
+        rating = rated_map[name]
+        vec = X_scaled[pos]
+
+        if rating >= 4:
+            # Weight higher ratings more strongly
+            w = (rating - 3) ** 2      # 4 → 1.0,  5 → 4.0
+            like_vecs.extend([vec] * int(w * 10))
+        elif rating <= 2:
+            w = (3 - rating) ** 2      # 2 → 1.0,  1 → 4.0
+            dislike_vecs.extend([vec] * int(w * 10))
+        else:
+            neutral_vecs.append(vec)
+
+    # If no ratings matched candidates at all, return shuffled
+    if not like_vecs and not dislike_vecs and not neutral_vecs:
         return df["activity_name"].sample(frac=1).tolist()
 
-    vecs = np.array(vecs)
-    weights = np.array(weights)
-    user_vector = np.average(vecs, axis=0, weights=weights)
+    # Build like / dislike vectors (fall back to neutral if one side is empty)
+    if like_vecs:
+        like_vector = np.mean(like_vecs, axis=0)
+    elif neutral_vecs:
+        like_vector = np.mean(neutral_vecs, axis=0)
+    else:
+        like_vector = None
 
-    # 3. Fit KNN on all candidates and find nearest neighbors
-    k = min(n_neighbors, len(df))
-    knn = NearestNeighbors(metric="cosine", n_neighbors=k)
-    knn.fit(X_scaled)
+    if dislike_vecs:
+        dislike_vector = np.mean(dislike_vecs, axis=0)
+    else:
+        dislike_vector = None
 
-    _, indices = knn.kneighbors(user_vector.reshape(1, -1))
-    ranked_names = df.iloc[indices[0]]["activity_name"].tolist()
+    # Score every candidate
+    def cosine_sim(a: np.ndarray, b: np.ndarray) -> float:
+        denom = np.linalg.norm(a) * np.linalg.norm(b)
+        if denom == 0:
+            return 0.0
+        return float(np.dot(a, b) / denom)
 
-    # 4. Append any activities not yet in the ranked list (tail)
-    ranked_set = set(ranked_names)
-    tail = [n for n in df["activity_name"] if n not in ranked_set]
+    scores = []
+    for pos in range(len(df)):
+        vec = X_scaled[pos]
+        score = 0.0
+        if like_vector is not None:
+            score += cosine_sim(vec, like_vector)
+        if dislike_vector is not None:
+            score -= cosine_sim(vec, dislike_vector)
+        scores.append(score)
 
-    return ranked_names + tail
+    # Sort candidates best → worst
+    order = np.argsort(scores)[::-1]
+    ranked_names = df.iloc[order]["activity_name"].tolist()
+    return ranked_names
