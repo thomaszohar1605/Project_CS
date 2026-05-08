@@ -220,7 +220,7 @@ except NameError:
 df_raw = pd.read_csv(_CSV)
 
 st.markdown(
-    '<div class="step-heading">📍 Activities across Switzerland</div>',
+    '<div class="step-heading"> Activities across Switzerland</div>',
     unsafe_allow_html=True,
 )
 
