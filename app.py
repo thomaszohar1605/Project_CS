@@ -1,261 +1,564 @@
-from __future__ import annotations
 
-import sys, os, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent) if "__file__" in dir() else os.getcwd())
+#import the relevant libraries 
 
-import streamlit as st
-from functions import run_app
-from ml_rating import save_rating, predict_rating, get_model_accuracy
+import os
+import random
 import pandas as pd
-import pydeck as pdk
+import streamlit as st
+from ml_rating import save_rating, predict_rating, get_model_accuracy, get_neighbours, extract_keyword
+from weather import get_weather
 
-st.set_page_config(
-    page_title="Swiss Vacation Planner",
-    page_icon="🏔️",
-    layout="wide",
-    initial_sidebar_state="collapsed",
-)
 
-st.markdown("""
-<style>
+# Place of locations.csv and ratings.csv
+FOLDER = os.path.dirname(os.path.abspath(__file__))
+RATINGS_FILE = os.path.join(FOLDER, "ratings.csv")
 
-/* Hide sidebar */
-[data-testid="collapsedControl"] { display: none; }
-section[data-testid="stSidebar"]  { display: none; }
+# the 6 activities / list of activities
+CATEGORIES = [
+    "Outdoor & Nature",
+    "Culture & History",
+    "Food & Drink",
+    "Nightlife & Entertainment",
+    "Relaxation & Wellness",
+    "Adventure & Sports",
+]
 
-/* Base */
-html, body, .stApp {
-    font-size: 16px;
-    background-color: #f0f6fc;
-    font-family: 'Segoe UI', sans-serif;
-    color: #1a3a5c;
+# the 3 period of the day for the activites / list of period
+SLOTS = ["Morning", "Afternoon", "Evening"]
+
+# CSS class for each slot (used for colouring in the timetable)
+SLOT_CLASSES = {
+    "Morning":   "tt-morning",
+    "Afternoon": "tt-afternoon",
+    "Evening":   "tt-evening",
 }
 
-/* Force all text navy */
-p, span, div, label, h1, h2, h3, h4, h5, h6,
-.stMarkdown p, .stMarkdown span,
-.stCheckbox label, .stCheckbox span,
-.stSelectbox label, .stRadio label,
-.stSlider label, .stDateInput label,
-[data-testid="stMarkdownContainer"] p,
-[data-testid="stMarkdownContainer"] span,
-[data-baseweb="select"] span {
-    color: #1a3a5c !important;
+# Emoji icon for each slot
+SLOT_ICONS = {
+    "Morning":   "🌅",
+    "Afternoon": "☀️",
+    "Evening":   "🌙",
 }
 
-/* Hero banner */
-.hero {
-    background: linear-gradient(135deg, #2e6da4 0%, #4a9fd4 100%);
-    border-radius: 1.4rem;
-    padding: 2.2rem 2.6rem 1.8rem 2.6rem;
-    margin-bottom: 2rem;
-}
-.hero-title {
-    font-size: 2.4rem;
-    font-weight: 800;
-    color: #ffffff !important;
-    letter-spacing: -0.02em;
-    margin-bottom: 0.4rem;
-}
-.hero-subtitle {
-    font-size: 1.05rem;
-    color: #dceffe !important;
+# Some categories only make sense at certain times of day.
+# This dictionary defines which slots are ALLOWED for each category.
+# Any category not listed here can go in any slot.
+CATEGORY_ALLOWED_SLOTS = {
+    "Nightlife & Entertainment": ["Evening"],
+    "Relaxation & Wellness":     ["Morning", "Afternoon"],
 }
 
-/* Progress bar */
-.prog-step {
-    padding: 0.45rem 0.5rem;
-    border-radius: 0.6rem;
-    text-align: center;
-    font-size: 0.82rem;
-    font-weight: 600;
-    background: #dce8f0;
-    color: #5a7a9a !important;
-}
-.prog-step.done    { background: #34d399; color: #064e3b !important; }
-.prog-step.current { background: #2e6da4; color: #ffffff !important; }
 
-/* Step headings */
-.step-heading {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #1a3a5c !important;
-    margin-bottom: 0.2rem;
-}
-.step-caption {
-    font-size: 0.92rem;
-    color: #4a7a9b !important;
-    margin-bottom: 1.2rem;
-}
+def is_allowed_in_slot(row, slot):
+    """
+    Check if an activity is allowed to be placed in a given time slot.
+    For example, nightlife activities can only go in the Evening slot.
+    Returns True if the activity is allowed, False if not.
+    """
+    category = row.get("category", "")
 
-/* Summary boxes */
-.summary-box {
-    background: #e8f4fd;
-    border: 1px solid #a8cfe8;
-    border-radius: 0.8rem;
-    padding: 0.8rem 1.1rem;
-    font-size: 0.93rem;
-    color: #1a3a5c !important;
-    margin-bottom: 0.9rem;
-}
+    # If this category has slot restrictions, check them
+    if category in CATEGORY_ALLOWED_SLOTS:
+        allowed = CATEGORY_ALLOWED_SLOTS[category]
+        return slot in allowed
 
-/* Activity meta */
-.act-meta {
-    font-size: 0.83rem;
-    color: #4a7a9b !important;
-    margin-top: 0.1rem;
-    margin-bottom: 0.4rem;
-}
-
-/* Timetable */
-.tt-header {
-    font-weight: 700;
-    color: #1a3a5c !important;
-    font-size: 0.9rem;
-    padding: 0.4rem 0;
-    border-bottom: 2px solid #2e6da4;
-    margin-bottom: 0.5rem;
-}
-.tt-slot {
-    border-radius: 0.5rem;
-    padding: 0.4rem 0.6rem;
-    font-size: 0.82rem;
-    margin-bottom: 0.3rem;
-    color: #1a3a5c !important;
-    font-weight: 500;
-}
-.tt-morning   { background: #fef9c3; }
-.tt-afternoon { background: #dcfce7; }
-.tt-evening   { background: #fee2e2; }
-.tt-night     { background: #ede9fe; }
-.tt-free      { background: #f1f5f9; color: #94a3b8 !important; font-style: italic; }
-
-/* Input fields */
-div[data-testid="stSelectbox"] div[role="combobox"],
-div[data-testid="stTextInput"] input {
-    background-color: #ffffff !important;
-    border-radius: 0.6rem !important;
-    border: 1px solid #a8c8e0 !important;
-    font-size: 1rem !important;
-    color: #1a3a5c !important;
-}
-
-/* Labels */
-label, .stMarkdown p, .stMarkdown li {
-    font-size: 1rem !important;
-    color: #1a3a5c !important;
-}
-
-/* Buttons */
-.stButton > button {
-    background-color: #2e6da4;
-    color: #ffffff !important;
-    border: none;
-    border-radius: 0.6rem;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    transition: background-color 0.2s;
-}
-.stButton > button:hover {
-    background-color: #1a3a5c;
-    color: #ffffff !important;
-}
-
-/* Footer */
-.footer {
-    text-align: center;
-    color: #8aa8c0 !important;
-    padding: 28px 0 8px 0;
-    font-size: 0.85rem;
-}
-
-/* Dropdown menu background */
-ul[data-testid="stSelectboxVirtualDropdown"],
-[data-baseweb="popover"],
-[data-baseweb="menu"],
-[role="listbox"],
-[role="option"] {
-    background-color: #e8f4fd !important;
-    color: #1a3a5c !important;
-}
-
-/* Each option in the dropdown */
-li[role="option"],
-[data-baseweb="menu"] li,
-[role="option"] span {
-    background-color: #e8f4fd !important;
-    color: #1a3a5c !important;
-}
-
-/* Hovered option */
-li[role="option"]:hover,
-[role="option"]:hover {
-    background-color: #b0d4f0 !important;
-    color: #1a3a5c !important;
-}
-
-/* Placeholder text in dropdowns */
-[data-baseweb="select"] [data-testid="stSelectboxPlaceholder"],
-[data-baseweb="select"] placeholder,
-div[data-baseweb="select"] span {
-    color: #4a9fd4 !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown(
-    '<div class="hero">'
-    '<div class="hero-title">🏔️ Swiss Vacation Planner</div>'
-    '<div class="hero-subtitle">'
-    "Tell us where you want to go and we'll build your perfect Swiss trip — day by day."
-    '</div>'
-    '</div>',
-    unsafe_allow_html=True,
-)
-
-# ── Activity Map ──────────────────────────────────────────────────────────────
-import pathlib
-try:
-    _CSV = pathlib.Path(__file__).resolve().parent / "locations.csv"
-except NameError:
-    _CSV = pathlib.Path("locations.csv")
-df_raw = pd.read_csv(_CSV)
-
-st.markdown('<div class="step-heading">📍 Activities across Switzerland</div>', unsafe_allow_html=True)
-
-st.pydeck_chart(pdk.Deck(
-    initial_view_state=pdk.ViewState(
-        latitude=46.8,
-        longitude=8.2,
-        zoom=7,
-        pitch=0,
-    ),
-    layers=[
-        pdk.Layer(
-            "ScatterplotLayer",
-            data=df_raw,
-            get_position="[lon, lat]",
-            get_radius=1500,
-            get_color=[220, 38, 38, 200],
-            get_line_color=[255, 255, 255],
-            stroked=True,
-            line_width_min_pixels=1,
-            pickable=True,
-        )
-    ],
-    tooltip={
-        "html": "<b>{activity_name}</b><br/>{city}<br/><i>{category}</i>",
-        "style": {"color": "white", "backgroundColor": "#000205", "padding": "6px 10px", "borderRadius": "6px"},
-    },
-))
-
-# ──────────────────────────────────────────────────────────────────────────────
-
-run_app()
+    # If no restriction is defined for this category, it's allowed anywhere
+    return True
 
 
-#Problem to solve:
-## Do we continue doing different town in Switzerland or focusing one by one
-## Need to classify the activities according to the best perdiod of the day to do (e.g Flon the evening not the morning)
-## Implement a budget 
+# ------------------------------------------------------------------
+# Load the CSV file that contains all activities
+# @st.cache_data means Streamlit only reads the file once,
+# not every time the page refreshes
+# ------------------------------------------------------------------
+@st.cache_data
+def load_activities():
+    file_path = os.path.join(FOLDER, "locations.csv")
+    df = pd.read_csv(file_path)
+    return df
+
+
+# ------------------------------------------------------------------
+# Get the weather forecast for a city
+# We look up the city's coordinates in the CSV,
+# then call the weather API
+# The result is cached for 1 hour so we don't call the API too often
+# ------------------------------------------------------------------
+@st.cache_data(ttl=3600)
+def get_city_forecast(city, num_days):
+    df = load_activities()
+
+    # Find the rows for this city
+    city_rows = df[df["city"] == city]
+
+    # If the city is not in the CSV, return an empty list
+    if city_rows.empty:
+        return []
+
+    # Take the latitude and longitude from the first row
+    lat = float(city_rows.iloc[0]["lat"])
+    lon = float(city_rows.iloc[0]["lon"])
+
+    # Call the weather API and return the forecast
+    return get_weather(lat, lon, num_days)
+
+
+# ------------------------------------------------------------------
+# Check if the weather is bad (rainy, snowy, stormy...)
+# Returns True if it's better to stay indoors
+# ------------------------------------------------------------------
+def is_bad_weather(weather_label):
+    bad_words = ["rain", "drizzle", "snow", "storm", "thunder"]
+    weather_label = weather_label.lower()
+    for word in bad_words:
+        if word in weather_label:
+            return True
+    return False
+
+
+# ------------------------------------------------------------------
+# Return a sorted list of all cities in the CSV
+# ------------------------------------------------------------------
+def get_cities(df):
+    cities = df["city"].dropna().unique().tolist()
+    cities = sorted(cities)
+    return cities
+
+
+# ------------------------------------------------------------------
+# Return only the activities for the chosen city
+# ------------------------------------------------------------------
+def city_activities(df, city):
+    filtered = df[df["city"] == city]
+    filtered = filtered.reset_index(drop=True)
+    return filtered
+
+
+# ------------------------------------------------------------------
+# Keep only activities that match the user's chosen categories
+# If nothing matches (or no preference chosen), return everything
+# ------------------------------------------------------------------
+def filter_by_preferences(activities, prefs):
+    # If the user didn't pick any preference, return all activities
+    if len(prefs) == 0:
+        return activities
+
+    # Keep only rows where the category is in the user's list
+    filtered = activities[activities["category"].isin(prefs)]
+
+    # If the filter removed everything, fall back to all activities
+    if filtered.empty:
+        return activities
+
+    return filtered
+
+
+# ------------------------------------------------------------------
+# Find the best time slot for an activity
+# The CSV has a "time_slot" column like "Morning|Afternoon"
+# We pick the first one we recognise
+# ------------------------------------------------------------------
+def get_best_slot(time_slot_value):
+    # If there's no value, pick a random slot
+    if pd.isna(time_slot_value):
+        return random.choice(SLOTS)
+
+    # Split by "|" to get a list of slots e.g. ["Morning", "Afternoon"]
+    parts = str(time_slot_value).split("|")
+    parts = [p.strip() for p in parts]
+
+    # Return the first slot that matches our list
+    for slot in SLOTS:
+        if slot in parts:
+            return slot
+
+    # If nothing matched, pick randomly
+    return random.choice(SLOTS)
+
+
+# ------------------------------------------------------------------
+# Build a day-by-day itinerary
+# Each day has Morning, Afternoon, Evening slots
+# We try to respect the weather (indoor on rainy days, outdoor on sunny days)
+# ------------------------------------------------------------------
+def build_itinerary(activities, num_days, forecast):
+    # Shuffle the activities so the order is random each time
+    activities = activities.sample(frac=1).reset_index(drop=True)
+
+    # Convert the DataFrame to a list of dictionaries (easier to work with)
+    all_rows = activities.to_dict("records")
+
+    # Sort activities into buckets by their best time slot
+    # e.g. buckets["Morning"] = [list of morning activities]
+    buckets = {
+        "Morning":   [],
+        "Afternoon": [],
+        "Evening":   [],
+    }
+    for row in all_rows:
+        best_slot = get_best_slot(row.get("time_slot", ""))
+        buckets[best_slot].append(row)
+
+    # This set keeps track of activities we already placed
+    # so we don't repeat the same activity twice
+    already_used = set()
+
+    # This will be our final itinerary: a list of day plans
+    itinerary = []
+
+    for day_number in range(1, num_days + 1):
+        # Check if this day is rainy or sunny
+        day_index = day_number - 1
+        if day_index < len(forecast) and is_bad_weather(forecast[day_index]["label"]):
+            prefer_indoor = True   # bad weather → stay inside
+        else:
+            prefer_indoor = False  # good weather → go outside
+
+        # Build the plan for this day (one activity per slot)
+        day_plan = {}
+
+        for slot in SLOTS:
+            chosen_activity = None
+
+            # Step 1: Try to find an activity in the right slot
+            # that also matches the weather preference AND is allowed in this slot
+            for row in buckets[slot]:
+                name = row["activity_name"]
+                setting = str(row.get("indoor_outdoor", "")).lower()
+
+                if name in already_used:
+                    continue  # skip activities we already used
+
+                if not is_allowed_in_slot(row, slot):
+                    continue  # skip if this category doesn't belong in this slot
+
+                if prefer_indoor and (setting == "indoor" or setting == "both"):
+                    chosen_activity = row
+                    break
+                elif not prefer_indoor and (setting == "outdoor" or setting == "both"):
+                    chosen_activity = row
+                    break
+
+            # Step 2: If we didn't find one, try all slots (still matching weather)
+            if chosen_activity is None:
+                for any_slot in SLOTS:
+                    for row in buckets[any_slot]:
+                        name = row["activity_name"]
+                        setting = str(row.get("indoor_outdoor", "")).lower()
+
+                        if name in already_used:
+                            continue
+
+                        # Check against 'slot' (where we want to place it),
+                        # NOT 'any_slot' (where it came from)
+                        if not is_allowed_in_slot(row, slot):
+                            continue
+
+                        if prefer_indoor and (setting == "indoor" or setting == "both"):
+                            chosen_activity = row
+                            break
+                        elif not prefer_indoor and (setting == "outdoor" or setting == "both"):
+                            chosen_activity = row
+                            break
+
+                    if chosen_activity is not None:
+                        break
+
+            # Step 3: Last resort — take any unused activity that is allowed in this slot
+            if chosen_activity is None:
+                for any_slot in SLOTS:
+                    for row in buckets[any_slot]:
+                        name = row["activity_name"]
+                        # Again, check against 'slot' (destination), not 'any_slot' (source)
+                        if name not in already_used and is_allowed_in_slot(row, slot):
+                            chosen_activity = row
+                            break
+                    if chosen_activity is not None:
+                        break
+
+            # Save the result for this slot
+            if chosen_activity is not None:
+                day_plan[slot] = chosen_activity["activity_name"]
+                already_used.add(chosen_activity["activity_name"])
+            else:
+                day_plan[slot] = "Free time — explore at your own pace"
+
+        # Add this day to the itinerary
+        itinerary.append({"day": day_number, "slots": day_plan})
+
+    return itinerary
+
+
+# ------------------------------------------------------------------
+# Draw the progress bar at the top of the page
+# Shows which step the user is on (1, 2, or 3)
+# ------------------------------------------------------------------
+def render_progress(current_step):
+    steps = ["1 · Destination", "2 · Preferences", "3 · Your Itinerary"]
+    cols = st.columns(3)
+
+    for i in range(3):
+        step_number = i + 1
+        label = steps[i]
+
+        if step_number < current_step:
+            css_class = "prog-step done"      # already completed
+        elif step_number == current_step:
+            css_class = "prog-step current"   # currently on this step
+        else:
+            css_class = "prog-step"           # not reached yet
+
+        cols[i].markdown(f'<div class="{css_class}">{label}</div>', unsafe_allow_html=True)
+
+    st.write("")
+
+
+# ------------------------------------------------------------------
+# STEP 1 — Ask the user where they want to go and for how many days
+# ------------------------------------------------------------------
+def step_destination():
+    render_progress(1)
+
+    st.markdown('<div class="step-heading">Where are you heading?</div>', unsafe_allow_html=True)
+    st.markdown('<div class="step-caption">Pick a Swiss destination and how many days you have.</div>', unsafe_allow_html=True)
+
+    # Load the data and get the list of cities
+    df = load_activities()
+    cities = get_cities(df)
+
+    # Show the dropdowns side by side
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        city = st.selectbox("Destination", cities)
+    with col2:
+        num_days = st.selectbox("Number of days", [1, 2, 3, 4, 5, 6, 7], index=2)
+
+    st.write("")
+
+    # When the user clicks Next, save their choices and go to step 2
+    if st.button("Next →"):
+        st.session_state["city"] = city
+        st.session_state["num_days"] = num_days
+        st.session_state["step"] = 2
+        st.rerun()
+
+
+# ------------------------------------------------------------------
+# STEP 2 — Ask the user what kind of activities they enjoy
+# ------------------------------------------------------------------
+def step_preferences():
+    render_progress(2)
+
+    st.markdown('<div class="step-heading">What do you enjoy?</div>', unsafe_allow_html=True)
+    st.markdown('<div class="step-caption">Choose one or more activity types — or skip to include everything.</div>', unsafe_allow_html=True)
+
+    # Show checkboxes in 3 columns
+    selected_prefs = []
+    cols = st.columns(3)
+
+    for i in range(len(CATEGORIES)):
+        category = CATEGORIES[i]
+        col = cols[i % 3]  # puts items into columns 0, 1, 2, 0, 1, 2, ...
+        with col:
+            if st.checkbox(category):
+                selected_prefs.append(category)
+
+    st.write("")
+
+    col_back, col_next = st.columns([1, 5])
+
+    with col_back:
+        if st.button("← Back"):
+            st.session_state["step"] = 1
+            st.rerun()
+
+    with col_next:
+        if st.button("Build my itinerary →"):
+            # Save the preferences
+            st.session_state["prefs"] = selected_prefs
+
+            # Load activities for the chosen city
+            df = load_activities()
+            acts = city_activities(df, st.session_state["city"])
+
+            # If somehow there are no activities, use all activities as a backup
+            if acts.empty:
+                acts = df
+
+            # Filter by the user's preferences
+            acts = filter_by_preferences(acts, selected_prefs)
+
+            # Get the weather forecast
+            forecast = get_city_forecast(st.session_state["city"], st.session_state["num_days"])
+
+            # Build the itinerary and save it
+            st.session_state["itinerary"] = build_itinerary(acts, st.session_state["num_days"], forecast)
+            st.session_state["step"] = 3
+            st.rerun()
+
+
+# ------------------------------------------------------------------
+# STEP 3 — Show the final itinerary to the user
+# ------------------------------------------------------------------
+def step_itinerary():
+    render_progress(3)
+
+    # Read saved values from the session
+    city = st.session_state["city"]
+    num_days = st.session_state["num_days"]
+    prefs = st.session_state.get("prefs", [])
+    itinerary = st.session_state["itinerary"]
+
+    # Page heading
+    st.markdown(f'<div class="step-heading">Your {num_days}-day {city} itinerary</div>', unsafe_allow_html=True)
+
+    # Summary line showing the user's choices
+    if len(prefs) == 0:
+        pref_text = "All activities"
+    else:
+        pref_text = ", ".join(prefs)
+
+    st.markdown(
+        f'<div class="summary-box">'
+        f'<strong>Destination:</strong> {city} &nbsp;|&nbsp; '
+        f'<strong>Days:</strong> {num_days} &nbsp;|&nbsp; '
+        f'<strong>Interests:</strong> {pref_text}'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    # Get the weather forecast
+    forecast = get_city_forecast(city, num_days)
+
+    # Show the timetable — max 3 days per row
+    for row_start in range(0, num_days, 3):
+        days_in_this_row = itinerary[row_start : row_start + 3]
+        cols = st.columns(len(days_in_this_row))
+
+        for i in range(len(days_in_this_row)):
+            day_plan = days_in_this_row[i]
+            col = cols[i]
+
+            with col:
+                # Day header
+                col.markdown(f'<div class="tt-header">Day {day_plan["day"]}</div>', unsafe_allow_html=True)
+
+                # Weather for this day (if available)
+                day_index = day_plan["day"] - 1
+                if day_index < len(forecast):
+                    w = forecast[day_index]
+                    col.markdown(
+                        f'<div style="font-size:0.85rem; color:#1a3a5c; margin-bottom:0.5rem;">'
+                        f'{w["label"]} · {w["min"]}°/{w["max"]}°C · rain {w["rain"]} mm'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
+
+                # Show each time slot
+                for slot in SLOTS:
+                    activity = day_plan["slots"][slot]
+
+                    if activity.startswith("Free time"):
+                        css = "tt-free"
+                        icon = ""
+                    else:
+                        css = SLOT_CLASSES[slot]
+                        icon = SLOT_ICONS[slot]
+
+                    col.markdown(
+                        f'<div class="tt-slot {css}">{icon} <strong>{slot}</strong><br>'
+                        f'<span class="act-meta">{activity}</span></div>',
+                        unsafe_allow_html=True,
+                    )
+
+    st.write("")
+
+    # Navigation buttons
+    col_back, col_restart = st.columns([1, 5])
+    with col_back:
+        if st.button("← Change preferences"):
+            st.session_state["step"] = 2
+            st.rerun()
+    with col_restart:
+        if st.button("Start over"):
+            st.session_state.pop("city", None)
+            st.session_state.pop("num_days", None)
+            st.session_state.pop("prefs", None)
+            st.session_state.pop("itinerary", None)
+            st.session_state.pop("step", None)
+            st.rerun()
+
+    # ------------------------------------------------------------------
+    # SECTION: Rate an activity + ML prediction with explanation
+    # ------------------------------------------------------------------
+    st.markdown("---")
+    st.markdown("### ⭐ Rate an activity")
+
+    df_all = load_activities()
+
+    # Collect all non-free activities from the itinerary
+    all_activities = []
+    for day_plan in itinerary:
+        for slot in SLOTS:
+            activity = day_plan["slots"][slot]
+            if not activity.startswith("Free time"):
+                all_activities.append(activity)
+
+    if len(all_activities) > 0:
+        # Let the user pick which activity to rate
+        activity_name = st.selectbox("Select an activity to rate:", all_activities)
+
+        # Look up the category and duration for that activity
+        matching_rows = df_all[df_all["activity_name"] == activity_name]
+        if not matching_rows.empty:
+            category = matching_rows["category"].values[0]
+            duration_hours = float(matching_rows["max_useful_days"].values[0])
+        else:
+            category = "Unknown"
+            duration_hours = 2.0
+
+        # Extract the keyword from the activity name
+        # e.g. "Kunsthaus Museum" → "museum", "City Bike Tour" → "bike"
+        keyword = extract_keyword(activity_name)
+
+        # Show the 3 similar activities the model used to make its decision
+        neighbours = get_neighbours(activity_name, category, duration_hours, keyword)
+        if neighbours:
+            st.markdown("**💡 Similar activities rated by past users:**")
+            for n in neighbours:
+                stars = "⭐" * n["rating"]
+                st.markdown(f"- {n['name']} was rated {stars} ({n['rating']}/5)")
+
+        # Let the user give their own rating
+        user_rating = st.slider("Your rating:", min_value=1, max_value=5, value=3, step=1)
+
+        if st.button("✅ Submit my rating"):
+            save_rating(activity_name, category, duration_hours, keyword, user_rating)
+            stars = "⭐" * user_rating
+            st.success(f"Thank you! You rated **{activity_name}**: {stars}")
+
+        # Show the model accuracy if we have enough data
+        accuracy = get_model_accuracy()
+        if accuracy is not None:
+            st.caption(f"📊 Current ML model accuracy: {accuracy}%")
+
+    st.markdown('<div class="footer">Swiss Vacation Planner · Built with Streamlit</div>', unsafe_allow_html=True)
+
+
+# ------------------------------------------------------------------
+# Entry point — called from app.py
+# Decides which step to show based on st.session_state["step"]
+# ------------------------------------------------------------------
+def run_app():
+    # If this is the first time the app runs, start at step 1
+    if "step" not in st.session_state:
+        st.session_state["step"] = 1
+
+    step = st.session_state["step"]
+
+    if step == 1:
+        step_destination()
+    elif step == 2:
+        step_preferences()
+    elif step == 3:
+        step_itinerary()
