@@ -203,7 +203,7 @@ div[data-baseweb="select"] span {
 
 st.markdown(
     '<div class="hero">'
-    '<div class="hero-title">🏔️ Swiss Vacation Planner</div>'
+    '<div class="hero-title"> Swiss Vacation Planner</div>'
     '<div class="hero-subtitle">'
     "Tell us where you want to go and we'll build your perfect Swiss trip — day by day."
     '</div>'
