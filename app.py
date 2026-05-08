@@ -27,7 +27,7 @@ section[data-testid="stSidebar"]  { display: none; }
 /* Base */
 html, body, .stApp {
     font-size: 16px;
-    background-color: #87cefa;
+    background-color: #f0f6fc;
     font-family: 'Segoe UI', sans-serif;
     color: #1a3a5c;
 }
