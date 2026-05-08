@@ -1,3 +1,5 @@
+#import the relevant libraries 
+
 from __future__ import annotations
 
 import sys, os, pathlib
@@ -10,7 +12,6 @@ import pydeck as pdk
 
 st.set_page_config(
     page_title="Swiss Vacation Planner",
-    page_icon="🏔️",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
