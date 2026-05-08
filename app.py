@@ -5,6 +5,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent) if "__file__" in
 
 import streamlit as st
 from functions import run_app
+from ml_rating import save_rating, predict_rating, get_model_accuracy
 import pandas as pd
 import pydeck as pdk
 
@@ -30,14 +31,15 @@ html, body, .stApp {
     color: #1a3a5c;
 }
 
-/* Force all text navy by default */
+/* Force all text navy */
 p, span, div, label, h1, h2, h3, h4, h5, h6,
 .stMarkdown p, .stMarkdown span,
 .stCheckbox label, .stCheckbox span,
 .stSelectbox label, .stRadio label,
 .stSlider label, .stDateInput label,
 [data-testid="stMarkdownContainer"] p,
-[data-testid="stMarkdownContainer"] span {
+[data-testid="stMarkdownContainer"] span,
+[data-baseweb="select"] span {
     color: #1a3a5c !important;
 }
 
@@ -100,7 +102,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 /* Activity meta */
 .act-meta {
     font-size: 0.83rem;
-    color: #1a3a5c !important;
+    color: #4a7a9b !important;
     margin-top: 0.1rem;
     margin-bottom: 0.4rem;
 }
@@ -119,26 +121,14 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     padding: 0.4rem 0.6rem;
     font-size: 0.82rem;
     margin-bottom: 0.3rem;
+    color: #1a3a5c !important;
     font-weight: 500;
 }
-
-/* Slot colours — text is ALWAYS navy so it's readable on light backgrounds */
 .tt-morning   { background: #fef9c3; }
-.tt-morning   strong, .tt-morning span  { color: #1a3a5c !important; }
-
 .tt-afternoon { background: #dcfce7; }
-.tt-afternoon strong, .tt-afternoon span { color: #1a3a5c !important; }
-
 .tt-evening   { background: #fee2e2; }
-.tt-evening   strong, .tt-evening span  { color: #1a3a5c !important; }
-
-.tt-free      { background: #f1f5f9; }
-.tt-free      strong, .tt-free span     { color: #94a3b8 !important; font-style: italic; }
-
-/* Slider track — override Streamlit's default thumb colour */
-[data-testid="stSlider"] > div > div > div {
-    background: #2e6da4 !important;
-}
+.tt-night     { background: #ede9fe; }
+.tt-free      { background: #f1f5f9; color: #94a3b8 !important; font-style: italic; }
 
 /* Input fields */
 div[data-testid="stSelectbox"] div[role="combobox"],
@@ -149,27 +139,6 @@ div[data-testid="stTextInput"] input {
     font-size: 1rem !important;
     color: #1a3a5c !important;
 }
-
-/* Dropdown menu background */
-ul[data-testid="stSelectboxVirtualDropdown"],
-[data-baseweb="popover"],
-[data-baseweb="menu"],
-[role="listbox"],
-[role="option"] {
-    background-color: #e8f4fd !important;
-}
-li[role="option"],
-[data-baseweb="menu"] li,
-[role="option"] span {
-    background-color: #e8f4fd !important;
-    color: #1a3a5c !important;
-}
-li[role="option"]:hover,
-[role="option"]:hover {
-    background-color: #b0d4f0 !important;
-    color: #1a3a5c !important;
-}
-[data-baseweb="select"] span { color: #1a3a5c !important; }
 
 /* Labels */
 label, .stMarkdown p, .stMarkdown li {
@@ -200,16 +169,46 @@ label, .stMarkdown p, .stMarkdown li {
     font-size: 0.85rem;
 }
 
+/* Dropdown menu background */
+ul[data-testid="stSelectboxVirtualDropdown"],
+[data-baseweb="popover"],
+[data-baseweb="menu"],
+[role="listbox"],
+[role="option"] {
+    background-color: #e8f4fd !important;
+    color: #1a3a5c !important;
+}
+
+/* Each option in the dropdown */
+li[role="option"],
+[data-baseweb="menu"] li,
+[role="option"] span {
+    background-color: #e8f4fd !important;
+    color: #1a3a5c !important;
+}
+
+/* Hovered option */
+li[role="option"]:hover,
+[role="option"]:hover {
+    background-color: #b0d4f0 !important;
+    color: #1a3a5c !important;
+}
+
+/* Placeholder text in dropdowns */
+[data-baseweb="select"] [data-testid="stSelectboxPlaceholder"],
+[data-baseweb="select"] placeholder,
+div[data-baseweb="select"] span {
+    color: #4a9fd4 !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
-# ── Hero ──────────────────────────────────────────────────────────────────────
 st.markdown(
     '<div class="hero">'
     '<div class="hero-title">🏔️ Swiss Vacation Planner</div>'
     '<div class="hero-subtitle">'
-    "Tell us where you want to go and we'll build your perfect Swiss trip — day by day, "
-    "powered by machine learning."
+    "Tell us where you want to go and we'll build your perfect Swiss trip — day by day."
     '</div>'
     '</div>',
     unsafe_allow_html=True,
@@ -221,14 +220,9 @@ try:
     _CSV = pathlib.Path(__file__).resolve().parent / "locations.csv"
 except NameError:
     _CSV = pathlib.Path("locations.csv")
-
 df_raw = pd.read_csv(_CSV)
 
 st.markdown('<div class="step-heading">📍 Activities across Switzerland</div>', unsafe_allow_html=True)
-st.markdown(
-    '<div class="step-caption">Hover over a dot to see the activity name and category.</div>',
-    unsafe_allow_html=True,
-)
 
 st.pydeck_chart(pdk.Deck(
     initial_view_state=pdk.ViewState(
@@ -243,7 +237,7 @@ st.pydeck_chart(pdk.Deck(
             data=df_raw,
             get_position="[lon, lat]",
             get_radius=1500,
-            get_color=[46, 109, 164, 200],
+            get_color=[220, 38, 38, 200],
             get_line_color=[255, 255, 255],
             stroked=True,
             line_width_min_pixels=1,
@@ -252,16 +246,16 @@ st.pydeck_chart(pdk.Deck(
     ],
     tooltip={
         "html": "<b>{activity_name}</b><br/>{city}<br/><i>{category}</i>",
-        "style": {
-            "color": "white",
-            "backgroundColor": "#1a3a5c",
-            "padding": "6px 10px",
-            "borderRadius": "6px",
-        },
+        "style": {"color": "white", "backgroundColor": "#000205", "padding": "6px 10px", "borderRadius": "6px"},
     },
 ))
 
-st.markdown("---")
+# ──────────────────────────────────────────────────────────────────────────────
 
-# ── Main app flow ─────────────────────────────────────────────────────────────
 run_app()
+
+
+#Problem to solve:
+## Do we continue doing different town in Switzerland or focusing one by one
+## Need to classify the activities according to the best perdiod of the day to do (e.g Flon the evening not the morning)
+## Implement a budget 
