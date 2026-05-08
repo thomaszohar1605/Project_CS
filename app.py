@@ -29,7 +29,7 @@ html, body, .stApp {
     font-size: 16px;
     background-color: #f0f6fc;
     font-family: 'Segoe UI', sans-serif;
-    color: #1a3a5c;
+    color: #8470ff;
 }
 
 /* Force all text navy */
