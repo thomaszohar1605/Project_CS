@@ -5,7 +5,6 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent) if "__file__" in
 
 import streamlit as st
 from functions import run_app
-from ml_rating import save_rating, predict_rating, get_model_accuracy
 import pandas as pd
 import pydeck as pdk
 
@@ -179,7 +178,6 @@ ul[data-testid="stSelectboxVirtualDropdown"],
     color: #1a3a5c !important;
 }
 
-/* Each option in the dropdown */
 li[role="option"],
 [data-baseweb="menu"] li,
 [role="option"] span {
@@ -187,14 +185,12 @@ li[role="option"],
     color: #1a3a5c !important;
 }
 
-/* Hovered option */
 li[role="option"]:hover,
 [role="option"]:hover {
     background-color: #b0d4f0 !important;
     color: #1a3a5c !important;
 }
 
-/* Placeholder text in dropdowns */
 [data-baseweb="select"] [data-testid="stSelectboxPlaceholder"],
 [data-baseweb="select"] placeholder,
 div[data-baseweb="select"] span {
@@ -215,14 +211,17 @@ st.markdown(
 )
 
 # ── Activity Map ──────────────────────────────────────────────────────────────
-import pathlib
 try:
     _CSV = pathlib.Path(__file__).resolve().parent / "locations.csv"
 except NameError:
     _CSV = pathlib.Path("locations.csv")
+
 df_raw = pd.read_csv(_CSV)
 
-st.markdown('<div class="step-heading">📍 Activities across Switzerland</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="step-heading">📍 Activities across Switzerland</div>',
+    unsafe_allow_html=True,
+)
 
 st.pydeck_chart(pdk.Deck(
     initial_view_state=pdk.ViewState(
@@ -246,16 +245,15 @@ st.pydeck_chart(pdk.Deck(
     ],
     tooltip={
         "html": "<b>{activity_name}</b><br/>{city}<br/><i>{category}</i>",
-        "style": {"color": "white", "backgroundColor": "#000205", "padding": "6px 10px", "borderRadius": "6px"},
+        "style": {
+            "color": "white",
+            "backgroundColor": "#000205",
+            "padding": "6px 10px",
+            "borderRadius": "6px",
+        },
     },
 ))
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 
 run_app()
-
-
-#Problem to solve:
-## Do we continue doing different town in Switzerland or focusing one by one
-## Need to classify the activities according to the best perdiod of the day to do (e.g Flon the evening not the morning)
-## Implement a budget 
