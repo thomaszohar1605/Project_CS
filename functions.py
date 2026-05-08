@@ -294,22 +294,25 @@ def build_itinerary(activities, num_days, forecast):
 # Shows which step the user is on (1, 2, or 3)
 # ------------------------------------------------------------------
 def render_progress(current_step):
-    steps = ["1 · Destination", "2 · Preferences", "3 · Your Itinerary"]
-    cols = st.columns(3)
-
-    for i in range(3):
+    steps = [
+        "1 · Destination",
+        "2 · Preferences",
+        "3 · Rate Activities",
+        "4 · Your Itinerary",
+    ]
+    cols = st.columns(4)
+    for i in range(4):
         step_number = i + 1
-        label = steps[i]
-
         if step_number < current_step:
-            css_class = "prog-step done"      # already completed
+            css = "prog-step done"
         elif step_number == current_step:
-            css_class = "prog-step current"   # currently on this step
+            css = "prog-step current"
         else:
-            css_class = "prog-step"           # not reached yet
-
-        cols[i].markdown(f'<div class="{css_class}">{label}</div>', unsafe_allow_html=True)
-
+            css = "prog-step"
+        cols[i].markdown(
+            f'<div class="{css}">{steps[i]}</div>',
+            unsafe_allow_html=True,
+        )
     st.write("")
 
 
@@ -374,45 +377,121 @@ def step_preferences():
 
     with col_next:
         if st.button("Build my itinerary →"):
-            # Save the preferences
             st.session_state["prefs"] = selected_prefs
 
-            # Load activities for the chosen city
+            # Load and filter activities
             df = load_activities()
             acts = city_activities(df, st.session_state["city"])
-
-            # If somehow there are no activities, use all activities as a backup
             if acts.empty:
                 acts = df
-
-            # Filter by the user's preferences
             acts = filter_by_preferences(acts, selected_prefs)
 
-            # Get the weather forecast
-            forecast = get_city_forecast(st.session_state["city"], st.session_state["num_days"])
+            # Sample 5 activities for the rating step
+            n_sample = min(5, len(acts))
+            sample_df = acts.sample(n=n_sample).reset_index(drop=True)
+            st.session_state["sample_activities"] = sample_df.to_dict("records")
+            st.session_state["filtered_activities"] = acts   # save full pool too
 
-            # Build the itinerary and save it
-            st.session_state["itinerary"] = build_itinerary(acts, st.session_state["num_days"], forecast)
             st.session_state["step"] = 3
             st.rerun()
-
 
 # ------------------------------------------------------------------
 # STEP 3 — Show the final itinerary to the user
 # ------------------------------------------------------------------
+
+def step_rating():
+    """STEP 3 — Show 5 sample activities and collect ratings."""
+    render_progress(3)   # you'll need to update render_progress to 4 steps
+
+    st.markdown('<div class="step-heading">Rate these activities</div>',
+                unsafe_allow_html=True)
+    st.markdown(
+        '<div class="step-caption">'
+        'Rate each activity from 1 (not for me) to 5 (love it) '
+        'so we can personalise your itinerary.'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    # Load the sample activities saved in session state
+    sample = st.session_state.get("sample_activities", [])
+
+    ratings = {}
+    for act in sample:
+        name = act["activity_name"]
+        cat  = act.get("category", "")
+        st.markdown(f"**{name}** · *{cat}*")
+        ratings[name] = st.slider(
+            label=f"Rating for {name}",
+            min_value=1, max_value=5, value=3, step=1,
+            key=f"knn_rate_{name}",
+            label_visibility="collapsed",
+        )
+        st.write("")
+
+    col_back, col_next = st.columns([1, 5])
+    with col_back:
+        if st.button("← Back"):
+            st.session_state["step"] = 2
+            st.rerun()
+    with col_next:
+        if st.button("Build my personalised itinerary →"):
+            # Save the ratings as a list of dicts
+            st.session_state["knn_ratings"] = [
+                {"activity_name": name, "rating": rating}
+                for name, rating in ratings.items()
+            ]
+            st.session_state["step"] = 4
+            st.rerun()
+# ------------------------------------------------------------------
+# STEP 4 — Show the final itinerary to the user
+# ------------------------------------------------------------------
 def step_itinerary():
-    render_progress(3)
+    render_progress(4)
 
     # Read saved values from the session
     city = st.session_state["city"]
     num_days = st.session_state["num_days"]
     prefs = st.session_state.get("prefs", [])
+
+    # ── KNN: build ranked activity pool from user's step 3 ratings ───────
+    from ml_rating import build_itinerary_knn
+
+    acts_raw = st.session_state.get("filtered_activities", None)
+    if acts_raw is None:
+        df = load_activities()
+        acts_raw = city_activities(df, city)
+        acts_raw = filter_by_preferences(acts_raw, prefs)
+
+    # Get the weather forecast
+    forecast = get_city_forecast(city, num_days)
+
+    knn_ratings = st.session_state.get("knn_ratings", [])
+    if knn_ratings:
+        ranked_names = build_itinerary_knn(knn_ratings, acts_raw)
+        name_order = {name: i for i, name in enumerate(ranked_names)}
+        acts_copy = acts_raw.copy()
+        acts_copy["_knn_rank"] = acts_copy["activity_name"].map(
+            lambda n: name_order.get(n, 9999)
+        )
+        acts_sorted = acts_copy.sort_values("_knn_rank").drop(columns=["_knn_rank"])
+    else:
+        acts_sorted = acts_raw
+
+    # Build and cache the itinerary
+    if "itinerary" not in st.session_state:
+        st.session_state["itinerary"] = build_itinerary(
+            acts_sorted, num_days, forecast
+        )
     itinerary = st.session_state["itinerary"]
 
-    # Page heading
-    st.markdown(f'<div class="step-heading">Your {num_days}-day {city} itinerary</div>', unsafe_allow_html=True)
+    # ── Page heading ──────────────────────────────────────────────────────
+    st.markdown(
+        f'<div class="step-heading">Your {num_days}-day {city} itinerary</div>',
+        unsafe_allow_html=True,
+    )
 
-    # Summary line showing the user's choices
+    # Summary line
     if len(prefs) == 0:
         pref_text = "All activities"
     else:
@@ -427,10 +506,7 @@ def step_itinerary():
         unsafe_allow_html=True,
     )
 
-    # Get the weather forecast
-    forecast = get_city_forecast(city, num_days)
-
-    # Show the timetable — max 3 days per row
+    # ── Timetable ─────────────────────────────────────────────────────────
     for row_start in range(0, num_days, 3):
         days_in_this_row = itinerary[row_start : row_start + 3]
         cols = st.columns(len(days_in_this_row))
@@ -440,21 +516,25 @@ def step_itinerary():
             col = cols[i]
 
             with col:
-                # Day header
-                col.markdown(f'<div class="tt-header">Day {day_plan["day"]}</div>', unsafe_allow_html=True)
+                col.markdown(
+                    f'<div class="tt-header">Day {day_plan["day"]}</div>',
+                    unsafe_allow_html=True,
+                )
 
-                # Weather for this day (if available)
+                # Weather for this day
                 day_index = day_plan["day"] - 1
                 if day_index < len(forecast):
                     w = forecast[day_index]
                     col.markdown(
-                        f'<div style="font-size:0.85rem; color:#1a3a5c; margin-bottom:0.5rem;">'
-                        f'{w["label"]} · {w["min"]}°/{w["max"]}°C · rain {w["rain"]} mm'
+                        f'<div style="font-size:0.85rem; color:#1a3a5c; '
+                        f'margin-bottom:0.5rem;">'
+                        f'{w["label"]} · {w["min"]}°/{w["max"]}°C '
+                        f'· rain {w["rain"]} mm'
                         f'</div>',
                         unsafe_allow_html=True,
                     )
 
-                # Show each time slot
+                # Time slots
                 for slot in SLOTS:
                     activity = day_plan["slots"][slot]
 
@@ -466,83 +546,34 @@ def step_itinerary():
                         icon = SLOT_ICONS[slot]
 
                     col.markdown(
-                        f'<div class="tt-slot {css}">{icon} <strong>{slot}</strong><br>'
-                        f'<span class="act-meta">{activity}</span></div>',
+                        f'<div class="tt-slot {css}">'
+                        f'{icon} <strong>{slot}</strong><br>'
+                        f'<span class="act-meta">{activity}</span>'
+                        f'</div>',
                         unsafe_allow_html=True,
                     )
 
     st.write("")
 
-    # Navigation buttons
+    # ── Navigation buttons ────────────────────────────────────────────────
     col_back, col_restart = st.columns([1, 5])
     with col_back:
         if st.button("← Change preferences"):
             st.session_state["step"] = 2
+            st.session_state.pop("itinerary", None)
             st.rerun()
     with col_restart:
         if st.button("Start over"):
-            st.session_state.pop("city", None)
-            st.session_state.pop("num_days", None)
-            st.session_state.pop("prefs", None)
-            st.session_state.pop("itinerary", None)
-            st.session_state.pop("step", None)
+            for key in ["city", "num_days", "prefs", "itinerary",
+                        "step", "knn_ratings", "sample_activities",
+                        "filtered_activities"]:
+                st.session_state.pop(key, None)
             st.rerun()
 
-    # ------------------------------------------------------------------
-    # SECTION: Rate an activity + ML prediction with explanation
-    # ------------------------------------------------------------------
-    st.markdown("---")
-    st.markdown("### ⭐ Rate an activity")
-
-    df_all = load_activities()
-
-    # Collect all non-free activities from the itinerary
-    all_activities = []
-    for day_plan in itinerary:
-        for slot in SLOTS:
-            activity = day_plan["slots"][slot]
-            if not activity.startswith("Free time"):
-                all_activities.append(activity)
-
-    if len(all_activities) > 0:
-        # Let the user pick which activity to rate
-        activity_name = st.selectbox("Select an activity to rate:", all_activities)
-
-        # Look up the category and duration for that activity
-        matching_rows = df_all[df_all["activity_name"] == activity_name]
-        if not matching_rows.empty:
-            category = matching_rows["category"].values[0]
-            duration_hours = float(matching_rows["max_useful_days"].values[0])
-        else:
-            category = "Unknown"
-            duration_hours = 2.0
-
-        # Extract the keyword from the activity name
-        # e.g. "Kunsthaus Museum" → "museum", "City Bike Tour" → "bike"
-        keyword = extract_keyword(activity_name)
-
-        # Show the 3 similar activities the model used to make its decision
-        neighbours = get_neighbours(activity_name, category, duration_hours, keyword)
-        if neighbours:
-            st.markdown("**💡 Similar activities rated by past users:**")
-            for n in neighbours:
-                stars = "⭐" * n["rating"]
-                st.markdown(f"- {n['name']} was rated {stars} ({n['rating']}/5)")
-
-        # Let the user give their own rating
-        user_rating = st.slider("Your rating:", min_value=1, max_value=5, value=3, step=1)
-
-        if st.button("✅ Submit my rating"):
-            save_rating(activity_name, category, duration_hours, keyword, user_rating)
-            stars = "⭐" * user_rating
-            st.success(f"Thank you! You rated **{activity_name}**: {stars}")
-
-        # Show the model accuracy if we have enough data
-        accuracy = get_model_accuracy()
-        if accuracy is not None:
-            st.caption(f"📊 Current ML model accuracy: {accuracy}%")
-
-    st.markdown('<div class="footer">Swiss Vacation Planner · Built with Streamlit</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="footer">Swiss Vacation Planner · Built with Streamlit</div>',
+        unsafe_allow_html=True,
+    )
 
 
 # ------------------------------------------------------------------
@@ -550,7 +581,6 @@ def step_itinerary():
 # Decides which step to show based on st.session_state["step"]
 # ------------------------------------------------------------------
 def run_app():
-    # If this is the first time the app runs, start at step 1
     if "step" not in st.session_state:
         st.session_state["step"] = 1
 
@@ -561,4 +591,6 @@ def run_app():
     elif step == 2:
         step_preferences()
     elif step == 3:
+        step_rating()
+    elif step == 4:
         step_itinerary()
