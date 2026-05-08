@@ -8,12 +8,12 @@ import streamlit as st
 from ml_rating import save_rating, predict_rating, get_model_accuracy, get_neighbours, extract_keyword
 from weather import get_weather
 
-# This is the folder where our Python file lives
-# We use it to find the locations.csv and ratings.csv files
+
+# Place of locations.csv and ratings.csv
 FOLDER = os.path.dirname(os.path.abspath(__file__))
 RATINGS_FILE = os.path.join(FOLDER, "ratings.csv")
 
-# The 6 activity categories we support
+# the 6 activities / list of activities
 CATEGORIES = [
     "Outdoor & Nature",
     "Culture & History",
@@ -23,7 +23,7 @@ CATEGORIES = [
     "Adventure & Sports",
 ]
 
-# The 3 time slots of a day
+# the 3 period of the day for the activites / list of period
 SLOTS = ["Morning", "Afternoon", "Evening"]
 
 # CSS class for each slot (used for colouring in the timetable)
