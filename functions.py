@@ -1,3 +1,6 @@
+
+#import the relevant libraries 
+
 import os
 import random
 import pandas as pd
