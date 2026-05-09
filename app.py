@@ -40,7 +40,8 @@ html, body, .stApp {
     background-color: #ffffff !important;
 }
 
-/* Force all text navy */
+#text in box 
+            
 p, span, div, label, h1, h2, h3, h4, h5, h6,
 .stMarkdown p, .stMarkdown span,
 .stCheckbox label, .stCheckbox span,
@@ -52,9 +53,10 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #fafafa !important;
 }
 
-/* Hero banner */
+#main banner (title)
+            
 .hero {
-    background: linear-gradient(135deg, #2e6da4 0%, #4a9fd4 100%);
+    background: linear-gradient(135deg, #2e6da4 0%, #ff0000 100%);
     border-radius: 1.4rem;
     padding: 2.2rem 2.6rem 1.8rem 2.6rem;
     margin-bottom: 2rem;
