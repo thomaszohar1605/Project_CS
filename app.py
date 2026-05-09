@@ -80,7 +80,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     text-align: center;
     font-size: 0.82rem;
     font-weight: 600;
-    background: #ff0000;
+    background: #dce8f0;
     color: #5a7a9a !important;
 }
 .prog-step.done    { background: #34d399; color: #064e3b !important; }
