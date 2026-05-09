@@ -36,9 +36,6 @@ html, body, .stApp {
     font-family: 'Segoe UI', sans-serif;
     color: #fafafa;
 }
-[data-testid="stAppViewContainer"] {
-    background-color: #ffffff !important;
-}
 
 /* Force all text navy */
 p, span, div, label, h1, h2, h3, h4, h5, h6,
@@ -52,10 +49,9 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #fafafa !important;
 }
 
-#color of big banner (swiss colors)
-            
+/* Hero banner */
 .hero {
-    background-color: #ff0000 !important;
+    background: linear-gradient(135deg, #2e6da4 0%, #4a9fd4 100%);
     border-radius: 1.4rem;
     padding: 2.2rem 2.6rem 1.8rem 2.6rem;
     margin-bottom: 2rem;
@@ -69,33 +65,32 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 }
 .hero-subtitle {
     font-size: 1.05rem;
-    color:  #000000 !important;
+    color: #dceffe !important;
 }
 
-#progress bar (destination, rate activities, your itinerary)
-            
+/* Progress bar */
 .prog-step {
     padding: 0.45rem 0.5rem;
     border-radius: 0.6rem;
     text-align: center;
     font-size: 0.82rem;
     font-weight: 600;
-    background: #ff0000;
-    color: #ffffff !important;
+    background: #dce8f0;
+    color: #5a7a9a !important;
 }
-.prog-step.done    { background: #ff0000; color: #ffffff !important; }
-.prog-step.current { background: #ff0000; color: #ffffff !important; }
+.prog-step.done    { background: #34d399; color: #064e3b !important; }
+.prog-step.current { background: #2e6da4; color: #ffffff !important; }
 
-#small heading 
+/* Step headings */
 .step-heading {
     font-size: 1.3rem;
     font-weight: 700;
-    color: #000000 !important;
+    color: #1a3a5c !important;
     margin-bottom: 0.2rem;
 }
 .step-caption {
     font-size: 0.92rem;
-    color: #000000 !important;
+    color: #4a7a9b !important;
     margin-bottom: 1.2rem;
 }
 
