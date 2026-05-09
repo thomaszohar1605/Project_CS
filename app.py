@@ -28,7 +28,8 @@ st.markdown("""
 [data-testid="collapsedControl"] { display: none; }
 section[data-testid="stSidebar"]  { display: none; }
 
-#Base (Backround color...)            
+#Base (Backround color...) 
+           
 html, body, .stApp {
     font-size: 16px;
     background-color: #ffffff !important;
