@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+#search for file such as function.py and ml_rating.py
+
 import sys, os, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent) if "__file__" in dir() else os.getcwd())
 
@@ -9,6 +11,8 @@ import streamlit as st
 from functions import run_app
 import pandas as pd
 import pydeck as pdk
+
+#title 
 
 st.set_page_config(
     page_title="Swiss Vacation Planner",
@@ -24,7 +28,7 @@ st.markdown("""
 [data-testid="collapsedControl"] { display: none; }
 section[data-testid="stSidebar"]  { display: none; }
 
-/* Base */
+#Base (Backround color...)            
 html, body, .stApp {
     font-size: 16px;
     background-color: #f0f6fc;
