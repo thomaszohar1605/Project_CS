@@ -55,7 +55,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 #color of big banner (swiss colors)
             
 .hero {
-    background-color: #ff0000;
+    background-color:#ff0000;
     border-radius: 1.4rem;
     padding: 2.2rem 2.6rem 1.8rem 2.6rem;
     margin-bottom: 2rem;
@@ -81,7 +81,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     font-size: 0.82rem;
     font-weight: 600;
     background: #dce8f0;
-    color: #ff0000 !important;
+    color: #ffffff !important;
 }
 .prog-step.done    { background: #34d399; color: #064e3b !important; }
 .prog-step.current { background: #2e6da4; color: #ffffff !important; }
