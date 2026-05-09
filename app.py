@@ -45,7 +45,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 [data-testid="stMarkdownContainer"] p,
 [data-testid="stMarkdownContainer"] span,
 [data-baseweb="select"] span {
-    color: #1a3a5c !important;
+    color: #fafafa !important;
 }
 
 /* Hero banner */
