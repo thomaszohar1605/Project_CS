@@ -69,7 +69,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 }
 .hero-subtitle {
     font-size: 1.05rem;
-    color: #dceffe !important;
+    color:  #000000 !important;
 }
 
 #progress bar (destination, rate activities, your itinerary)
