@@ -84,9 +84,9 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #ffffff !important;
 }
 .prog-step.done    { background: #ff0000; color: #ffffff !important; }
-.prog-step.current { background: #ff0000 !important; color: #ffffff !important; }
+.prog-step.current { background: #ff0000; color: #ffffff !important; }
 
-/* Step headings */
+#small heading 
 .step-heading {
     font-size: 1.3rem;
     font-weight: 700;
@@ -95,7 +95,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 }
 .step-caption {
     font-size: 0.92rem;
-    color: #4a7a9b !important;
+    color: #000000 !important;
     margin-bottom: 1.2rem;
 }
 
