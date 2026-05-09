@@ -28,20 +28,19 @@ st.markdown("""
 [data-testid="collapsedControl"] { display: none; }
 section[data-testid="stSidebar"]  { display: none; }
 
-#Base (Backround color...) 
-           
+/* Base — white background, dark text */
 html, body, .stApp {
     font-size: 16px;
     background-color: #ffffff !important;
     font-family: 'Segoe UI', sans-serif;
-    color: #fafafa;
+    color: #1a1a1a;
 }
-            [data-testid="stAppViewContainer"] {
+
+[data-testid="stAppViewContainer"] {
     background-color: #ffffff !important;
 }
 
-#text in box 
-            
+/* Force all text dark */
 p, span, div, label, h1, h2, h3, h4, h5, h6,
 .stMarkdown p, .stMarkdown span,
 .stCheckbox label, .stCheckbox span,
@@ -50,13 +49,12 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 [data-testid="stMarkdownContainer"] p,
 [data-testid="stMarkdownContainer"] span,
 [data-baseweb="select"] span {
-    color: #fafafa !important;
+    color: #1a1a1a !important;
 }
 
-#main banner (title)
-            
+/* Hero banner — Swiss red */
 .hero {
-    background: linear-gradient(135deg, #2e6da4 0%, #4a9fd4 100%);
+    background: #D52B1E;
     border-radius: 1.4rem;
     padding: 2.2rem 2.6rem 1.8rem 2.6rem;
     margin-bottom: 2rem;
@@ -70,7 +68,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 }
 .hero-subtitle {
     font-size: 1.05rem;
-    color: #dceffe !important;
+    color: #f5c6c3 !important;
 }
 
 /* Progress bar */
@@ -80,40 +78,40 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     text-align: center;
     font-size: 0.82rem;
     font-weight: 600;
-    background: #dce8f0;
-    color: #5a7a9a !important;
+    background: #f0f0f0;
+    color: #666666 !important;
 }
-.prog-step.done    { background: #34d399; color: #064e3b !important; }
-.prog-step.current { background: #2e6da4; color: #ffffff !important; }
+.prog-step.done    { background: #1a1a1a; color: #ffffff !important; }
+.prog-step.current { background: #D52B1E; color: #ffffff !important; }
 
 /* Step headings */
 .step-heading {
     font-size: 1.3rem;
     font-weight: 700;
-    color: #1a3a5c !important;
+    color: #1a1a1a !important;
     margin-bottom: 0.2rem;
 }
 .step-caption {
     font-size: 0.92rem;
-    color: #4a7a9b !important;
+    color: #555555 !important;
     margin-bottom: 1.2rem;
 }
 
-/* Summary boxes */
+/* Summary box */
 .summary-box {
-    background: #e8f4fd;
-    border: 1px solid #a8cfe8;
+    background: #fff0f0;
+    border: 1px solid #f5c6c3;
     border-radius: 0.8rem;
     padding: 0.8rem 1.1rem;
     font-size: 0.93rem;
-    color: #1a3a5c !important;
+    color: #1a1a1a !important;
     margin-bottom: 0.9rem;
 }
 
 /* Activity meta */
 .act-meta {
     font-size: 0.83rem;
-    color: #4a7a9b !important;
+    color: #555555 !important;
     margin-top: 0.1rem;
     margin-bottom: 0.4rem;
 }
@@ -121,10 +119,10 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 /* Timetable */
 .tt-header {
     font-weight: 700;
-    color: #1a3a5c !important;
+    color: #1a1a1a !important;
     font-size: 0.9rem;
     padding: 0.4rem 0;
-    border-bottom: 2px solid #2e6da4;
+    border-bottom: 2px solid #D52B1E;
     margin-bottom: 0.5rem;
 }
 .tt-slot {
@@ -132,34 +130,34 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     padding: 0.4rem 0.6rem;
     font-size: 0.82rem;
     margin-bottom: 0.3rem;
-    color: #1a3a5c !important;
+    color: #1a1a1a !important;
     font-weight: 500;
 }
 .tt-morning   { background: #fef9c3; }
 .tt-afternoon { background: #dcfce7; }
 .tt-evening   { background: #fee2e2; }
-.tt-night     { background: #ede9fe; }
-.tt-free      { background: #f1f5f9; color: #94a3b8 !important; font-style: italic; }
+.tt-night     { background: #f3f3f3; }
+.tt-free      { background: #f5f5f5; color: #999999 !important; font-style: italic; }
 
 /* Input fields */
 div[data-testid="stSelectbox"] div[role="combobox"],
 div[data-testid="stTextInput"] input {
     background-color: #ffffff !important;
     border-radius: 0.6rem !important;
-    border: 1px solid #a8c8e0 !important;
+    border: 1px solid #cccccc !important;
     font-size: 1rem !important;
-    color: #1a3a5c !important;
+    color: #1a1a1a !important;
 }
 
 /* Labels */
 label, .stMarkdown p, .stMarkdown li {
     font-size: 1rem !important;
-    color: #1a3a5c !important;
+    color: #1a1a1a !important;
 }
 
-/* Buttons */
+/* Buttons — Swiss red */
 .stButton > button {
-    background-color: #2e6da4;
+    background-color: #D52B1E !important;
     color: #ffffff !important;
     border: none;
     border-radius: 0.6rem;
@@ -168,45 +166,44 @@ label, .stMarkdown p, .stMarkdown li {
     transition: background-color 0.2s;
 }
 .stButton > button:hover {
-    background-color: #1a3a5c;
+    background-color: #a01f16 !important;
     color: #ffffff !important;
 }
 
 /* Footer */
 .footer {
     text-align: center;
-    color: #8aa8c0 !important;
+    color: #999999 !important;
     padding: 28px 0 8px 0;
     font-size: 0.85rem;
 }
 
-/* Dropdown menu background */
+/* Dropdown menu */
 ul[data-testid="stSelectboxVirtualDropdown"],
 [data-baseweb="popover"],
 [data-baseweb="menu"],
 [role="listbox"],
 [role="option"] {
-    background-color: #e8f4fd !important;
-    color: #1a3a5c !important;
+    background-color: #ffffff !important;
+    color: #1a1a1a !important;
 }
 
 li[role="option"],
 [data-baseweb="menu"] li,
 [role="option"] span {
-    background-color: #e8f4fd !important;
-    color: #1a3a5c !important;
+    background-color: #ffffff !important;
+    color: #1a1a1a !important;
 }
 
 li[role="option"]:hover,
 [role="option"]:hover {
-    background-color: #b0d4f0 !important;
-    color: #1a3a5c !important;
+    background-color: #fee2e2 !important;
+    color: #1a1a1a !important;
 }
 
 [data-baseweb="select"] [data-testid="stSelectboxPlaceholder"],
-[data-baseweb="select"] placeholder,
 div[data-baseweb="select"] span {
-    color: #4a9fd4 !important;
+    color: #555555 !important;
 }
 
 </style>
