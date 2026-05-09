@@ -90,7 +90,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 .step-heading {
     font-size: 1.3rem;
     font-weight: 700;
-    color: #1a3a5c !important;
+    color: #1a3a5c;
     margin-bottom: 0.2rem;
 }
 .step-caption {
