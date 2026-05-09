@@ -31,7 +31,7 @@ section[data-testid="stSidebar"]  { display: none; }
 #Base (Backround color...)            
 html, body, .stApp {
     font-size: 16px;
-    background-color: #f0f6fc;
+    background-color: #fafafa;
     font-family: 'Segoe UI', sans-serif;
     color: #1a3a5c;
 }
