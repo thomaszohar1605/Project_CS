@@ -36,6 +36,9 @@ html, body, .stApp {
     font-family: 'Segoe UI', sans-serif;
     color: #fafafa;
 }
+[data-testid="stAppViewContainer"] {
+    background-color: #ffffff !important;
+}
 
 /* Force all text navy */
 p, span, div, label, h1, h2, h3, h4, h5, h6,
