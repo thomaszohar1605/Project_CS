@@ -52,7 +52,8 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #fafafa !important;
 }
 
-/* Hero banner */
+#color of big banner (swiss colors)
+            
 .hero {
     background-color: #ff0000;
     border-radius: 1.4rem;
@@ -72,13 +73,14 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 }
 
 /* Progress bar */
+            
 .prog-step {
     padding: 0.45rem 0.5rem;
     border-radius: 0.6rem;
     text-align: center;
     font-size: 0.82rem;
     font-weight: 600;
-    background: #dce8f0;
+    background: #ff0000;
     color: #5a7a9a !important;
 }
 .prog-step.done    { background: #34d399; color: #064e3b !important; }
