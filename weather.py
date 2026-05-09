@@ -1,20 +1,12 @@
 """
 weather.py
 ==========
-
-A tiny helper that asks the Open-Meteo API for the weather forecast
-of a place in Switzerland.
-
-Open-Meteo is free, needs no API key, and answers with simple JSON.
-Docs: https://open-meteo.com/en/docs
+Fetches a daily weather forecast from the Open-Meteo API (free, no key needed).
+Returns real-time data for today and the coming days.
 """
 
 import requests
 
-
-# Open-Meteo describes the weather with a number called a "weather code".
-# We translate the most common codes into a friendly emoji + label.
-# Full list of codes: https://open-meteo.com/en/docs (search for "WMO Weather codes")
 WEATHER_CODES = {
     0:  ("Sun",   "Clear sky"),
     1:  ("Sun",   "Mostly clear"),
@@ -42,24 +34,33 @@ WEATHER_CODES = {
 
 def get_weather(lat: float, lon: float, num_days: int) -> list[dict]:
     """
-    Get a daily weather forecast for one place.
+    Fetch a daily weather forecast for one location.
 
-    Returns a list with one dict per day, like:
+    Returns a list with one dict per day:
         [
-            {"date": "2026-05-04", "min": 8, "max": 18,
-             "rain": 0.2, "icon": "Sun", "label": "Clear sky"},
+            {
+                "date":  "2026-05-09",
+                "min":   8,
+                "max":   18,
+                "rain":  0.2,
+                "icon":  "Sun",
+                "label": "Clear sky"
+            },
             ...
         ]
     Returns an empty list if the API call fails.
-    """
 
+    Note: this is REAL-TIME data from Open-Meteo — it reflects the
+    actual forecast for today and the coming days at the chosen city.
+    """
     url = "https://api.open-meteo.com/v1/forecast"
     params = {
-        "latitude":  lat,
-        "longitude": lon,
-        "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code",
+        "latitude":      lat,
+        "longitude":     lon,
+        "daily":         "temperature_2m_max,temperature_2m_min,"
+                         "precipitation_sum,weather_code",
         "forecast_days": num_days,
-        "timezone": "Europe/Zurich",
+        "timezone":      "Europe/Zurich",
     }
 
     try:
@@ -69,12 +70,12 @@ def get_weather(lat: float, lon: float, num_days: int) -> list[dict]:
     except Exception:
         return []
 
-    daily = data.get("daily", {})
-    days = daily.get("time", [])
-
+    daily    = data.get("daily", {})
+    days     = daily.get("time", [])
     forecast = []
+
     for i in range(len(days)):
-        code = daily["weather_code"][i]
+        code       = daily["weather_code"][i]
         icon, label = WEATHER_CODES.get(code, ("?", "Unknown"))
         forecast.append({
             "date":  daily["time"][i],
@@ -89,5 +90,6 @@ def get_weather(lat: float, lon: float, num_days: int) -> list[dict]:
 
 
 if __name__ == "__main__":
+    # Quick test: Zurich
     for day in get_weather(lat=47.37, lon=8.54, num_days=3):
         print(day)
