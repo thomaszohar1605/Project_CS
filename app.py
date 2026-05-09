@@ -83,8 +83,8 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     background: #ff0000;
     color: #ffffff !important;
 }
-.prog-step.done    { background: #000000; color: #ffffff !important; }
-.prog-step.current { background:  #000000; color: #ffffff !important; }
+.prog-step.done    { background: #ff0000; color: #ffffff !important; }
+.prog-step.current { background: #ff0000 !important; color: #ffffff !important; }
 
 /* Step headings */
 .step-heading {
