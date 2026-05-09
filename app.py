@@ -24,11 +24,11 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* Hide sidebar */
+
 [data-testid="collapsedControl"] { display: none; }
 section[data-testid="stSidebar"]  { display: none; }
 
-/* Base — white background, dark text */
+# base general color (theme switzerland)
 html, body, .stApp {
     font-size: 16px;
     background-color: #ffffff !important;
