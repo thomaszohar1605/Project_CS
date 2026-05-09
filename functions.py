@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import os
 import random
+import numpy as np
 import pandas as pd
 import streamlit as st
 
-from weather import get_weather   # ← our small weather helper
+from weather import get_weather
+from ml_rating import build_itinerary_knn
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -149,7 +151,7 @@ def build_itinerary(
 # ── Progress bar ───────────────────────────────────────────────────────────────
 
 def render_progress(current_step: int) -> None:
-    steps = ["1 · Destination", "2 · Preferences", "3 · Your Itinerary"]
+    steps = ["1 · Destination", "2 · Rate Activities", "3 · Your Itinerary"]
     cols = st.columns(len(steps))
     for i, (col, label) in enumerate(zip(cols, steps)):
         step_num = i + 1
@@ -188,18 +190,66 @@ def step_destination() -> None:
         st.rerun()
 
 
-def step_preferences() -> None:
-    render_progress(2)
-    st.markdown('<div class="step-heading">What do you enjoy?</div>', unsafe_allow_html=True)
-    st.markdown('<div class="step-caption">Choose one or more activity types — or skip to include everything.</div>',
-                unsafe_allow_html=True)
+CATEGORY_ALLOWED_SLOTS = {
+    "Nightlife & Entertainment": ["Evening"],
+    "Relaxation & Wellness":     ["Morning", "Afternoon"],
+}
 
-    prefs = []
-    cols = st.columns(3)
-    for i, category in enumerate(CATEGORIES):
-        with cols[i % 3]:
-            if st.checkbox(category, value=False):
-                prefs.append(category)
+
+def add_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Convert text columns into numbers so the KNN model can use them."""
+    df = df.copy()
+    df["feat_outdoor"]   = (df["category"] == "Outdoor & Nature").astype(int)
+    df["feat_culture"]   = (df["category"] == "Culture & History").astype(int)
+    df["feat_food"]      = (df["category"] == "Food & Drink").astype(int)
+    df["feat_nightlife"] = (df["category"] == "Nightlife & Entertainment").astype(int)
+    df["feat_wellness"]  = (df["category"] == "Relaxation & Wellness").astype(int)
+    df["feat_adventure"] = (df["category"] == "Adventure & Sports").astype(int)
+    df["feat_nature"]    = (df["category"] == "Outdoor & Nature").astype(int)
+    df["feat_duration"]  = df["max_useful_days"].fillna(2)
+    df["feat_morning"]   = df["time_slot"].str.contains("Morning",   na=False).astype(int)
+    df["feat_afternoon"] = df["time_slot"].str.contains("Afternoon", na=False).astype(int)
+    df["feat_evening"]   = df["time_slot"].str.contains("Evening",   na=False).astype(int)
+    return df
+
+
+def step_rating() -> None:
+    render_progress(2)
+    city = st.session_state.get("city", "")
+
+    st.markdown('<div class="step-heading">Rate these activities</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="step-caption">'
+        'Give each activity a score from 1 (not for me) to 5 (love it). '
+        'The ML model uses these to build your personalised itinerary.'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    df_all  = load_activities()
+    city_df = city_activities(df_all, city)
+
+    # Pick exactly one activity per category (6 sliders total)
+    sample = []
+    for category in CATEGORIES:
+        cat_rows = city_df[city_df["category"] == category]
+        if cat_rows.empty:
+            cat_rows = df_all[df_all["category"] == category]
+        if not cat_rows.empty:
+            sample.append(cat_rows.sample(1).iloc[0].to_dict())
+
+    ratings = {}
+    for act in sample:
+        name = act["activity_name"]
+        cat  = act.get("category", "")
+        st.markdown(f"**{name}** · *{cat}*")
+        ratings[name] = st.slider(
+            label=f"Rating for {name}",
+            min_value=1, max_value=5, value=3, step=1,
+            key=f"knn_rate_{name}",
+            label_visibility="collapsed",
+        )
+        st.write("")
 
     st.write("")
     col_back, col_next = st.columns([1, 5])
@@ -208,23 +258,12 @@ def step_preferences() -> None:
             st.session_state["step"] = 1
             st.rerun()
     with col_next:
-        if st.button("Build my itinerary →"):
-            st.session_state["prefs"] = prefs
-            # Build itinerary now so it stays stable on re-renders
-            df = load_activities()
-            acts = city_activities(df, st.session_state["city"])
-            if acts.empty:
-                acts = df  # fallback: use all activities
-            acts = filter_by_preferences(acts, prefs)
-
-            # Get the weather forecast so the itinerary can adapt to it.
-            forecast = get_city_forecast(
-                st.session_state["city"], st.session_state["num_days"]
-            )
-
-            st.session_state["itinerary"] = build_itinerary(
-                acts, st.session_state["num_days"], forecast
-            )
+        if st.button("Build my personalised itinerary →"):
+            st.session_state["knn_ratings"] = [
+                {"activity_name": name, "rating": rating}
+                for name, rating in ratings.items()
+            ]
+            st.session_state.pop("itinerary", None)
             st.session_state["step"] = 3
             st.rerun()
 
@@ -234,25 +273,41 @@ def step_itinerary() -> None:
 
     city     = st.session_state["city"]
     num_days = st.session_state["num_days"]
-    prefs    = st.session_state.get("prefs", [])
+
+    # Build the itinerary once; keep it in session state so re-renders don't reshuffle it
+    if "itinerary" not in st.session_state:
+        df       = load_activities()
+        acts_raw = city_activities(df, city)
+
+        forecast = get_city_forecast(city, num_days)
+
+        # KNN ranking — sort activities by how well they match the user's ratings
+        knn_ratings = st.session_state.get("knn_ratings", [])
+        if knn_ratings:
+            acts_feat = add_features(acts_raw)
+            result    = build_itinerary_knn(knn_ratings, acts_feat)
+            ranked_names = result[0] if isinstance(result, tuple) else result
+            order     = {name: i for i, name in enumerate(ranked_names)}
+            acts_copy = acts_raw.copy()
+            acts_copy["_rank"] = acts_copy["activity_name"].map(lambda n: order.get(n, 9999))
+            acts_raw  = acts_copy.sort_values("_rank").drop(columns=["_rank"])
+
+        st.session_state["itinerary"] = build_itinerary(acts_raw, num_days, forecast)
+        st.session_state["forecast"]  = forecast
+
     itinerary = st.session_state["itinerary"]
+    forecast  = st.session_state.get("forecast", [])
 
     st.markdown(f'<div class="step-heading">Your {num_days}-day {city} itinerary</div>',
                 unsafe_allow_html=True)
 
-    # Summary box
-    pref_text = ", ".join(prefs) if prefs else "All activities"
     st.markdown(
         f'<div class="summary-box">'
         f'<strong>Destination:</strong> {city} &nbsp;|&nbsp; '
-        f'<strong>Days:</strong> {num_days} &nbsp;|&nbsp; '
-        f'<strong>Interests:</strong> {pref_text}'
+        f'<strong>Days:</strong> {num_days}'
         f'</div>',
         unsafe_allow_html=True,
     )
-
-    # Get the weather forecast for the chosen city, one entry per day.
-    forecast = get_city_forecast(city, num_days)
 
     # Timetable — lay days out in columns (max 3 per row)
     for row_start in range(0, num_days, 3):
@@ -264,24 +319,18 @@ def step_itinerary() -> None:
                     f'<div class="tt-header">Day {day_plan["day"]}</div>',
                     unsafe_allow_html=True,
                 )
-
-                # Show the weather for this day, if we have it.
-                # day_plan["day"] starts at 1, so the index is day - 1.
                 day_index = day_plan["day"] - 1
                 if day_index < len(forecast):
                     w = forecast[day_index]
                     col.markdown(
-                        f'<div style="font-size:0.85rem; color:#1a3a5c; '
-                        f'margin-bottom:0.5rem;">'
-                        f'{w["label"]} · {w["min"]}°/{w["max"]}°C · '
-                        f'rain {w["rain"]} mm'
+                        f'<div style="font-size:0.85rem; color:#1a3a5c; margin-bottom:0.5rem;">'
+                        f'{w["label"]} · {w["min"]}°/{w["max"]}°C · rain {w["rain"]} mm'
                         f'</div>',
                         unsafe_allow_html=True,
                     )
-                    
                 for slot, activity in day_plan["slots"].items():
                     is_free = activity.startswith("Free time")
-                    css = "tt-free" if is_free else SLOT_CLASSES[slot]
+                    css  = "tt-free" if is_free else SLOT_CLASSES[slot]
                     icon = "" if is_free else SLOT_ICONS[slot]
                     col.markdown(
                         f'<div class="tt-slot {css}">{icon} <strong>{slot}</strong><br>'
@@ -292,12 +341,14 @@ def step_itinerary() -> None:
     st.write("")
     col_back, col_restart = st.columns([1, 5])
     with col_back:
-        if st.button("← Change preferences"):
+        if st.button("← Re-rate activities"):
+            st.session_state.pop("itinerary", None)
+            st.session_state.pop("forecast", None)
             st.session_state["step"] = 2
             st.rerun()
     with col_restart:
         if st.button("Start over"):
-            for key in ["city", "num_days", "prefs", "itinerary", "step"]:
+            for key in ["city", "num_days", "itinerary", "forecast", "step", "knn_ratings"]:
                 st.session_state.pop(key, None)
             st.rerun()
 
@@ -315,6 +366,6 @@ def run_app() -> None:
     if step == 1:
         step_destination()
     elif step == 2:
-        step_preferences()
+        step_rating()
     elif step == 3:
         step_itinerary()
