@@ -54,8 +54,8 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 
 #color of big banner (swiss colors)
             
-.hero {
-    background-color: #ff0000;
+hero {
+    background-color: #5a7a9a;
     border-radius: 1.4rem;
     padding: 2.2rem 2.6rem 1.8rem 2.6rem;
     margin-bottom: 2rem;
