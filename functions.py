@@ -1,11 +1,10 @@
 """
 functions.py  —  Swiss Vacation Planner
 ========================================
-4-step UI flow:
+3-step UI flow:
   Step 1 → Destination & days
   Step 2 → Rate 6 categories with sliders (1–5)
-  Step 3 → ML summary / explanation → confirm to build itinerary
-  Step 4 → Final itinerary + activity chart
+  Step 3 → Final itinerary + activity chart
 """
 
 from __future__ import annotations
@@ -30,12 +29,12 @@ CATEGORY_COLORS = {
 }
 
 CATEGORY_EMOJI = {
-    "Outdoor & Nature":          "",
-    "Culture & History":         "",
-    "Food & Drink":              "",
-    "Nightlife & Entertainment": "",
-    "Relaxation & Wellness":     "",
-    "Adventure & Sports":        "",
+    "Outdoor & Nature":          "🌿",
+    "Culture & History":         "🏛️",
+    "Food & Drink":              "🍽️",
+    "Nightlife & Entertainment": "🎉",
+    "Relaxation & Wellness":     "🧘",
+    "Adventure & Sports":        "⚡",
 }
 
 SLOTS = ["Morning", "Afternoon", "Evening"]
@@ -46,9 +45,9 @@ SLOT_CSS = {
     "Evening":   "tt-evening",
 }
 SLOT_ICON = {
-    "Morning":   "",
-    "Afternoon": "",
-    "Evening":   "",
+    "Morning":   "🌅",
+    "Afternoon": "☀️",
+    "Evening":   "🌙",
 }
 
 # Nightlife only in Evening; Wellness not in Evening
@@ -191,10 +190,9 @@ def render_progress(current: int) -> None:
     labels = [
         "1 · Destination",
         "2 · Preferences",
-        "3 · ML Preview",
-        "4 · Your Itinerary",
+        "3 · Your Itinerary",
     ]
-    cols = st.columns(4)
+    cols = st.columns(3)
     for i, label in enumerate(labels):
         step = i + 1
         if step < current:
@@ -258,11 +256,17 @@ def step_preferences() -> None:
 
     for i, cat in enumerate(CATEGORIES):
         col = col_a if i % 2 == 0 else col_b
+        emoji = CATEGORY_EMOJI[cat]
+        color = CATEGORY_COLORS[cat]
 
         with col:
+            # Category label with coloured left-border card
             st.markdown(
-                f'<div style="font-weight:700; color:#1a1a1a; '
-                f'font-size:0.97rem; margin-top:0.9rem;">{cat}</div>',
+                f'<div style="border-left:4px solid {color}; '
+                f'background:#e8f4fd; border-radius:0.5rem; '
+                f'padding:0.45rem 0.75rem; margin-top:0.9rem; '
+                f'font-weight:700; color:#1a3a5c; font-size:0.97rem;">'
+                f'{emoji} {cat}</div>',
                 unsafe_allow_html=True,
             )
             rating = st.slider(
@@ -274,11 +278,15 @@ def step_preferences() -> None:
                 key=f"pref_{cat}",
                 label_visibility="collapsed",
             )
+            # Star feedback
+            stars = "⭐" * rating + "☆" * (5 - rating)
             label_map = {1: "Not interested", 2: "Slightly interested",
                          3: "Neutral", 4: "Interested", 5: "Love it!"}
             st.markdown(
-                f'<div style="font-size:0.85rem; color:#555555; '
-                f'margin-bottom:0.2rem;">{rating} — {label_map[rating]}</div>',
+                f'<div style="font-size:1rem; color:#2e6da4; '
+                f'margin-bottom:0.2rem;">{stars} '
+                f'<span style="font-size:0.8rem; color:#4a7a9b;">'
+                f'{label_map[rating]}</span></div>',
                 unsafe_allow_html=True,
             )
             prefs[cat] = rating
@@ -290,167 +298,30 @@ def step_preferences() -> None:
             st.session_state["step"] = 1
             st.rerun()
     with col_next:
-        if st.button("See ML preview →"):
+        if st.button("🏔️ Build my itinerary →"):
             st.session_state["prefs"] = prefs
-            st.session_state["step"]  = 3
-            st.rerun()
 
-
-# ══════════════════════════════════════════════════════════════════════
-# STEP 3 — ML summary & confirmation
-# ══════════════════════════════════════════════════════════════════════
-
-def step_ml_preview() -> None:
-    render_progress(3)
-
-    city     = st.session_state["city"]
-    num_days = st.session_state["num_days"]
-    prefs    = st.session_state.get("prefs", {cat: 3 for cat in CATEGORIES})
-
-    st.markdown('<div class="step-heading">🤖 Your ML Preference Profile</div>',
-                unsafe_allow_html=True)
-    st.markdown(
-        '<div class="step-caption">'
-        'Here is what our KNN model learned from your ratings. '
-        'Review your profile and confirm to generate the itinerary.'
-        '</div>',
-        unsafe_allow_html=True,
-    )
-
-    # ── How the ML works ──────────────────────────────────────────────
-    with st.expander("ℹ️ How does the ML work?", expanded=True):
-        st.markdown(
-            """
-**Cosine-similarity KNN recommender** — the same family of algorithms used by Spotify and Netflix.
-
-**Step 1 — Feature vectors**  
-Every activity in our database of 838 activities is encoded as an 11-dimensional numeric vector:
-one value per category (one-hot), plus outdoor/indoor, time-of-day slots, and duration.
-
-**Step 2 — Like & Dislike vectors**  
-Your slider ratings are converted into two summary vectors:
-- **Like vector** — weighted average of categories you rated 4–5 ⭐  
-- **Dislike vector** — weighted average of categories you rated 1–2 ⭐  
-
-The weights are non-linear: `(rating / 3)²` — so rating 5 has 25× more influence than rating 1.
-
-**Step 3 — Cosine similarity scoring**  
-Every activity is scored as:  
-`score = cosine_sim(activity, like_vector) − cosine_sim(activity, dislike_vector)`
-
-Activities similar to what you love rank **high**; activities similar to what you dislike rank **low**.
-
-**Step 4 — Itinerary construction**  
-The top-ranked activities are placed into Morning / Afternoon / Evening slots,
-respecting weather forecasts and time-of-day constraints (e.g. Nightlife → Evening only).
-            """,
-            unsafe_allow_html=True,
-        )
-
-    st.markdown("---")
-
-    # ── Preference profile cards ──────────────────────────────────────
-    st.markdown(
-        '<div class="step-heading" style="font-size:1.05rem;">Your ratings</div>',
-        unsafe_allow_html=True,
-    )
-
-    sorted_prefs = sorted(prefs.items(), key=lambda x: x[1], reverse=True)
-    col_a, col_b = st.columns(2)
-
-    for i, (cat, score) in enumerate(sorted_prefs):
-        col = col_a if i % 2 == 0 else col_b
-        color  = CATEGORY_COLORS.get(cat, "#2e6da4")
-        emoji  = CATEGORY_EMOJI.get(cat, "")
-        stars  = "⭐" * score + "☆" * (5 - score)
-        tag_map = {5: ("Love it!", "#064e3b", "#d1fae5"),
-                   4: ("Interested", "#1e3a5f", "#dbeafe"),
-                   3: ("Neutral",    "#4a5568", "#f1f5f9"),
-                   2: ("Not much",   "#7c2d12", "#fee2e2"),
-                   1: ("Not for me", "#7c2d12", "#fecaca")}
-        tag_label, tag_text, tag_bg = tag_map.get(score, ("", "#000", "#fff"))
-
-        with col:
-            st.markdown(
-                f'<div style="border-left:4px solid {color}; background:#e8f4fd; '
-                f'border-radius:0.6rem; padding:0.6rem 0.9rem; margin-bottom:0.7rem;">'
-                f'<div style="font-weight:700; color:#1a3a5c; font-size:0.9rem;">'
-                f'{emoji} {cat}</div>'
-                f'<div style="font-size:1.05rem; color:#1a3a5c; margin:0.15rem 0;">{stars}</div>'
-                f'<span style="background:{tag_bg}; color:{tag_text}; font-size:0.75rem; '
-                f'border-radius:0.3rem; padding:0.1rem 0.4rem; font-weight:600;">'
-                f'{tag_label}</span>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
-
-    st.markdown("---")
-
-    # ── What the model will do ────────────────────────────────────────
-    loved    = [c for c, s in prefs.items() if s >= 4]
-    disliked = [c for c, s in prefs.items() if s <= 2]
-
-    if loved:
-        loved_str = " · ".join(
-            f'{CATEGORY_EMOJI[c]} {c}' for c in loved)
-        st.markdown(
-            f'<div class="summary-box">'
-            f'✅ <strong>The model will prioritise:</strong> {loved_str}'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-    if disliked:
-        disliked_str = " · ".join(
-            f'{CATEGORY_EMOJI[c]} {c}' for c in disliked)
-        st.markdown(
-            f'<div class="summary-box" style="border-color:#f87171;">'
-            f'🚫 <strong>The model will avoid:</strong> {disliked_str}'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-    if not loved and not disliked:
-        st.markdown(
-            '<div class="summary-box">'
-            '🔀 All ratings are neutral — the model will create a balanced mixed itinerary.'
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
-    # ── Trip summary line ──────────────────────────────────────────────
-    st.markdown(
-        f'<div class="summary-box">'
-        f'📍 <strong>{city}</strong> &nbsp;·&nbsp; '
-        f'🗓️ <strong>{num_days} day{"s" if num_days > 1 else ""}</strong>'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
-
-    st.write("")
-    col_back, col_go = st.columns([1, 5])
-    with col_back:
-        if st.button("← Edit ratings"):
-            st.session_state["step"] = 2
-            st.rerun()
-    with col_go:
-        if st.button("Build my itinerary →", type="primary"):
-            # ── Run ML here so step 4 just displays results ───────────
+            # Run ML immediately — no intermediate step
             df   = load_activities()
-            acts = df[df["city"] == city].reset_index(drop=True)
+            acts = df[df["city"] == st.session_state["city"]].reset_index(drop=True)
             if acts.empty:
                 acts = df
 
-            ranked = get_knn_ranked_activities(acts, prefs)
-            forecast = get_city_forecast(city, num_days)
-            itinerary = build_itinerary(ranked, num_days, forecast)
+            ranked    = get_knn_ranked_activities(acts, prefs)
+            forecast  = get_city_forecast(st.session_state["city"],
+                                          st.session_state["num_days"])
+            itinerary = build_itinerary(ranked,
+                                        st.session_state["num_days"],
+                                        forecast)
 
             st.session_state["ranked"]    = ranked
             st.session_state["itinerary"] = itinerary
-            st.session_state["step"]      = 4
+            st.session_state["step"]      = 3
             st.rerun()
 
 
 # ══════════════════════════════════════════════════════════════════════
-# STEP 4 — Final itinerary + chart
+# STEP 3 — Final itinerary + chart
 # ══════════════════════════════════════════════════════════════════════
 
 def render_activity_chart(itinerary: list) -> None:
@@ -502,7 +373,7 @@ def render_activity_chart(itinerary: list) -> None:
 
 
 def step_itinerary() -> None:
-    render_progress(4)
+    render_progress(3)
 
     city      = st.session_state["city"]
     num_days  = st.session_state["num_days"]
@@ -516,12 +387,13 @@ def step_itinerary() -> None:
 
     # Top interests summary
     top_cats = sorted(prefs, key=prefs.get, reverse=True)[:3]
-    top_str  = " · ".join(c for c in top_cats)
+    top_str  = " · ".join(
+        f'{CATEGORY_EMOJI.get(c, "")} {c}' for c in top_cats)
     st.markdown(
         f'<div class="summary-box">'
-        f'<strong>{city}</strong> &nbsp;|&nbsp; '
-        f'<strong>{num_days} day{"s" if num_days>1 else ""}</strong> &nbsp;|&nbsp; '
-        f'<strong>{top_str}</strong>'
+        f'📍 <strong>{city}</strong> &nbsp;|&nbsp; '
+        f'🗓️ <strong>{num_days} day{"s" if num_days>1 else ""}</strong> &nbsp;|&nbsp; '
+        f'❤️ <strong>{top_str}</strong>'
         f'</div>',
         unsafe_allow_html=True,
     )
@@ -530,8 +402,8 @@ def step_itinerary() -> None:
     forecast = get_city_forecast(city, num_days)
     if forecast:
         st.markdown(
-            '<div style="font-size:0.82rem; color:#555555; margin-bottom:0.6rem;">'
-            '<strong>Live weather forecast</strong> — '
+            '<div style="font-size:0.82rem; color:#4a7a9b; margin-bottom:0.6rem;">'
+            '🌤️ <strong>Live weather forecast</strong> — '
             'real-time data from Open-Meteo for today and the coming days'
             '</div>',
             unsafe_allow_html=True,
@@ -554,9 +426,11 @@ def step_itinerary() -> None:
                 if day_idx < len(forecast):
                     w = forecast[day_idx]
                     cols[i].markdown(
-                        f'<div class="weather-box">'
-                        f'{w["label"]} · {w["min"]}°/{w["max"]}°C '
-                        f'· {w["rain"]} mm rain</div>',
+                        f'<div style="font-size:0.8rem; color:#ffffff; '
+                        f'background:#2e6da4; border-radius:0.4rem; '
+                        f'padding:0.25rem 0.5rem; margin-bottom:0.4rem;">'
+                        f'🌡️ {w["label"]} · {w["min"]}°/{w["max"]}°C '
+                        f'· 🌧️ {w["rain"]} mm</div>',
                         unsafe_allow_html=True,
                     )
 
@@ -585,8 +459,9 @@ def step_itinerary() -> None:
 
                     cols[i].markdown(
                         f'<div class="tt-slot {css}">'
-                        f'<strong>{slot}</strong><br>'
-                        f'<span class="act-meta">{name}</span>'
+                        f'{icon} <strong style="color:#1a3a5c;">{slot}</strong>'
+                        f'{badge}<br>'
+                        f'<span class="act-meta" style="color:#1a3a5c;">{name}</span>'
                         f'</div>',
                         unsafe_allow_html=True,
                     )
@@ -594,7 +469,7 @@ def step_itinerary() -> None:
     # ── Activity breakdown chart ───────────────────────────────────────
     st.markdown("---")
     st.markdown(
-        '<div class="step-heading" style="font-size:1.1rem;">Activity breakdown</div>',
+        '<div class="step-heading" style="font-size:1.1rem;">📊 Activity breakdown</div>',
         unsafe_allow_html=True,
     )
     st.markdown(
@@ -640,6 +515,4 @@ def run_app() -> None:
     elif step == 2:
         step_preferences()
     elif step == 3:
-        step_ml_preview()
-    elif step == 4:
         step_itinerary()
