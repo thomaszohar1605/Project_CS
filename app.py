@@ -219,7 +219,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ── Activity Map ──────────────────────────────────────────────────────────────
+#Map reader, (function.py)
+
 try:
     _CSV = pathlib.Path(__file__).resolve().parent / "locations.csv"
 except NameError:
@@ -231,6 +232,8 @@ st.markdown(
     '<div class="step-heading"> Activities across Switzerland</div>',
     unsafe_allow_html=True,
 )
+
+#zoom of the map + doth configuration + interactive name on the map 
 
 st.pydeck_chart(pdk.Deck(
     initial_view_state=pdk.ViewState(
