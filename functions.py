@@ -30,12 +30,12 @@ CATEGORY_COLORS = {
 }
 
 CATEGORY_EMOJI = {
-    "Outdoor & Nature":          "🌿",
-    "Culture & History":         "🏛️",
-    "Food & Drink":              "🍽️",
-    "Nightlife & Entertainment": "🎉",
-    "Relaxation & Wellness":     "🧘",
-    "Adventure & Sports":        "⚡",
+    "Outdoor & Nature":          "",
+    "Culture & History":         "",
+    "Food & Drink":              "",
+    "Nightlife & Entertainment": "",
+    "Relaxation & Wellness":     "",
+    "Adventure & Sports":        "",
 }
 
 SLOTS = ["Morning", "Afternoon", "Evening"]
@@ -46,9 +46,9 @@ SLOT_CSS = {
     "Evening":   "tt-evening",
 }
 SLOT_ICON = {
-    "Morning":   "🌅",
-    "Afternoon": "☀️",
-    "Evening":   "🌙",
+    "Morning":   "",
+    "Afternoon": "",
+    "Evening":   "",
 }
 
 # Nightlife only in Evening; Wellness not in Evening
@@ -442,7 +442,7 @@ respecting weather forecasts and time-of-day constraints (e.g. Nightlife → Eve
             st.session_state["step"] = 2
             st.rerun()
     with col_go:
-        if st.button("🏔️ Build my itinerary →", type="primary"):
+        if st.button("Build my itinerary →", type="primary"):
             # ── Run ML here so step 4 just displays results ───────────
             df   = load_activities()
             acts = df[df["city"] == city].reset_index(drop=True)
@@ -526,13 +526,12 @@ def step_itinerary() -> None:
 
     # Top interests summary
     top_cats = sorted(prefs, key=prefs.get, reverse=True)[:3]
-    top_str  = " · ".join(
-        f'{CATEGORY_EMOJI.get(c, "")} {c}' for c in top_cats)
+    top_str  = " · ".join(c for c in top_cats)
     st.markdown(
         f'<div class="summary-box">'
-        f'📍 <strong>{city}</strong> &nbsp;|&nbsp; '
-        f'🗓️ <strong>{num_days} day{"s" if num_days>1 else ""}</strong> &nbsp;|&nbsp; '
-        f'❤️ <strong>{top_str}</strong>'
+        f'<strong>{city}</strong> &nbsp;|&nbsp; '
+        f'<strong>{num_days} day{"s" if num_days>1 else ""}</strong> &nbsp;|&nbsp; '
+        f'<strong>{top_str}</strong>'
         f'</div>',
         unsafe_allow_html=True,
     )
@@ -541,8 +540,8 @@ def step_itinerary() -> None:
     forecast = get_city_forecast(city, num_days)
     if forecast:
         st.markdown(
-            '<div style="font-size:0.82rem; color:#4a7a9b; margin-bottom:0.6rem;">'
-            '🌤️ <strong>Live weather forecast</strong> — '
+            '<div style="font-size:0.82rem; color:#555555; margin-bottom:0.6rem;">'
+            '<strong>Live weather forecast</strong> — '
             'real-time data from Open-Meteo for today and the coming days'
             '</div>',
             unsafe_allow_html=True,
@@ -565,11 +564,9 @@ def step_itinerary() -> None:
                 if day_idx < len(forecast):
                     w = forecast[day_idx]
                     cols[i].markdown(
-                        f'<div style="font-size:0.8rem; color:#ffffff; '
-                        f'background:#2e6da4; border-radius:0.4rem; '
-                        f'padding:0.25rem 0.5rem; margin-bottom:0.4rem;">'
-                        f'🌡️ {w["label"]} · {w["min"]}°/{w["max"]}°C '
-                        f'· 🌧️ {w["rain"]} mm</div>',
+                        f'<div class="weather-box">'
+                        f'{w["label"]} · {w["min"]}°/{w["max"]}°C '
+                        f'· {w["rain"]} mm rain</div>',
                         unsafe_allow_html=True,
                     )
 
@@ -598,9 +595,8 @@ def step_itinerary() -> None:
 
                     cols[i].markdown(
                         f'<div class="tt-slot {css}">'
-                        f'{icon} <strong style="color:#1a3a5c;">{slot}</strong>'
-                        f'{badge}<br>'
-                        f'<span class="act-meta" style="color:#1a3a5c;">{name}</span>'
+                        f'<strong>{slot}</strong><br>'
+                        f'<span class="act-meta">{name}</span>'
                         f'</div>',
                         unsafe_allow_html=True,
                     )
@@ -608,7 +604,7 @@ def step_itinerary() -> None:
     # ── Activity breakdown chart ───────────────────────────────────────
     st.markdown("---")
     st.markdown(
-        '<div class="step-heading" style="font-size:1.1rem;">📊 Activity breakdown</div>',
+        '<div class="step-heading" style="font-size:1.1rem;">Activity breakdown</div>',
         unsafe_allow_html=True,
     )
     st.markdown(

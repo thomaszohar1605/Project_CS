@@ -40,7 +40,7 @@ html, body, .stApp {
     background-color: #ffffff !important;
 }
 
-#color text
+/* Force all text dark */
 p, span, div, label, h1, h2, h3, h4, h5, h6,
 .stMarkdown p, .stMarkdown span,
 .stCheckbox label, .stCheckbox span,
@@ -52,7 +52,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #1a1a1a !important;
 }
 
-#Main banner Swiss red 
+/* Hero banner — Swiss red */
 .hero {
     background: #D52B1E;
     border-radius: 1.4rem;
@@ -71,7 +71,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #f5c6c3 !important;
 }
 
-#progress bar with swiss red
+/* Progress bar */
 .prog-step {
     padding: 0.45rem 0.5rem;
     border-radius: 0.6rem;
@@ -84,7 +84,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 .prog-step.done    { background: #1a1a1a; color: #ffffff !important; }
 .prog-step.current { background: #D52B1E; color: #ffffff !important; }
 
-#small banner 
+/* Step headings */
 .step-heading {
     font-size: 1.3rem;
     font-weight: 700;
@@ -97,7 +97,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     margin-bottom: 1.2rem;
 }
 
-#summary 
+/* Summary box */
 .summary-box {
     background: #fff0f0;
     border: 1px solid #f5c6c3;
@@ -108,7 +108,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     margin-bottom: 0.9rem;
 }
 
-#actvities color and form 
+/* Activity meta */
 .act-meta {
     font-size: 0.83rem;
     color: #555555 !important;
@@ -116,7 +116,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     margin-bottom: 0.4rem;
 }
 
-#timetable 
+/* Timetable */
 .tt-header {
     font-weight: 700;
     color: #1a1a1a !important;
@@ -133,11 +133,22 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #1a1a1a !important;
     font-weight: 500;
 }
-.tt-morning   { background: #D52B1E; }
-.tt-afternoon { background: #D52B1E; }
-.tt-evening   { background: #D52B1E; }
-.tt-night     { background: #D52B1E; }
-.tt-free      { background: #D52B1E; color: #999999 !important; font-style: italic; }
+.tt-morning   { background: #fde8e6; color: #1a1a1a !important; }
+.tt-afternoon { background: #f9c2be; color: #1a1a1a !important; }
+.tt-evening   { background: #D52B1E; color: #ffffff !important; }
+.tt-night     { background: #a01f16; color: #ffffff !important; }
+.tt-free      { background: #f5f5f5; color: #999999 !important; font-style: italic; }
+
+/* Weather box */
+.weather-box {
+    background: #fde8e6;
+    border-left: 3px solid #D52B1E;
+    border-radius: 0.4rem;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+    color: #1a1a1a !important;
+    margin-bottom: 0.5rem;
+}
 
 /* Input fields */
 div[data-testid="stSelectbox"] div[role="combobox"],
@@ -211,7 +222,7 @@ div[data-baseweb="select"] span {
 
 st.markdown(
     '<div class="hero">'
-    '<div class="hero-title"> Swiss Vacation Planner</div>'
+    '<div class="hero-title">Swiss Vacation Planner</div>'
     '<div class="hero-subtitle">'
     "Tell us where you want to go and we'll build your perfect Swiss trip — day by day."
     '</div>'
@@ -219,8 +230,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-#Map reader, (function.py)
-
+# ── Activity Map ──────────────────────────────────────────────────────────────
 try:
     _CSV = pathlib.Path(__file__).resolve().parent / "locations.csv"
 except NameError:
@@ -229,11 +239,9 @@ except NameError:
 df_raw = pd.read_csv(_CSV)
 
 st.markdown(
-    '<div class="step-heading"> Activities across Switzerland</div>',
+    '<div class="step-heading">Activities across Switzerland</div>',
     unsafe_allow_html=True,
 )
-
-#zoom of the map + doth configuration + interactive name on the map 
 
 st.pydeck_chart(pdk.Deck(
     initial_view_state=pdk.ViewState(
