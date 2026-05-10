@@ -135,11 +135,11 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #1a1a1a !important;
     font-weight: 500;
 }
-/* Colour coding by time of day */
+/* Colour coding by time of day — constant light red for all slots */
 .tt-morning   { background: #fde8e6; color: #1a1a1a !important; }
-.tt-afternoon { background: #f9c2be; color: #1a1a1a !important; }
-.tt-evening   { background: #D52B1E; color: #ffffff !important; }
-.tt-night     { background: #a01f16; color: #ffffff !important; }
+.tt-afternoon { background: #fde8e6; color: #1a1a1a !important; }
+.tt-evening   { background: #fde8e6; color: #1a1a1a !important; }
+.tt-night     { background: #fde8e6; color: #1a1a1a !important; }
 .tt-free      { background: #f5f5f5; color: #999999 !important; font-style: italic; }
 
 /* Weather info box shown alongside the itinerary */
@@ -276,7 +276,7 @@ st.pydeck_chart(pdk.Deck(
             "ScatterplotLayer",
             data=df_raw,
             get_position="[lon, lat]",   # Column names from locations.csv
-            get_radius=1000,              # Circle radius in metres
+            get_radius=1500,              # Circle radius in metres
             get_color=[220, 38, 38, 200], # Swiss red with slight transparency
             get_line_color=[255, 255, 255],
             stroked=True,
