@@ -2,9 +2,9 @@
 functions.py  —  Swiss Vacation Planner
 ========================================
 3-step UI flow:
-  Step 1 → Destination, days & season      ← season picker added here
-  Step 2 → Rate 6 categories with sliders (1–5)
-  Step 3 → Final itinerary + activity chart
+  Step 1 -> Destination, days & season
+  Step 2 -> Rate 6 categories with sliders (1-5)
+  Step 3 -> Final itinerary + activity chart
 """
 
 from __future__ import annotations
@@ -77,7 +77,7 @@ SLOT_RESTRICTIONS = {
 }
 
 # Activities from categories rated at or below this value are removed
-# entirely from the candidate pool (post-filter after KNN ranking).
+# entirely from the candidate pool after KNN ranking.
 LOW_RATING_THRESHOLD = 2
 
 
@@ -91,8 +91,8 @@ def load_activities() -> pd.DataFrame:
 
 @st.cache_data(ttl=3600)
 def get_city_forecast(city: str, num_days: int) -> list:
-    # Look up the city's coordinates from the dataset, then fetch a live forecast.
-    # Cached for 1 hour (ttl=3600) to avoid redundant API calls.
+    # Look up the city coordinates then fetch a live weather forecast.
+    # Cached for 1 hour to avoid redundant API calls.
     df   = load_activities()
     rows = df[df["city"] == city]
     if rows.empty:
@@ -119,8 +119,7 @@ def is_allowed_in_slot(row, slot: str) -> bool:
 
 
 def get_best_slot(time_slot_value) -> str:
-    # Determine the preferred time slot for an activity from its CSV "time_slot" value.
-    # The CSV stores slots as e.g. "Morning|Afternoon"; return the first match.
+    # Determine the preferred time slot from the CSV "time_slot" value.
     # Falls back to a random slot if the value is missing or unrecognised.
     if pd.isna(time_slot_value):
         return random.choice(SLOTS)
@@ -134,21 +133,19 @@ def get_best_slot(time_slot_value) -> str:
 def filter_by_season(df: pd.DataFrame, season: str) -> pd.DataFrame:
     """
     Hard pre-filter: keep only activities whose 'seasons' column contains
-    the chosen season keyword. This is the primary seasonal gate — the KNN
-    season features then fine-tune ranking within the valid pool.
+    the chosen season keyword.
 
     The CSV stores seasons as pipe-separated strings e.g. "spring|summer|fall".
-    Activities with no seasons value are kept (assumed year-round).
+    Activities with no seasons value are kept as year-round.
     """
     season_clean = season.strip().lower()
 
     def _has_season(val) -> bool:
         if pd.isna(val) or str(val).strip() == "":
-            return True   # no season listed → treat as year-round
+            return True   # no season listed -> treat as year-round
         return season_clean in str(val).lower()
 
-    filtered = df[df["seasons"].apply(_has_season)].reset_index(drop=True)
-    return filtered
+    return df[df["seasons"].apply(_has_season)].reset_index(drop=True)
 
 
 # ── Post-filter ───────────────────────────────────────────────────────────────
@@ -157,12 +154,8 @@ def apply_preference_filter(ranked: pd.DataFrame, prefs: dict) -> pd.DataFrame:
     """
     Remove activities whose category was rated at or below LOW_RATING_THRESHOLD.
 
-    This hard filter runs after KNN ranking to guarantee that categories the
-    user dislikes never appear in the itinerary — even if the KNN score
-    would otherwise include them.
-
-    Example: user rates 'Nightlife & Entertainment' as 1 → all nightlife
-    activities are dropped from the candidate pool entirely.
+    This hard filter runs after KNN ranking to guarantee that disliked
+    categories never appear in the itinerary regardless of KNN score.
     """
     for cat in CATEGORIES:
         if prefs.get(cat, 3) <= LOW_RATING_THRESHOLD:
@@ -178,10 +171,8 @@ def build_itinerary(ranked_df: pd.DataFrame,
     """
     Build a day-by-day itinerary from ML-ranked activities.
     Activities higher in ranked_df (better knn_score) are placed first.
-    By the time this runs, activities have been filtered by season and
-    by low preference ratings.
     """
-    all_rows = ranked_df.to_dict("records")   # sorted best→worst by KNN score
+    all_rows = ranked_df.to_dict("records")   # sorted best to worst by KNN score
 
     # Bucket activities by preferred time slot, preserving ML rank order
     buckets: dict[str, list] = {s: [] for s in SLOTS}
@@ -300,7 +291,6 @@ def step_destination() -> None:
     )
 
     df     = load_activities()
-    # Build the city dropdown from unique city names in the dataset
     cities = sorted(df["city"].dropna().unique().tolist())
 
     # Row 1: destination and number of days
@@ -310,42 +300,39 @@ def step_destination() -> None:
     with col2:
         num_days = st.selectbox("Number of days", [1, 2, 3, 4, 5, 6, 7], index=2)
 
-    # Row 2: season selector displayed as four large buttons
+    # Row 2: season selector
     st.markdown(
         '<div style="font-weight:700; color:#1a3a5c; font-size:0.97rem; '
         'margin-top:1rem; margin-bottom:0.4rem;">When are you travelling?</div>',
         unsafe_allow_html=True,
     )
-    season_cols = st.columns(4)
-    # Read current season choice from session state (default to summer)
+
+    # Read the current season choice from session state (default summer)
     current_season = st.session_state.get("season_choice", "summer")
 
+    season_cols = st.columns(4)
     for i, season in enumerate(SEASONS):
-        label = SEASON_LABELS[season]
-        # Highlight the currently selected season in Swiss red
+        label       = SEASON_LABELS[season]
         is_selected = (season == current_season)
-        btn_style = (
-            "background:#D52B1E; color:#ffffff; border:2px solid #D52B1E;"
-            if is_selected else
-            "background:#f0f0f0; color:#1a1a1a; border:2px solid #cccccc;"
-        )
         with season_cols[i]:
-            # Render a styled button-like div; clicking sets the season in session state
             if st.button(label, key=f"season_btn_{season}"):
                 st.session_state["season_choice"] = season
                 st.rerun()
-            # Show a visual indicator of which season is active
+            # Visual indicator of which season is currently active
+            indicator = "✓ selected" if is_selected else ""
+            btn_color = "#D52B1E" if is_selected else "#f0f0f0"
+            txt_color = "#ffffff" if is_selected else "#1a1a1a"
             st.markdown(
-                f'<div style="{btn_style} border-radius:0.5rem; '
-                f'text-align:center; padding:0.25rem 0; font-size:0.78rem; '
-                f'font-weight:600; margin-top:-0.5rem;">'
-                f'{"✓ selected" if is_selected else ""}</div>',
+                f'<div style="background:{btn_color}; color:{txt_color}; '
+                f'border-radius:0.5rem; text-align:center; padding:0.25rem 0; '
+                f'font-size:0.78rem; font-weight:600; margin-top:-0.5rem;">'
+                f'{indicator}</div>',
                 unsafe_allow_html=True,
             )
 
     st.write("")
 
-    # Show a brief note about how many activities are available for the selection
+    # Preview: how many activities are available for the selected city and season
     season_choice = st.session_state.get("season_choice", "summer")
     city_acts     = df[df["city"] == city]
     season_acts   = filter_by_season(city_acts, season_choice)
@@ -373,18 +360,16 @@ def step_destination() -> None:
 def step_preferences() -> None:
     render_progress(2)
 
-    # Show the chosen season as a reminder at the top of this step
     season = st.session_state.get("season", "summer")
     st.markdown(
-        f'<div class="step-heading">How much do you enjoy each type of activity?</div>',
+        '<div class="step-heading">How much do you enjoy each type of activity?</div>',
         unsafe_allow_html=True,
     )
     st.markdown(
         f'<div class="step-caption">'
         f'Rating for your {SEASON_LABELS[season]} trip to '
         f'<strong>{st.session_state.get("city", "")}</strong>. '
-        f'Rate each category from 1 (not my thing) to 5 (love it). '
-        f'Our ML model will use these ratings to build a personalised itinerary.'
+        f'Rate each category from 1 (not my thing) to 5 (love it).'
         f'</div>',
         unsafe_allow_html=True,
     )
@@ -398,7 +383,6 @@ def step_preferences() -> None:
         color = CATEGORY_COLORS[cat]
 
         with col:
-            # Category label with coloured left-border accent card
             st.markdown(
                 f'<div style="border-left:4px solid {color}; '
                 f'background:#e8f4fd; border-radius:0.5rem; '
@@ -416,7 +400,6 @@ def step_preferences() -> None:
                 key=f"pref_{cat}",
                 label_visibility="collapsed",
             )
-            # Star display and plain-English label below each slider
             stars     = "⭐" * rating + "☆" * (5 - rating)
             label_map = {1: "Not interested", 2: "Slightly interested",
                          3: "Neutral", 4: "Interested", 5: "Love it!"}
@@ -445,32 +428,28 @@ def step_preferences() -> None:
             # Load activities for the selected city
             acts = df[df["city"] == st.session_state["city"]].reset_index(drop=True)
             if acts.empty:
-                acts = df   # fallback: use full dataset if city has no entries
+                acts = df
 
-            # SEASON PRE-FILTER: remove activities that don't run in the chosen season
-            # This is the primary seasonal gate before the KNN even runs
+            # SEASON PRE-FILTER: remove activities not available in the chosen season
             acts = filter_by_season(acts, season)
 
-            # Fallback: if season filtering removed everything, use all city activities
-            # (unlikely with a well-populated dataset but prevents a blank itinerary)
+            # Fallback: if filtering removed everything, use unfiltered city activities
             if acts.empty:
                 acts = df[df["city"] == st.session_state["city"]].reset_index(drop=True)
 
             # Run KNN ranking — season is passed so the profile vector encodes it
             ranked = get_knn_ranked_activities(acts, prefs, season=season)
 
-            # POST-FILTER: remove categories the user rated <= LOW_RATING_THRESHOLD
-            # Guarantees disliked categories never appear regardless of KNN score
+            # POST-FILTER: drop categories rated <= LOW_RATING_THRESHOLD
             ranked = apply_preference_filter(ranked, prefs)
 
-            # Fetch real-time weather and build the full itinerary
+            # Fetch real-time weather and build the itinerary
             forecast  = get_city_forecast(st.session_state["city"],
                                           st.session_state["num_days"])
             itinerary = build_itinerary(ranked,
                                         st.session_state["num_days"],
                                         forecast)
 
-            # Store everything in session state and advance to Step 3
             st.session_state["ranked"]    = ranked
             st.session_state["itinerary"] = itinerary
             st.session_state["step"]      = 3
@@ -484,14 +463,13 @@ def step_preferences() -> None:
 def render_activity_chart(itinerary: list) -> None:
     """Stacked bar chart showing activity category distribution across days."""
     days_labels = [f"Day {d['day']}" for d in itinerary]
-    # Count how many activities of each category appear per day
-    cat_counts = {cat: [] for cat in CATEGORIES}
+    cat_counts  = {cat: [] for cat in CATEGORIES}
 
     for day_plan in itinerary:
         day_cats = [
             day_plan["slots"][slot]["category"]
             for slot in SLOTS
-            if day_plan["slots"][slot]["category"]   # exclude Free time slots
+            if day_plan["slots"][slot]["category"]
         ]
         for cat in CATEGORIES:
             cat_counts[cat].append(day_cats.count(cat))
@@ -500,7 +478,7 @@ def render_activity_chart(itinerary: list) -> None:
     for cat in CATEGORIES:
         counts = cat_counts[cat]
         if max(counts) == 0:
-            continue   # skip categories with no activities in the itinerary
+            continue
         fig.add_trace(go.Bar(
             name=f"{CATEGORY_EMOJI[cat]} {cat}",
             x=days_labels,
@@ -533,7 +511,6 @@ def render_activity_chart(itinerary: list) -> None:
 def step_itinerary() -> None:
     render_progress(3)
 
-    # Retrieve all values stored during previous steps
     city      = st.session_state["city"]
     num_days  = st.session_state["num_days"]
     season    = st.session_state.get("season", "summer")
@@ -545,10 +522,9 @@ def step_itinerary() -> None:
         unsafe_allow_html=True,
     )
 
-    # Summary bar: destination, duration, season, and user's top 3 interests
+    # Summary bar: destination, season, duration, top 3 interests
     top_cats = sorted(prefs, key=prefs.get, reverse=True)[:3]
-    top_str  = " · ".join(
-        f'{CATEGORY_EMOJI.get(c, "")} {c}' for c in top_cats)
+    top_str  = " · ".join(f'{CATEGORY_EMOJI.get(c, "")} {c}' for c in top_cats)
     st.markdown(
         f'<div class="summary-box">'
         f'📍 <strong>{city}</strong> &nbsp;|&nbsp; '
@@ -559,7 +535,7 @@ def step_itinerary() -> None:
         unsafe_allow_html=True,
     )
 
-    # Weather attribution note — only shown if forecast data was returned
+    # Weather attribution note
     forecast = get_city_forecast(city, num_days)
     if forecast:
         st.markdown(
@@ -571,7 +547,6 @@ def step_itinerary() -> None:
         )
 
     # ── Timetable ─────────────────────────────────────────────────────────────
-    # Render days in rows of up to 3 columns to avoid an excessively wide layout
     for row_start in range(0, num_days, 3):
         chunk = itinerary[row_start: row_start + 3]
         cols  = st.columns(len(chunk))
@@ -583,7 +558,7 @@ def step_itinerary() -> None:
                     unsafe_allow_html=True,
                 )
 
-                # Weather card for this specific day
+                # Weather card for this day
                 day_idx = day_plan["day"] - 1
                 if day_idx < len(forecast):
                     w = forecast[day_idx]
@@ -601,10 +576,8 @@ def step_itinerary() -> None:
                     act   = day_plan["slots"][slot]
                     name  = act["name"]
                     cat   = act["category"]
-                    score = act["knn_score"]
 
                     if name.startswith("Free time"):
-                        # Free-time slots use neutral grey styling with no badge
                         css   = "tt-free"
                         icon  = ""
                         badge = ""
@@ -612,7 +585,6 @@ def step_itinerary() -> None:
                         css   = SLOT_CSS[slot]
                         icon  = SLOT_ICON[slot]
                         color = CATEGORY_COLORS.get(cat, "#2e6da4")
-                        # Coloured category badge next to the slot heading
                         badge = (
                             f'<span style="background:{color}; color:#fff; '
                             f'font-size:0.68rem; border-radius:0.3rem; '
@@ -647,14 +619,12 @@ def step_itinerary() -> None:
     col_back, col_restart = st.columns([1, 5])
     with col_back:
         if st.button("← Change preferences"):
-            # Go back to Step 2 while keeping city, days and season
             st.session_state["step"] = 2
             st.rerun()
     with col_restart:
         if st.button("Start over"):
-            # Clear all session state and return to Step 1
-            for k in ["city", "num_days", "season", "prefs",
-                      "ranked", "itinerary", "step", "season_choice"]:
+            for k in ["city", "num_days", "season", "season_choice",
+                      "prefs", "ranked", "itinerary", "step"]:
                 st.session_state.pop(k, None)
             st.rerun()
 
