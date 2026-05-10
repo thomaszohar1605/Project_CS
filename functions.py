@@ -258,17 +258,11 @@ def step_preferences() -> None:
 
     for i, cat in enumerate(CATEGORIES):
         col = col_a if i % 2 == 0 else col_b
-        emoji = CATEGORY_EMOJI[cat]
-        color = CATEGORY_COLORS[cat]
 
         with col:
-            # Category label with coloured left-border card
             st.markdown(
-                f'<div style="border-left:4px solid {color}; '
-                f'background:#e8f4fd; border-radius:0.5rem; '
-                f'padding:0.45rem 0.75rem; margin-top:0.9rem; '
-                f'font-weight:700; color:#1a3a5c; font-size:0.97rem;">'
-                f'{emoji} {cat}</div>',
+                f'<div style="font-weight:700; color:#1a1a1a; '
+                f'font-size:0.97rem; margin-top:0.9rem;">{cat}</div>',
                 unsafe_allow_html=True,
             )
             rating = st.slider(
@@ -280,15 +274,11 @@ def step_preferences() -> None:
                 key=f"pref_{cat}",
                 label_visibility="collapsed",
             )
-            # Star feedback
-            stars = "⭐" * rating + "☆" * (5 - rating)
             label_map = {1: "Not interested", 2: "Slightly interested",
                          3: "Neutral", 4: "Interested", 5: "Love it!"}
             st.markdown(
-                f'<div style="font-size:1rem; color:#2e6da4; '
-                f'margin-bottom:0.2rem;">{stars} '
-                f'<span style="font-size:0.8rem; color:#4a7a9b;">'
-                f'{label_map[rating]}</span></div>',
+                f'<div style="font-size:0.85rem; color:#555555; '
+                f'margin-bottom:0.2rem;">{rating} — {label_map[rating]}</div>',
                 unsafe_allow_html=True,
             )
             prefs[cat] = rating
