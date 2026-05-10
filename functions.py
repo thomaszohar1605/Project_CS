@@ -36,22 +36,20 @@ CATEGORY_COLORS = {
     "Adventure & Sports":        "#fbbf24",
 }
 
-# Emoji icon shown next to each category label throughout the UI
 CATEGORY_EMOJI = {
-    "Outdoor & Nature":          "🌿",
-    "Culture & History":         "🏛️",
-    "Food & Drink":              "🍽️",
-    "Nightlife & Entertainment": "🎉",
-    "Relaxation & Wellness":     "🧘",
-    "Adventure & Sports":        "⚡",
+    "Outdoor & Nature":          "",
+    "Culture & History":         "",
+    "Food & Drink":              "",
+    "Nightlife & Entertainment": "",
+    "Relaxation & Wellness":     "",
+    "Adventure & Sports":        "",
 }
 
-# Display label and emoji for each season shown in the UI
 SEASON_LABELS = {
-    "spring": "🌸 Spring",
-    "summer": "☀️ Summer",
-    "fall":   "🍂 Fall",
-    "winter": "❄️ Winter",
+    "spring": "Spring",
+    "summer": "Summer",
+    "fall":   "Fall",
+    "winter": "Winter",
 }
 
 # The three time slots that make up each day in the itinerary
@@ -64,11 +62,10 @@ SLOT_CSS = {
     "Evening":   "tt-evening",
 }
 
-# Icon shown in front of each time slot label in the timetable
 SLOT_ICON = {
-    "Morning":   "🌅",
-    "Afternoon": "☀️",
-    "Evening":   "🌙",
+    "Morning":   "",
+    "Afternoon": "",
+    "Evening":   "",
 }
 
 # Hard constraints on which time slots certain categories may appear in.
@@ -302,55 +299,11 @@ def step_destination() -> None:
     with col2:
         num_days = st.selectbox("Number of days", [1, 2, 3, 4, 5, 6, 7], index=2)
 
-    # Row 2: season selector
-    st.markdown(
-        '<div style="font-weight:700; color:#1a3a5c; font-size:0.97rem; '
-        'margin-top:1rem; margin-bottom:0.4rem;">When are you travelling?</div>',
-        unsafe_allow_html=True,
-    )
-
-    # Read the current season choice from session state (default summer)
-    current_season = st.session_state.get("season_choice", "summer")
-
-    season_cols = st.columns(4)
-    for i, season in enumerate(SEASONS):
-        label       = SEASON_LABELS[season]
-        is_selected = (season == current_season)
-        with season_cols[i]:
-            if st.button(label, key=f"season_btn_{season}"):
-                st.session_state["season_choice"] = season
-                st.rerun()
-            # Visual indicator of which season is currently active
-            indicator = "✓ selected" if is_selected else ""
-            btn_color = "#D52B1E" if is_selected else "#f0f0f0"
-            txt_color = "#ffffff" if is_selected else "#1a1a1a"
-            st.markdown(
-                f'<div style="background:{btn_color}; color:{txt_color}; '
-                f'border-radius:0.5rem; text-align:center; padding:0.25rem 0; '
-                f'font-size:0.78rem; font-weight:600; margin-top:-0.5rem;">'
-                f'{indicator}</div>',
-                unsafe_allow_html=True,
-            )
-
     st.write("")
-
-    # Preview: how many activities are available for the selected city and season
-    season_choice = st.session_state.get("season_choice", "summer")
-    city_acts     = df[df["city"] == city]
-    season_acts   = filter_by_season(city_acts, season_choice)
-    st.markdown(
-        f'<div class="summary-box">'
-        f'📍 <strong>{city}</strong> &nbsp;|&nbsp; '
-        f'{SEASON_LABELS[season_choice]} &nbsp;|&nbsp; '
-        f'<strong>{len(season_acts)}</strong> activities available this season'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
-
     if st.button("Next →"):
         st.session_state["city"]     = city
         st.session_state["num_days"] = num_days
-        st.session_state["season"]   = season_choice
+        st.session_state["season"]   = "summer"
         st.session_state["step"]     = 2
         st.rerun()
 
@@ -380,17 +333,12 @@ def step_preferences() -> None:
     col_a, col_b = st.columns(2)
 
     for i, cat in enumerate(CATEGORIES):
-        col   = col_a if i % 2 == 0 else col_b
-        emoji = CATEGORY_EMOJI[cat]
-        color = CATEGORY_COLORS[cat]
+        col = col_a if i % 2 == 0 else col_b
 
         with col:
             st.markdown(
-                f'<div style="border-left:4px solid {color}; '
-                f'background:#e8f4fd; border-radius:0.5rem; '
-                f'padding:0.45rem 0.75rem; margin-top:0.9rem; '
-                f'font-weight:700; color:#1a3a5c; font-size:0.97rem;">'
-                f'{emoji} {cat}</div>',
+                f'<div style="font-weight:700; color:#1a1a1a; '
+                f'font-size:0.97rem; margin-top:0.9rem;">{cat}</div>',
                 unsafe_allow_html=True,
             )
             rating = st.slider(
@@ -402,14 +350,11 @@ def step_preferences() -> None:
                 key=f"pref_{cat}",
                 label_visibility="collapsed",
             )
-            stars     = "⭐" * rating + "☆" * (5 - rating)
             label_map = {1: "Not interested", 2: "Slightly interested",
                          3: "Neutral", 4: "Interested", 5: "Love it!"}
             st.markdown(
-                f'<div style="font-size:1rem; color:#2e6da4; '
-                f'margin-bottom:0.2rem;">{stars} '
-                f'<span style="font-size:0.8rem; color:#4a7a9b;">'
-                f'{label_map[rating]}</span></div>',
+                f'<div style="font-size:0.85rem; color:#555555; '
+                f'margin-bottom:0.2rem;">{rating} — {label_map[rating]}</div>',
                 unsafe_allow_html=True,
             )
             prefs[cat] = rating
@@ -421,7 +366,7 @@ def step_preferences() -> None:
             st.session_state["step"] = 1
             st.rerun()
     with col_next:
-        if st.button("🏔️ Build my itinerary →"):
+        if st.button("Build my itinerary →"):
             st.session_state["prefs"] = prefs
 
             df     = load_activities()
@@ -485,7 +430,7 @@ def render_activity_chart(itinerary: list) -> None:
         if max(counts) == 0:
             continue
         fig.add_trace(go.Bar(
-            name=f"{CATEGORY_EMOJI[cat]} {cat}",
+            name=cat,
             x=days_labels,
             y=counts,
             marker_color=CATEGORY_COLORS[cat],
@@ -529,13 +474,12 @@ def step_itinerary() -> None:
 
     # Summary bar: destination, season, duration, top 3 interests
     top_cats = sorted(prefs, key=prefs.get, reverse=True)[:3]
-    top_str  = " · ".join(f'{CATEGORY_EMOJI.get(c, "")} {c}' for c in top_cats)
+    top_str  = " · ".join(c for c in top_cats)
     st.markdown(
         f'<div class="summary-box">'
-        f'📍 <strong>{city}</strong> &nbsp;|&nbsp; '
-        f'{SEASON_LABELS[season]} &nbsp;|&nbsp; '
-        f'🗓️ <strong>{num_days} day{"s" if num_days > 1 else ""}</strong> &nbsp;|&nbsp; '
-        f'❤️ <strong>{top_str}</strong>'
+        f'<strong>{city}</strong> &nbsp;|&nbsp; '
+        f'<strong>{num_days} day{"s" if num_days > 1 else ""}</strong> &nbsp;|&nbsp; '
+        f'<strong>{top_str}</strong>'
         f'</div>',
         unsafe_allow_html=True,
     )
@@ -544,8 +488,8 @@ def step_itinerary() -> None:
     forecast = get_city_forecast(city, num_days)
     if forecast:
         st.markdown(
-            '<div style="font-size:0.82rem; color:#4a7a9b; margin-bottom:0.6rem;">'
-            '🌤️ <strong>Live weather forecast</strong> — '
+            '<div style="font-size:0.82rem; color:#555555; margin-bottom:0.6rem;">'
+            '<strong>Live weather forecast</strong> — '
             'real-time data from Open-Meteo for today and the coming days'
             '</div>',
             unsafe_allow_html=True,
@@ -568,11 +512,9 @@ def step_itinerary() -> None:
                 if day_idx < len(forecast):
                     w = forecast[day_idx]
                     cols[i].markdown(
-                        f'<div style="font-size:0.8rem; color:#ffffff; '
-                        f'background:#2e6da4; border-radius:0.4rem; '
-                        f'padding:0.25rem 0.5rem; margin-bottom:0.4rem;">'
-                        f'🌡️ {w["label"]} · {w["min"]}°/{w["max"]}°C '
-                        f'· 🌧️ {w["rain"]} mm</div>',
+                        f'<div class="weather-box">'
+                        f'{w["label"]} · {w["min"]}°/{w["max"]}°C '
+                        f'· {w["rain"]} mm rain</div>',
                         unsafe_allow_html=True,
                     )
 
@@ -590,13 +532,7 @@ def step_itinerary() -> None:
                         css   = SLOT_CSS[slot]
                         icon  = SLOT_ICON[slot]
                         color = CATEGORY_COLORS.get(cat, "#2e6da4")
-                        badge = (
-                            f'<span style="background:{color}; color:#fff; '
-                            f'font-size:0.68rem; border-radius:0.3rem; '
-                            f'padding:0.05rem 0.3rem; margin-left:0.25rem; '
-                            f'vertical-align:middle;">'
-                            f'{CATEGORY_EMOJI.get(cat, "")}</span>'
-                        )
+                        badge = ""
 
                     cols[i].markdown(
                         f'<div class="tt-slot {css}">'
@@ -610,7 +546,7 @@ def step_itinerary() -> None:
     # ── Activity breakdown chart ──────────────────────────────────────────────
     st.markdown("---")
     st.markdown(
-        '<div class="step-heading" style="font-size:1.1rem;">📊 Activity breakdown</div>',
+        '<div class="step-heading" style="font-size:1.1rem;">Activity breakdown</div>',
         unsafe_allow_html=True,
     )
     st.markdown(
