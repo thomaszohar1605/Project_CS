@@ -16,7 +16,9 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from ml_rating import get_knn_ranked_activities, CATEGORIES, SEASONS
+from ml_rating import get_knn_ranked_activities, CATEGORIES
+
+SEASONS = ["spring", "summer", "fall", "winter"]
 from weather import get_weather
 
 # ── Constants ─────────────────────────────────────────────────────────────────
