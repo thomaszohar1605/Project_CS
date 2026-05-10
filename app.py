@@ -40,7 +40,7 @@ html, body, .stApp {
     background-color: #ffffff !important;
 }
 
-/* Force all text dark */
+#color text
 p, span, div, label, h1, h2, h3, h4, h5, h6,
 .stMarkdown p, .stMarkdown span,
 .stCheckbox label, .stCheckbox span,
@@ -52,7 +52,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #1a1a1a !important;
 }
 
-/* Hero banner — Swiss red */
+#Main banner Swiss red 
 .hero {
     background: #D52B1E;
     border-radius: 1.4rem;
@@ -71,7 +71,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #f5c6c3 !important;
 }
 
-/* Progress bar */
+#progress bar with swiss red
 .prog-step {
     padding: 0.45rem 0.5rem;
     border-radius: 0.6rem;
@@ -84,7 +84,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 .prog-step.done    { background: #1a1a1a; color: #ffffff !important; }
 .prog-step.current { background: #D52B1E; color: #ffffff !important; }
 
-/* Step headings */
+#small banner 
 .step-heading {
     font-size: 1.3rem;
     font-weight: 700;
@@ -97,7 +97,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     margin-bottom: 1.2rem;
 }
 
-/* Summary box */
+#summary 
 .summary-box {
     background: #fff0f0;
     border: 1px solid #f5c6c3;
@@ -108,7 +108,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     margin-bottom: 0.9rem;
 }
 
-/* Activity meta */
+#actvities color and form 
 .act-meta {
     font-size: 0.83rem;
     color: #555555 !important;
@@ -116,7 +116,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     margin-bottom: 0.4rem;
 }
 
-/* Timetable */
+#timetable 
 .tt-header {
     font-weight: 700;
     color: #1a1a1a !important;
@@ -133,11 +133,11 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #1a1a1a !important;
     font-weight: 500;
 }
-.tt-morning   { background: #fef9c3; }
-.tt-afternoon { background: #dcfce7; }
-.tt-evening   { background: #fee2e2; }
-.tt-night     { background: #f3f3f3; }
-.tt-free      { background: #f5f5f5; color: #999999 !important; font-style: italic; }
+.tt-morning   { background: #D52B1E; }
+.tt-afternoon { background: #D52B1E; }
+.tt-evening   { background: #D52B1E; }
+.tt-night     { background: #D52B1E; }
+.tt-free      { background: #D52B1E; color: #999999 !important; font-style: italic; }
 
 /* Input fields */
 div[data-testid="stSelectbox"] div[role="combobox"],
