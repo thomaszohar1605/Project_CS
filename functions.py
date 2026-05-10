@@ -8,17 +8,23 @@ functions.py  —  Swiss Vacation Planner
 """
 
 from __future__ import annotations
+
+# ── Imports ───────────────────────────────────────────────────────────────────
+
 import os, random
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from ml_rating import get_knn_ranked_activities, CATEGORIES
-from weather import get_weather
+from ml_rating import get_knn_ranked_activities, CATEGORIES   # ML ranking logic
+from weather import get_weather                               # Open-Meteo forecast
 
-# ── Constants ──────────────────────────────────────────────────────────
+# ── Constants ─────────────────────────────────────────────────────────────────
+
+# Absolute path to the project folder — used when loading CSV files
 FOLDER = os.path.dirname(os.path.abspath(__file__))
 
+# Colour assigned to each category for UI badges and the activity chart
 CATEGORY_COLORS = {
     "Outdoor & Nature":          "#34d399",
     "Culture & History":         "#60a5fa",
@@ -28,6 +34,7 @@ CATEGORY_COLORS = {
     "Adventure & Sports":        "#fbbf24",
 }
 
+# Emoji icon shown next to each category label throughout the UI
 CATEGORY_EMOJI = {
     "Outdoor & Nature":          "🌿",
     "Culture & History":         "🏛️",
@@ -37,36 +44,51 @@ CATEGORY_EMOJI = {
     "Adventure & Sports":        "⚡",
 }
 
+# The three time slots that make up each day in the itinerary
 SLOTS = ["Morning", "Afternoon", "Evening"]
 
+# CSS class applied to each timetable slot card — controls background colour
 SLOT_CSS = {
     "Morning":   "tt-morning",
     "Afternoon": "tt-afternoon",
     "Evening":   "tt-evening",
 }
+
+# Icon shown in front of each time slot label in the timetable
 SLOT_ICON = {
     "Morning":   "🌅",
     "Afternoon": "☀️",
     "Evening":   "🌙",
 }
 
-# Nightlife only in Evening; Wellness not in Evening
+# Hard constraints on which slots certain categories may appear in.
+# Nightlife is restricted to Evening only; Wellness is excluded from Evening.
+# Any category not listed here is allowed in all slots.
 SLOT_RESTRICTIONS = {
     "Nightlife & Entertainment": ["Evening"],
     "Relaxation & Wellness":     ["Morning", "Afternoon"],
 }
 
+# Activities from categories rated at or below this value are removed entirely
+# from the candidate pool before the itinerary is built (post-filter).
+# Raising this value makes the filter stricter (e.g. 3 removes all neutral categories).
+LOW_RATING_THRESHOLD = 2
 
-# ── Data loaders ───────────────────────────────────────────────────────
+
+# ── Data loaders ──────────────────────────────────────────────────────────────
 
 @st.cache_data
 def load_activities() -> pd.DataFrame:
+    # Load the full activity dataset from CSV; cached so it is only read once
     return pd.read_csv(os.path.join(FOLDER, "locations.csv"))
 
 
 @st.cache_data(ttl=3600)
 def get_city_forecast(city: str, num_days: int) -> list:
-    df = load_activities()
+    # Look up the coordinates for the selected city from the activity dataset,
+    # then fetch a real-time weather forecast from Open-Meteo.
+    # Cached for 1 hour (ttl=3600) to avoid redundant API calls.
+    df   = load_activities()
     rows = df[df["city"] == city]
     if rows.empty:
         return []
@@ -75,20 +97,27 @@ def get_city_forecast(city: str, num_days: int) -> list:
     return get_weather(lat, lon, num_days)
 
 
-# ── Helpers ────────────────────────────────────────────────────────────
+# ── Helpers ───────────────────────────────────────────────────────────────────
 
 def is_bad_weather(label: str) -> bool:
+    # Return True if the weather label indicates conditions unsuitable for outdoor activities
     return any(w in label.lower() for w in
                ["rain", "drizzle", "snow", "storm", "thunder"])
 
 
 def is_allowed_in_slot(row, slot: str) -> bool:
-    cat = row.get("category", "")
+    # Check whether a given activity is permitted in the requested time slot.
+    # Uses SLOT_RESTRICTIONS; categories not listed there are allowed anywhere.
+    cat     = row.get("category", "")
     allowed = SLOT_RESTRICTIONS.get(cat)
     return (slot in allowed) if allowed else True
 
 
 def get_best_slot(time_slot_value) -> str:
+    # Determine the preferred time slot for an activity from its CSV value.
+    # The CSV stores slots as e.g. "Morning|Afternoon"; we return the first
+    # match against the canonical SLOTS order. Defaults to a random slot if
+    # the value is missing or contains no recognised slot name.
     if pd.isna(time_slot_value):
         return random.choice(SLOTS)
     parts = [p.strip() for p in str(time_slot_value).split("|")]
@@ -98,7 +127,28 @@ def get_best_slot(time_slot_value) -> str:
     return random.choice(SLOTS)
 
 
-# ── Itinerary builder ──────────────────────────────────────────────────
+# ── Post-filter ───────────────────────────────────────────────────────────────
+
+def apply_preference_filter(ranked: pd.DataFrame, prefs: dict) -> pd.DataFrame:
+    """
+    Remove activities whose category was rated at or below LOW_RATING_THRESHOLD.
+
+    This hard filter runs after KNN ranking to guarantee that categories the
+    user dislikes never appear in the itinerary — even if the cosine similarity
+    score would otherwise rank them highly due to shared context features.
+
+    Example: user rates 'Nightlife & Entertainment' as 1 → all nightlife
+    activities are dropped from the candidate pool before itinerary building.
+    """
+    for cat in CATEGORIES:
+        if prefs.get(cat, 3) <= LOW_RATING_THRESHOLD:
+            # Drop every activity belonging to this low-rated category
+            ranked = ranked[ranked["category"] != cat]
+
+    return ranked.reset_index(drop=True)
+
+
+# ── Itinerary builder ─────────────────────────────────────────────────────────
 
 def build_itinerary(ranked_df: pd.DataFrame,
                     num_days: int,
@@ -106,19 +156,23 @@ def build_itinerary(ranked_df: pd.DataFrame,
     """
     Build a day-by-day itinerary from ML-ranked activities.
     Activities higher in ranked_df (better knn_score) are placed first.
+    By the time this function is called, low-rated categories have already
+    been removed by apply_preference_filter().
     """
-    all_rows = ranked_df.to_dict("records")   # already sorted best→worst
+    all_rows = ranked_df.to_dict("records")   # already sorted best→worst by KNN score
 
-    # Bucket by preferred time slot (preserving ML rank within each bucket)
+    # Bucket activities by their preferred time slot,
+    # preserving ML rank order within each bucket
     buckets: dict[str, list] = {s: [] for s in SLOTS}
     for row in all_rows:
         buckets[get_best_slot(row.get("time_slot", ""))].append(row)
 
-    used: set[str] = set()
+    used: set[str] = set()   # tracks activity names already placed to avoid repeats
     itinerary = []
 
     for day_num in range(1, num_days + 1):
-        day_idx = day_num - 1
+        day_idx       = day_num - 1
+        # Check weather for this day to decide whether to prefer indoor activities
         prefer_indoor = (day_idx < len(forecast) and
                          is_bad_weather(forecast[day_idx]["label"]))
 
@@ -127,7 +181,8 @@ def build_itinerary(ranked_df: pd.DataFrame,
         for slot in SLOTS:
             chosen = None
 
-            # Pass 1: correct slot + weather match
+            # Pass 1: ideal slot + weather match
+            # Look in the correct bucket first and respect indoor/outdoor preference
             for row in buckets[slot]:
                 if row["activity_name"] in used:
                     continue
@@ -139,7 +194,8 @@ def build_itinerary(ranked_df: pd.DataFrame,
                 elif not prefer_indoor and setting in ("outdoor", "both"):
                     chosen = row; break
 
-            # Pass 2: any slot + weather match
+            # Pass 2: any bucket + weather match
+            # If the preferred bucket had nothing suitable, search all buckets
             if chosen is None:
                 for any_slot in SLOTS:
                     for row in buckets[any_slot]:
@@ -156,6 +212,7 @@ def build_itinerary(ranked_df: pd.DataFrame,
                         break
 
             # Pass 3: any unused activity allowed in this slot
+            # Last resort — ignore weather preference and just fill the slot
             if chosen is None:
                 for any_slot in SLOTS:
                     for row in buckets[any_slot]:
@@ -171,8 +228,9 @@ def build_itinerary(ranked_df: pd.DataFrame,
                     "category":  chosen.get("category", ""),
                     "knn_score": round(float(chosen.get("knn_score", 0.5)), 2),
                 }
-                used.add(chosen["activity_name"])
+                used.add(chosen["activity_name"])   # mark as used
             else:
+                # No suitable activity found — fill the slot with free time
                 day_plan[slot] = {
                     "name":      "Free time — explore at your own pace",
                     "category":  "",
@@ -184,9 +242,12 @@ def build_itinerary(ranked_df: pd.DataFrame,
     return itinerary
 
 
-# ── Progress bar ───────────────────────────────────────────────────────
+# ── Progress bar ──────────────────────────────────────────────────────────────
 
 def render_progress(current: int) -> None:
+    # Render the 3-step progress indicator at the top of each page.
+    # Completed steps are shown in black, the current step in Swiss red,
+    # and upcoming steps in light grey.
     labels = [
         "1 · Destination",
         "2 · Preferences",
@@ -206,9 +267,9 @@ def render_progress(current: int) -> None:
     st.write("")
 
 
-# ══════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 # STEP 1 — Destination & Days
-# ══════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 
 def step_destination() -> None:
     render_progress(1)
@@ -218,6 +279,7 @@ def step_destination() -> None:
                 unsafe_allow_html=True)
 
     df     = load_activities()
+    # Build the city dropdown from unique city names in the dataset
     cities = sorted(df["city"].dropna().unique().tolist())
 
     col1, col2 = st.columns([2, 1])
@@ -229,15 +291,16 @@ def step_destination() -> None:
 
     st.write("")
     if st.button("Next →"):
+        # Store destination and duration in session state, then advance to Step 2
         st.session_state["city"]     = city
         st.session_state["num_days"] = num_days
         st.session_state["step"]     = 2
         st.rerun()
 
 
-# ══════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 # STEP 2 — Category preference sliders
-# ══════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 
 def step_preferences() -> None:
     render_progress(2)
@@ -252,15 +315,15 @@ def step_preferences() -> None:
     )
 
     prefs: dict[str, int] = {}
-    col_a, col_b = st.columns(2)
+    col_a, col_b = st.columns(2)   # display categories in two columns
 
     for i, cat in enumerate(CATEGORIES):
-        col = col_a if i % 2 == 0 else col_b
+        col   = col_a if i % 2 == 0 else col_b   # alternate between left and right column
         emoji = CATEGORY_EMOJI[cat]
         color = CATEGORY_COLORS[cat]
 
         with col:
-            # Category label with coloured left-border card
+            # Category label with a coloured left-border accent card
             st.markdown(
                 f'<div style="border-left:4px solid {color}; '
                 f'background:#e8f4fd; border-radius:0.5rem; '
@@ -273,13 +336,13 @@ def step_preferences() -> None:
                 label=cat,
                 min_value=1,
                 max_value=5,
-                value=3,
+                value=3,        # default to neutral
                 step=1,
                 key=f"pref_{cat}",
-                label_visibility="collapsed",
+                label_visibility="collapsed",   # label rendered manually above
             )
-            # Star feedback
-            stars = "⭐" * rating + "☆" * (5 - rating)
+            # Star display and plain-English label below each slider
+            stars     = "⭐" * rating + "☆" * (5 - rating)
             label_map = {1: "Not interested", 2: "Slightly interested",
                          3: "Neutral", 4: "Interested", 5: "Love it!"}
             st.markdown(
@@ -301,39 +364,49 @@ def step_preferences() -> None:
         if st.button("🏔️ Build my itinerary →"):
             st.session_state["prefs"] = prefs
 
-            # Run ML immediately — no intermediate step
+            # Load activities for the selected city
             df   = load_activities()
             acts = df[df["city"] == st.session_state["city"]].reset_index(drop=True)
             if acts.empty:
-                acts = df
+                acts = df   # fallback to full dataset if city has no entries
 
-            ranked    = get_knn_ranked_activities(acts, prefs)
+            # Run KNN ranking: score and sort all city activities by user similarity
+            ranked = get_knn_ranked_activities(acts, prefs)
+
+            # FIX: remove activities from categories the user rated <= LOW_RATING_THRESHOLD
+            # This hard post-filter ensures disliked categories (e.g. Nightlife rated 1)
+            # are never placed in the itinerary regardless of their KNN score
+            ranked = apply_preference_filter(ranked, prefs)
+
+            # Fetch real-time weather and build the full itinerary
             forecast  = get_city_forecast(st.session_state["city"],
                                           st.session_state["num_days"])
             itinerary = build_itinerary(ranked,
                                         st.session_state["num_days"],
                                         forecast)
 
+            # Store results in session state and advance to Step 3
             st.session_state["ranked"]    = ranked
             st.session_state["itinerary"] = itinerary
             st.session_state["step"]      = 3
             st.rerun()
 
 
-# ══════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 # STEP 3 — Final itinerary + chart
-# ══════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 
 def render_activity_chart(itinerary: list) -> None:
-    """Stacked bar chart: days × category counts."""
+    """Stacked bar chart showing activity category distribution across days."""
     days_labels = [f"Day {d['day']}" for d in itinerary]
+    # Count how many activities of each category appear on each day
     cat_counts  = {cat: [] for cat in CATEGORIES}
 
     for day_plan in itinerary:
         day_cats = [
             day_plan["slots"][slot]["category"]
             for slot in SLOTS
-            if day_plan["slots"][slot]["category"]
+            if day_plan["slots"][slot]["category"]   # exclude "Free time" slots
         ]
         for cat in CATEGORIES:
             cat_counts[cat].append(day_cats.count(cat))
@@ -342,7 +415,7 @@ def render_activity_chart(itinerary: list) -> None:
     for cat in CATEGORIES:
         counts = cat_counts[cat]
         if max(counts) == 0:
-            continue
+            continue   # skip categories with no activities in the itinerary
         fig.add_trace(go.Bar(
             name=f"{CATEGORY_EMOJI[cat]} {cat}",
             x=days_labels,
@@ -375,6 +448,7 @@ def render_activity_chart(itinerary: list) -> None:
 def step_itinerary() -> None:
     render_progress(3)
 
+    # Retrieve all values stored in session state during previous steps
     city      = st.session_state["city"]
     num_days  = st.session_state["num_days"]
     prefs     = st.session_state.get("prefs", {})
@@ -385,7 +459,7 @@ def step_itinerary() -> None:
         unsafe_allow_html=True,
     )
 
-    # Top interests summary
+    # Summary bar: show destination, duration, and the user's top 3 interests
     top_cats = sorted(prefs, key=prefs.get, reverse=True)[:3]
     top_str  = " · ".join(
         f'{CATEGORY_EMOJI.get(c, "")} {c}' for c in top_cats)
@@ -398,7 +472,7 @@ def step_itinerary() -> None:
         unsafe_allow_html=True,
     )
 
-    # Weather note
+    # Weather attribution note — only shown if forecast data was returned
     forecast = get_city_forecast(city, num_days)
     if forecast:
         st.markdown(
@@ -409,7 +483,8 @@ def step_itinerary() -> None:
             unsafe_allow_html=True,
         )
 
-    # ── Timetable ──────────────────────────────────────────────────────
+    # ── Timetable ─────────────────────────────────────────────────────────────
+    # Render days in rows of up to 3 columns to avoid a very wide layout
     for row_start in range(0, num_days, 3):
         chunk = itinerary[row_start: row_start + 3]
         cols  = st.columns(len(chunk))
@@ -421,7 +496,7 @@ def step_itinerary() -> None:
                     unsafe_allow_html=True,
                 )
 
-                # Weather card for this day
+                # Weather card for this specific day
                 day_idx = day_plan["day"] - 1
                 if day_idx < len(forecast):
                     w = forecast[day_idx]
@@ -434,14 +509,15 @@ def step_itinerary() -> None:
                         unsafe_allow_html=True,
                     )
 
-                # Each time slot
+                # Render one card per time slot (Morning, Afternoon, Evening)
                 for slot in SLOTS:
-                    act  = day_plan["slots"][slot]
-                    name = act["name"]
-                    cat  = act["category"]
+                    act   = day_plan["slots"][slot]
+                    name  = act["name"]
+                    cat   = act["category"]
                     score = act["knn_score"]
 
                     if name.startswith("Free time"):
+                        # Free-time slots use a neutral grey style with no badge
                         css   = "tt-free"
                         icon  = ""
                         badge = ""
@@ -449,6 +525,7 @@ def step_itinerary() -> None:
                         css   = SLOT_CSS[slot]
                         icon  = SLOT_ICON[slot]
                         color = CATEGORY_COLORS.get(cat, "#2e6da4")
+                        # Coloured category badge shown next to the slot heading
                         badge = (
                             f'<span style="background:{color}; color:#fff; '
                             f'font-size:0.68rem; border-radius:0.3rem; '
@@ -466,7 +543,7 @@ def step_itinerary() -> None:
                         unsafe_allow_html=True,
                     )
 
-    # ── Activity breakdown chart ───────────────────────────────────────
+    # ── Activity breakdown chart ──────────────────────────────────────────────
     st.markdown("---")
     st.markdown(
         '<div class="step-heading" style="font-size:1.1rem;">📊 Activity breakdown</div>',
@@ -478,15 +555,17 @@ def step_itinerary() -> None:
     )
     render_activity_chart(itinerary)
 
-    # ── Navigation ─────────────────────────────────────────────────────
+    # ── Navigation ────────────────────────────────────────────────────────────
     st.markdown("---")
     col_back, col_restart = st.columns([1, 5])
     with col_back:
         if st.button("← Change preferences"):
+            # Go back to Step 2 while keeping city and days in session state
             st.session_state["step"] = 2
             st.rerun()
     with col_restart:
         if st.button("Start over"):
+            # Clear all session state and return to Step 1
             for k in ["city", "num_days", "prefs",
                       "ranked", "itinerary", "step"]:
                 st.session_state.pop(k, None)
@@ -501,11 +580,12 @@ def step_itinerary() -> None:
     )
 
 
-# ══════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 # Entry point
-# ══════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 
 def run_app() -> None:
+    # Initialise step to 1 on first load, then route to the correct step function
     if "step" not in st.session_state:
         st.session_state["step"] = 1
 
