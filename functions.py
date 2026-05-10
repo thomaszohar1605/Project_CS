@@ -11,7 +11,7 @@ from __future__ import annotations
 
 # ── Imports ───────────────────────────────────────────────────────────────────
 
-import os, random
+import os, random, datetime
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -78,6 +78,87 @@ SLOT_RESTRICTIONS = {
 # Activities from categories rated at or below this value are removed
 # entirely from the candidate pool after KNN ranking.
 LOW_RATING_THRESHOLD = 2
+
+# ── Seasonal weather data ─────────────────────────────────────────────────────
+
+# Typical Swiss weather conditions for each season.
+# Used when the user's chosen season does not match the current real-world
+# season — in that case the live Open-Meteo forecast would be misleading.
+SEASONAL_WEATHER = {
+    "spring": [
+        {"label": "Partly Cloudy", "min": 8,  "max": 16, "rain": 2.1},
+        {"label": "Sunny",         "min": 10, "max": 18, "rain": 0.4},
+        {"label": "Light Rain",    "min": 7,  "max": 13, "rain": 5.3},
+        {"label": "Partly Cloudy", "min": 9,  "max": 15, "rain": 1.8},
+        {"label": "Sunny",         "min": 11, "max": 19, "rain": 0.2},
+        {"label": "Cloudy",        "min": 8,  "max": 14, "rain": 3.0},
+        {"label": "Sunny",         "min": 12, "max": 20, "rain": 0.3},
+    ],
+    "summer": [
+        {"label": "Sunny",         "min": 18, "max": 27, "rain": 0.2},
+        {"label": "Partly Cloudy", "min": 17, "max": 25, "rain": 1.5},
+        {"label": "Thunderstorm",  "min": 16, "max": 23, "rain": 8.4},
+        {"label": "Sunny",         "min": 19, "max": 28, "rain": 0.1},
+        {"label": "Partly Cloudy", "min": 18, "max": 26, "rain": 0.8},
+        {"label": "Sunny",         "min": 20, "max": 29, "rain": 0.0},
+        {"label": "Light Rain",    "min": 15, "max": 22, "rain": 4.2},
+    ],
+    "fall": [
+        {"label": "Cloudy",        "min": 6,  "max": 14, "rain": 4.1},
+        {"label": "Partly Cloudy", "min": 7,  "max": 15, "rain": 2.3},
+        {"label": "Light Rain",    "min": 5,  "max": 12, "rain": 6.0},
+        {"label": "Sunny",         "min": 8,  "max": 16, "rain": 0.5},
+        {"label": "Cloudy",        "min": 4,  "max": 11, "rain": 3.7},
+        {"label": "Light Rain",    "min": 4,  "max": 10, "rain": 5.5},
+        {"label": "Partly Cloudy", "min": 6,  "max": 13, "rain": 2.0},
+    ],
+    "winter": [
+        {"label": "Snow",          "min": -3, "max": 2,  "rain": 3.2},
+        {"label": "Cloudy",        "min": -1, "max": 4,  "rain": 1.5},
+        {"label": "Sunny",         "min": -2, "max": 5,  "rain": 0.1},
+        {"label": "Snow",          "min": -4, "max": 1,  "rain": 4.0},
+        {"label": "Partly Cloudy", "min": -1, "max": 4,  "rain": 0.8},
+        {"label": "Cloudy",        "min": -2, "max": 3,  "rain": 2.1},
+        {"label": "Sunny",         "min": -1, "max": 6,  "rain": 0.0},
+    ],
+}
+
+
+def get_current_season() -> str:
+    """Return the real-world season based on today's month."""
+    month = datetime.date.today().month
+    if month in (12, 1, 2):
+        return "winter"
+    elif month in (3, 4, 5):
+        return "spring"
+    elif month in (6, 7, 8):
+        return "summer"
+    else:
+        return "fall"
+
+
+def get_forecast_for_season(city: str, season: str, num_days: int) -> tuple[list, str]:
+    """
+    Return (forecast_list, source_label) for the given city, season, and duration.
+
+    - If the chosen season matches today's real season, fetch live data from
+      Open-Meteo and label it 'Live forecast'.
+    - Otherwise return typical hardcoded Swiss conditions for that season and
+      label it 'Typical conditions for <season>'.
+
+    This prevents showing May weather when a user plans a winter trip.
+    """
+    current = get_current_season()
+    if season.lower() == current:
+        # Seasons match — live forecast is actually relevant
+        forecast = get_city_forecast(city, num_days)
+        label    = "Live forecast"
+    else:
+        # Seasons differ — use typical seasonal data instead
+        pool     = SEASONAL_WEATHER.get(season.lower(), SEASONAL_WEATHER["summer"])
+        forecast = (pool * 3)[:num_days]   # repeat the 7-entry list if needed
+        label    = f"Typical conditions for {season.capitalize()}"
+    return forecast, label
 
 
 # ── Data loaders ──────────────────────────────────────────────────────────────
@@ -510,14 +591,15 @@ def step_itinerary() -> None:
         unsafe_allow_html=True,
     )
 
-    # Weather attribution note
-    forecast = get_city_forecast(city, num_days)
+    # Fetch the right weather source depending on whether the chosen season
+    # matches today's real-world season
+    forecast, weather_source = get_forecast_for_season(city, season, num_days)
     if forecast:
         st.markdown(
-            '<div style="font-size:0.82rem; color:#555555; margin-bottom:0.6rem;">'
-            '<strong>Live weather forecast</strong> — '
-            'real-time data from Open-Meteo for today and the coming days'
-            '</div>',
+            f'<div style="font-size:0.82rem; color:#555555; margin-bottom:0.6rem;">'
+            f'<strong>{weather_source}</strong> — '
+            f'{"real-time data from Open-Meteo" if "Live" in weather_source else "typical Swiss conditions for the selected season"}'
+            f'</div>',
             unsafe_allow_html=True,
         )
 
