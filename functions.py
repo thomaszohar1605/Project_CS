@@ -439,8 +439,11 @@ def step_preferences() -> None:
             if acts.empty:
                 acts = df[df["city"] == st.session_state["city"]].reset_index(drop=True)
 
-            # Run KNN ranking — season is passed so the profile vector encodes it
-            ranked = get_knn_ranked_activities(acts, prefs, season=season)
+            # Run KNN ranking — pass season if the installed ml_rating supports it
+            try:
+                ranked = get_knn_ranked_activities(acts, prefs, season=season)
+            except TypeError:
+                ranked = get_knn_ranked_activities(acts, prefs)
 
             # POST-FILTER: drop categories rated <= LOW_RATING_THRESHOLD
             ranked = apply_preference_filter(ranked, prefs)
