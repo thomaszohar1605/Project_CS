@@ -299,11 +299,48 @@ def step_destination() -> None:
     with col2:
         num_days = st.selectbox("Number of days", [1, 2, 3, 4, 5, 6, 7], index=2)
 
+    # Season selector
+    st.markdown(
+        '<div style="font-weight:700; color:#1a1a1a; font-size:0.97rem; '
+        'margin-top:1rem; margin-bottom:0.4rem;">When are you travelling?</div>',
+        unsafe_allow_html=True,
+    )
+    current_season = st.session_state.get("season_choice", "summer")
+    season_cols = st.columns(4)
+    for i, season in enumerate(SEASONS):
+        is_selected = (season == current_season)
+        with season_cols[i]:
+            if st.button(SEASON_LABELS[season], key=f"season_btn_{season}"):
+                st.session_state["season_choice"] = season
+                st.rerun()
+            btn_color = "#D52B1E" if is_selected else "#f0f0f0"
+            txt_color = "#ffffff" if is_selected else "#1a1a1a"
+            indicator = "Selected" if is_selected else ""
+            st.markdown(
+                f'<div style="background:{btn_color}; color:{txt_color}; '
+                f'border-radius:0.5rem; text-align:center; padding:0.25rem 0; '
+                f'font-size:0.78rem; font-weight:600; margin-top:-0.5rem;">'
+                f'{indicator}</div>',
+                unsafe_allow_html=True,
+            )
+
     st.write("")
+    season_choice = st.session_state.get("season_choice", "summer")
+    city_acts   = df[df["city"] == city]
+    season_acts = filter_by_season(city_acts, season_choice)
+    st.markdown(
+        f'<div class="summary-box">'
+        f'<strong>{city}</strong> &nbsp;|&nbsp; '
+        f'{SEASON_LABELS[season_choice]} &nbsp;|&nbsp; '
+        f'<strong>{len(season_acts)}</strong> activities available this season'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
     if st.button("Next →"):
         st.session_state["city"]     = city
         st.session_state["num_days"] = num_days
-        st.session_state["season"]   = "summer"
+        st.session_state["season"]   = season_choice
         st.session_state["step"]     = 2
         st.rerun()
 
@@ -360,50 +397,33 @@ def step_preferences() -> None:
             prefs[cat] = rating
 
     st.write("")
-    col_back, col_next = st.columns([1, 5])
-    with col_back:
-        if st.button("← Back"):
-            st.session_state["step"] = 1
-            st.rerun()
-    with col_next:
-        if st.button("Build my itinerary →"):
-            st.session_state["prefs"] = prefs
+    if st.button("Build my itinerary →"):
+        st.session_state["prefs"] = prefs
 
-            df     = load_activities()
-            season = st.session_state.get("season", "summer")
+        df     = load_activities()
+        season = st.session_state.get("season", "summer")
 
-            # Load activities for the selected city
+        acts = df[df["city"] == st.session_state["city"]].reset_index(drop=True)
+        if acts.empty:
+            acts = df
+
+        acts = filter_by_season(acts, season)
+        if acts.empty:
             acts = df[df["city"] == st.session_state["city"]].reset_index(drop=True)
-            if acts.empty:
-                acts = df
 
-            # SEASON PRE-FILTER: remove activities not available in the chosen season
-            acts = filter_by_season(acts, season)
+        try:
+            ranked = get_knn_ranked_activities(acts, prefs, season=season)
+        except TypeError:
+            ranked = get_knn_ranked_activities(acts, prefs)
 
-            # Fallback: if filtering removed everything, use unfiltered city activities
-            if acts.empty:
-                acts = df[df["city"] == st.session_state["city"]].reset_index(drop=True)
+        ranked    = apply_preference_filter(ranked, prefs)
+        forecast  = get_city_forecast(st.session_state["city"], st.session_state["num_days"])
+        itinerary = build_itinerary(ranked, st.session_state["num_days"], forecast)
 
-            # Run KNN ranking — pass season if the installed ml_rating supports it
-            try:
-                ranked = get_knn_ranked_activities(acts, prefs, season=season)
-            except TypeError:
-                ranked = get_knn_ranked_activities(acts, prefs)
-
-            # POST-FILTER: drop categories rated <= LOW_RATING_THRESHOLD
-            ranked = apply_preference_filter(ranked, prefs)
-
-            # Fetch real-time weather and build the itinerary
-            forecast  = get_city_forecast(st.session_state["city"],
-                                          st.session_state["num_days"])
-            itinerary = build_itinerary(ranked,
-                                        st.session_state["num_days"],
-                                        forecast)
-
-            st.session_state["ranked"]    = ranked
-            st.session_state["itinerary"] = itinerary
-            st.session_state["step"]      = 3
-            st.rerun()
+        st.session_state["ranked"]    = ranked
+        st.session_state["itinerary"] = itinerary
+        st.session_state["step"]      = 3
+        st.rerun()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -557,17 +577,11 @@ def step_itinerary() -> None:
 
     # ── Navigation ────────────────────────────────────────────────────────────
     st.markdown("---")
-    col_back, col_restart = st.columns([1, 5])
-    with col_back:
-        if st.button("← Change preferences"):
-            st.session_state["step"] = 2
-            st.rerun()
-    with col_restart:
-        if st.button("Start over"):
-            for k in ["city", "num_days", "season", "season_choice",
-                      "prefs", "ranked", "itinerary", "step"]:
-                st.session_state.pop(k, None)
-            st.rerun()
+    if st.button("Start over"):
+        for k in ["city", "num_days", "season", "season_choice",
+                  "prefs", "ranked", "itinerary", "step"]:
+            st.session_state.pop(k, None)
+        st.rerun()
 
     st.markdown(
         '<div class="footer">'
