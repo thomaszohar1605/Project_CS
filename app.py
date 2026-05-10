@@ -152,12 +152,20 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 
 /* Input fields */
 div[data-testid="stSelectbox"] div[role="combobox"],
+div[data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+div[data-testid="stNumberInput"] input,
 div[data-testid="stTextInput"] input {
     background-color: #ffffff !important;
     border-radius: 0.6rem !important;
     border: 1px solid #cccccc !important;
     font-size: 1rem !important;
     color: #1a1a1a !important;
+}
+
+/* Selectbox inner container */
+[data-baseweb="select"] > div {
+    background-color: #ffffff !important;
+    border-color: #cccccc !important;
 }
 
 /* Labels */
@@ -255,7 +263,7 @@ st.pydeck_chart(pdk.Deck(
             "ScatterplotLayer",
             data=df_raw,
             get_position="[lon, lat]",
-            get_radius=500,
+            get_radius=1500,
             get_color=[220, 38, 38, 200],
             get_line_color=[255, 255, 255],
             stroked=True,
