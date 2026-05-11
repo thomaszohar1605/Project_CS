@@ -278,7 +278,7 @@ st.pydeck_chart(pdk.Deck(
             "ScatterplotLayer",
             data=df_raw,
             get_position="[lon, lat]",   # Column names from locations.csv
-            get_radius=100,              # Circle radius in metres
+            get_radius=300,              # Circle radius in metres
             get_color=[220, 38, 38, 200], # Swiss red with slight transparency
             get_line_color=[255, 255, 255],
             stroked=True,
