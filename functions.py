@@ -565,6 +565,140 @@ def render_activity_chart(itinerary: list) -> None:
     st.plotly_chart(fig, use_container_width=True)
 
 
+def generate_itinerary_pdf(
+    itinerary: list,
+    city: str,
+    num_days: int,
+    season: str,
+    forecast: list,
+    df: pd.DataFrame,
+) -> bytes:
+    """
+    Build a PDF of the personalised itinerary using fpdf2.
+
+    Each day shows the weather forecast, then Morning / Afternoon / Evening
+    with the activity name, category, and description pulled from locations.csv.
+
+    Returns raw PDF bytes ready for st.download_button.
+    """
+    from fpdf import FPDF
+
+    # Build a lookup: activity_name -> description from the CSV
+    desc_lookup: dict[str, str] = {}
+    if "description" in df.columns:
+        for _, row in df.iterrows():
+            name = str(row.get("activity_name", "")).strip()
+            desc = str(row.get("description", "")).strip()
+            if name:
+                desc_lookup[name] = desc
+
+    # Colour palette (RGB tuples)
+    RED        = (213, 43, 30)
+    WHITE      = (255, 255, 255)
+    DARK       = (26, 26, 26)
+    GREY       = (100, 100, 100)
+    LIGHT_RED  = (253, 232, 230)
+
+    pdf = FPDF()
+    pdf.set_margins(15, 15, 15)
+    pdf.set_auto_page_break(auto=True, margin=20)
+    pdf.add_page()
+
+    # ── Cover banner ──────────────────────────────────────────────────────────
+    # Swiss-red header rectangle
+    pdf.set_fill_color(*RED)
+    pdf.rect(0, 0, 210, 44, style="F")
+
+    pdf.set_text_color(*WHITE)
+    pdf.set_font("Helvetica", "B", 22)
+    pdf.set_xy(15, 9)
+    pdf.cell(0, 10, "Swiss Vacation Planner", ln=True)
+
+    pdf.set_font("Helvetica", "", 12)
+    pdf.set_xy(15, 22)
+    pdf.cell(0, 8,
+             f"Your personalised {num_days}-day itinerary  |  {city}  |  "
+             f"{season.capitalize()}",
+             ln=True)
+
+    pdf.set_y(52)
+
+    # ── Day-by-day itinerary ───────────────────────────────────────────────────
+    for day_plan in itinerary:
+        day_num = day_plan["day"]
+
+        # Day header bar (red)
+        pdf.set_fill_color(*RED)
+        pdf.set_text_color(*WHITE)
+        pdf.set_font("Helvetica", "B", 12)
+        pdf.cell(0, 8, f"  Day {day_num}", ln=True, fill=True)
+        pdf.ln(2)
+
+        # Weather line for this day
+        day_idx = day_plan["day"] - 1
+        if day_idx < len(forecast):
+            w = forecast[day_idx]
+            pdf.set_fill_color(*LIGHT_RED)
+            pdf.set_text_color(*GREY)
+            pdf.set_font("Helvetica", "I", 9)
+            pdf.cell(
+                0, 6,
+                f"  {w['label']}  {w['min']}deg/{w['max']}degC  |  {w['rain']} mm rain",
+                ln=True, fill=True,
+            )
+            pdf.ln(2)
+
+        # Each time slot
+        for slot in SLOTS:
+            act  = day_plan["slots"][slot]
+            name = act["name"]
+            cat  = act["category"]
+            desc = desc_lookup.get(name, "")
+            is_free = name.startswith("Free time")
+
+            # Slot label (MORNING / AFTERNOON / EVENING)
+            pdf.set_text_color(*RED)
+            pdf.set_font("Helvetica", "B", 8)
+            pdf.cell(0, 5, slot.upper(), ln=True)
+
+            if is_free:
+                pdf.set_text_color(*GREY)
+                pdf.set_font("Helvetica", "I", 10)
+                pdf.cell(0, 6, "Free time — explore at your own pace", ln=True)
+            else:
+                # Activity name
+                pdf.set_text_color(*DARK)
+                pdf.set_font("Helvetica", "B", 11)
+                pdf.cell(0, 6, name, ln=True)
+
+                # Category in grey
+                pdf.set_text_color(*GREY)
+                pdf.set_font("Helvetica", "", 9)
+                pdf.cell(0, 5, cat, ln=True)
+
+                # Description (wraps automatically)
+                if desc:
+                    pdf.set_text_color(*DARK)
+                    pdf.set_font("Helvetica", "", 10)
+                    pdf.multi_cell(0, 5, desc)
+
+            pdf.ln(3)
+
+        pdf.ln(5)
+
+    # ── Footer ────────────────────────────────────────────────────────────────
+    pdf.set_y(-16)
+    pdf.set_text_color(*GREY)
+    pdf.set_font("Helvetica", "", 8)
+    pdf.cell(
+        0, 6,
+        "Swiss Vacation Planner  |  ML: Cosine-similarity KNN  |  Weather: Open-Meteo",
+        align="C",
+    )
+
+    return bytes(pdf.output())
+
+
 def step_itinerary() -> None:
     render_progress(3)
 
@@ -662,6 +796,37 @@ def step_itinerary() -> None:
         unsafe_allow_html=True,
     )
     render_activity_chart(itinerary)
+
+    # ── Download itinerary as PDF ─────────────────────────────────────────────
+    st.markdown("---")
+    st.markdown(
+        '<div class="step-heading" style="font-size:1.1rem;">Download your itinerary</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="step-caption">Get a PDF with your full day-by-day plan, '
+        'activity descriptions, and weather forecast.</div>',
+        unsafe_allow_html=True,
+    )
+
+    # Generate the PDF (pass the already-fetched forecast so we don't re-call the API)
+    try:
+        pdf_bytes = generate_itinerary_pdf(
+            itinerary=itinerary,
+            city=city,
+            num_days=num_days,
+            season=season,
+            forecast=forecast,
+            df=load_activities(),
+        )
+        st.download_button(
+            label="Download itinerary (PDF)",
+            data=pdf_bytes,
+            file_name=f"{city}_{season}_itinerary.pdf",
+            mime="application/pdf",
+        )
+    except Exception as e:
+        st.warning(f"PDF generation unavailable: {e}. Install fpdf2 with: pip install fpdf2")
 
     # ── Navigation ────────────────────────────────────────────────────────────
     st.markdown("---")
