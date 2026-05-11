@@ -11,7 +11,7 @@ from __future__ import annotations
 
 # ── Imports ───────────────────────────────────────────────────────────────────
 
-import os, random, datetime
+import os, random, datetime, math
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -574,124 +574,164 @@ def generate_itinerary_pdf(
     df: pd.DataFrame,
 ) -> bytes:
     """
-    Build a PDF of the personalised itinerary using fpdf2.
+    Build a one-page landscape PDF summary of the personalised itinerary.
 
-    Each day shows the weather forecast, then Morning / Afternoon / Evening
-    with the activity name, category, and description pulled from locations.csv.
+    Layout: Swiss-red header, then days arranged in up to 3 columns.
+    Each day block shows the weather strip, then Morning / Afternoon / Evening
+    with activity name and a truncated description from locations.csv.
 
     Returns raw PDF bytes ready for st.download_button.
     """
     from fpdf import FPDF
 
-    # Build a lookup: activity_name -> description from the CSV
+    # ── Description lookup ────────────────────────────────────────────────────
     desc_lookup: dict[str, str] = {}
     if "description" in df.columns:
         for _, row in df.iterrows():
-            name = str(row.get("activity_name", "")).strip()
-            desc = str(row.get("description", "")).strip()
-            if name:
-                desc_lookup[name] = desc
+            n = str(row.get("activity_name", "")).strip()
+            d = str(row.get("description", "")).strip()
+            if n:
+                desc_lookup[n] = d
 
-    # Colour palette (RGB tuples)
+    # ── Colours ───────────────────────────────────────────────────────────────
     RED        = (213, 43, 30)
     WHITE      = (255, 255, 255)
     DARK       = (26, 26, 26)
-    GREY       = (100, 100, 100)
+    GREY       = (110, 110, 110)
     LIGHT_RED  = (253, 232, 230)
+    LIGHT_GREY = (246, 246, 246)
 
-    pdf = FPDF()
-    pdf.set_margins(15, 15, 15)
-    pdf.set_auto_page_break(auto=True, margin=20)
+    # ── Page setup (landscape A4) ─────────────────────────────────────────────
+    pdf = FPDF(orientation="L", unit="mm", format="A4")
+    pdf.set_auto_page_break(auto=False)   # we control layout manually
     pdf.add_page()
 
-    # ── Cover banner ──────────────────────────────────────────────────────────
-    # Swiss-red header rectangle
+    PAGE_W, PAGE_H = 297, 210
+    MARGIN    = 10
+    HEADER_H  = 20
+    FOOTER_H  = 8
+    COL_GAP   = 4
+
+    # ── Header banner ─────────────────────────────────────────────────────────
     pdf.set_fill_color(*RED)
-    pdf.rect(0, 0, 210, 44, style="F")
+    pdf.rect(0, 0, PAGE_W, HEADER_H, style="F")
 
     pdf.set_text_color(*WHITE)
-    pdf.set_font("Helvetica", "B", 22)
-    pdf.set_xy(15, 9)
-    pdf.cell(0, 10, "Swiss Vacation Planner", ln=True)
+    pdf.set_font("Helvetica", "B", 18)
+    pdf.set_xy(MARGIN, 3)
+    pdf.cell(160, 8, "Swiss Vacation Planner", ln=False)
 
-    pdf.set_font("Helvetica", "", 12)
-    pdf.set_xy(15, 22)
-    pdf.cell(0, 8,
-             f"Your personalised {num_days}-day itinerary  |  {city}  |  "
-             f"{season.capitalize()}",
-             ln=True)
-
-    pdf.set_y(52)
-
-    # ── Day-by-day itinerary ───────────────────────────────────────────────────
-    for day_plan in itinerary:
-        day_num = day_plan["day"]
-
-        # Day header bar (red)
-        pdf.set_fill_color(*RED)
-        pdf.set_text_color(*WHITE)
-        pdf.set_font("Helvetica", "B", 12)
-        pdf.cell(0, 8, f"  Day {day_num}", ln=True, fill=True)
-        pdf.ln(2)
-
-        # Weather line for this day
-        day_idx = day_plan["day"] - 1
-        if day_idx < len(forecast):
-            w = forecast[day_idx]
-            pdf.set_fill_color(*LIGHT_RED)
-            pdf.set_text_color(*GREY)
-            pdf.set_font("Helvetica", "I", 9)
-            pdf.cell(
-                0, 6,
-                f"  {w['label']}  {w['min']}deg/{w['max']}degC  |  {w['rain']} mm rain",
-                ln=True, fill=True,
-            )
-            pdf.ln(2)
-
-        # Each time slot
-        for slot in SLOTS:
-            act  = day_plan["slots"][slot]
-            name = act["name"]
-            cat  = act["category"]
-            desc = desc_lookup.get(name, "")
-            is_free = name.startswith("Free time")
-
-            # Slot label (MORNING / AFTERNOON / EVENING)
-            pdf.set_text_color(*RED)
-            pdf.set_font("Helvetica", "B", 8)
-            pdf.cell(0, 5, slot.upper(), ln=True)
-
-            if is_free:
-                pdf.set_text_color(*GREY)
-                pdf.set_font("Helvetica", "I", 10)
-                pdf.cell(0, 6, "Free time — explore at your own pace", ln=True)
-            else:
-                # Activity name
-                pdf.set_text_color(*DARK)
-                pdf.set_font("Helvetica", "B", 11)
-                pdf.cell(0, 6, name, ln=True)
-
-                # Category in grey
-                pdf.set_text_color(*GREY)
-                pdf.set_font("Helvetica", "", 9)
-                pdf.cell(0, 5, cat, ln=True)
-
-                # Description (wraps automatically)
-                if desc:
-                    pdf.set_text_color(*DARK)
-                    pdf.set_font("Helvetica", "", 10)
-                    pdf.multi_cell(0, 5, desc)
-
-            pdf.ln(3)
-
-        pdf.ln(5)
-
-    # ── Footer ────────────────────────────────────────────────────────────────
-    pdf.set_y(-16)
-    pdf.set_text_color(*GREY)
-    pdf.set_font("Helvetica", "", 8)
+    pdf.set_font("Helvetica", "", 10)
+    pdf.set_xy(MARGIN, 12)
     pdf.cell(
         0, 6,
+        f"{city}   |   {season.capitalize()}   |   "
+        f"{num_days} day{'s' if num_days > 1 else ''}",
+        ln=False,
+    )
+
+    # ── Column grid dimensions ────────────────────────────────────────────────
+    content_top = HEADER_H + 3
+    content_h   = PAGE_H - content_top - FOOTER_H - 2
+
+    n_cols       = 3 if num_days > 2 else (2 if num_days == 2 else 1)
+    days_per_col = math.ceil(num_days / n_cols)
+    col_w        = (PAGE_W - 2 * MARGIN - (n_cols - 1) * COL_GAP) / n_cols
+    day_h        = content_h / days_per_col
+
+    # Fixed heights within each day block
+    DAY_HDR_H = 5.5    # red day label bar
+    WEATHER_H = 4.0    # light-red weather strip
+    slots_h   = day_h - DAY_HDR_H - WEATHER_H - 1
+    SLOT_H    = slots_h / 3
+
+    # Characters that fit on one line per column (approx: 1 char ≈ 1.9 mm at 8pt)
+    NAME_MAX  = max(12, int(col_w / 1.95))
+    DESC_MAX  = max(20, int(col_w / 1.55))
+
+    def _trunc(text: str, limit: int) -> str:
+        """Truncate text to limit characters, adding '..' if cut."""
+        return text if len(text) <= limit else text[:limit - 2] + ".."
+
+    # ── Day blocks ────────────────────────────────────────────────────────────
+    for day_idx, day_plan in enumerate(itinerary):
+        col_idx = day_idx // days_per_col
+        row_idx = day_idx % days_per_col
+
+        col_x = MARGIN + col_idx * (col_w + COL_GAP)
+        day_y = content_top + row_idx * day_h
+
+        # Day header bar
+        pdf.set_fill_color(*RED)
+        pdf.set_text_color(*WHITE)
+        pdf.set_font("Helvetica", "B", 9)
+        pdf.set_xy(col_x, day_y)
+        pdf.cell(col_w, DAY_HDR_H, f"  Day {day_plan['day']}", ln=False, fill=True)
+
+        # Weather strip
+        w_idx = day_plan["day"] - 1
+        wx = day_y + DAY_HDR_H
+        if w_idx < len(forecast):
+            w = forecast[w_idx]
+            pdf.set_fill_color(*LIGHT_RED)
+            pdf.set_text_color(*GREY)
+            pdf.set_font("Helvetica", "I", 7)
+            pdf.set_xy(col_x, wx)
+            pdf.cell(
+                col_w, WEATHER_H,
+                f"  {w['label']}  {w['min']}/{w['max']}C  |  rain: {w['rain']} mm",
+                ln=False, fill=True,
+            )
+
+        # Slot cards
+        slots_start = day_y + DAY_HDR_H + WEATHER_H
+
+        for s_idx, slot in enumerate(SLOTS):
+            act     = day_plan["slots"][slot]
+            name    = act["name"]
+            cat     = act["category"]
+            desc    = desc_lookup.get(name, "")
+            is_free = name.startswith("Free time")
+
+            sy = slots_start + s_idx * SLOT_H
+
+            # Alternating background
+            pdf.set_fill_color(*(LIGHT_GREY if s_idx % 2 == 0 else WHITE))
+            pdf.rect(col_x, sy, col_w, SLOT_H, style="F")
+
+            # Slot label (e.g. MORNING)
+            pdf.set_xy(col_x + 1.5, sy + 1)
+            pdf.set_text_color(*RED)
+            pdf.set_font("Helvetica", "B", 6.5)
+            pdf.cell(col_w - 2, 3, slot.upper(), ln=False)
+
+            if is_free:
+                pdf.set_xy(col_x + 1.5, sy + 4.2)
+                pdf.set_text_color(*GREY)
+                pdf.set_font("Helvetica", "I", 7.5)
+                pdf.cell(col_w - 2, 3.5, "Free time", ln=False)
+            else:
+                # Activity name
+                pdf.set_xy(col_x + 1.5, sy + 4.2)
+                pdf.set_text_color(*DARK)
+                pdf.set_font("Helvetica", "B", 8)
+                pdf.cell(col_w - 2, 3.5, _trunc(name, NAME_MAX), ln=False)
+
+                # Description (one truncated line)
+                if desc and SLOT_H > 13:
+                    pdf.set_xy(col_x + 1.5, sy + 8)
+                    pdf.set_text_color(*GREY)
+                    pdf.set_font("Helvetica", "", 6.5)
+                    pdf.cell(col_w - 2, 3, _trunc(desc, DESC_MAX), ln=False)
+
+    # ── Footer ────────────────────────────────────────────────────────────────
+    pdf.set_fill_color(*LIGHT_RED)
+    pdf.rect(0, PAGE_H - FOOTER_H, PAGE_W, FOOTER_H, style="F")
+    pdf.set_xy(0, PAGE_H - FOOTER_H + 1)
+    pdf.set_text_color(*GREY)
+    pdf.set_font("Helvetica", "", 7)
+    pdf.cell(
+        PAGE_W, 5,
         "Swiss Vacation Planner  |  ML: Cosine-similarity KNN  |  Weather: Open-Meteo",
         align="C",
     )

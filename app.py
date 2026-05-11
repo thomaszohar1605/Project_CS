@@ -178,7 +178,8 @@ label, .stMarkdown p, .stMarkdown li {
 }
 
 /* Primary action buttons — Swiss red with darker hover state */
-.stButton > button {
+.stButton > button,
+.stDownloadButton > button {
     background-color: #D52B1E !important;
     color: #ffffff !important;
     border: none;
@@ -187,7 +188,8 @@ label, .stMarkdown p, .stMarkdown li {
     padding: 0.5rem 1rem;
     transition: background-color 0.2s;
 }
-.stButton > button:hover {
+.stButton > button:hover,
+.stDownloadButton > button:hover {
     background-color: #a01f16 !important;
     color: #ffffff !important;
 }
