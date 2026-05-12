@@ -179,24 +179,17 @@ def get_best_slot(time_slot_value) -> str:
 # Filter to have activites only available for the correct season, through the CSV that classifies the activites depending on the season 
 def filter_by_season(df: pd.DataFrame, season: str) -> pd.DataFrame:
     season_clean = season.strip().lower()
-
     def _has_season(val) -> bool:
         if pd.isna(val) or str(val).strip() == "":
-            return True   # no season listed -> treat as year-round
+            return True 
         return season_clean in str(val).lower()
 
     return df[df["seasons"].apply(_has_season)].reset_index(drop=True)
 
 
-# ── Post-filter ───────────────────────────────────────────────────────────────
+# KNN + low rating leading to activites ranked at 1 or 2 will never appear 
 
 def apply_preference_filter(ranked: pd.DataFrame, prefs: dict) -> pd.DataFrame:
-    """
-    Remove activities whose category was rated at or below LOW_RATING_THRESHOLD.
-
-    This hard filter runs after KNN ranking to guarantee that disliked
-    categories never appear in the itinerary regardless of KNN score.
-    """
     for cat in CATEGORIES:
         if prefs.get(cat, 3) <= LOW_RATING_THRESHOLD:
             ranked = ranked[ranked["category"] != cat]
