@@ -284,6 +284,7 @@ def build_itinerary(ranked_df: pd.DataFrame,
 
 # Progress bar
 # The 3-step progress bar at the top of each page.
+# Highlights the current step, marks completed steps as done, and leaves future steps unstyled.
 
 def render_progress(current: int) -> None:
     labels = [
@@ -309,6 +310,11 @@ def render_progress(current: int) -> None:
 # STEP 1 — Destination, Days & Season
 # ══════════════════════════════════════════════════════════════════════════════
 
+# Renders the first page of the app.
+# The user selects a Swiss city, the number of travel days (1–7), and a season.
+# A summary box shows how many activities are available for the chosen city and season.
+# Saves city, num_days, and season to session state, then advances to step 2.
+
 def step_destination() -> None:
     render_progress(1)
     st.markdown('<div class="step-heading">Where are you heading?</div>',
@@ -330,7 +336,8 @@ def step_destination() -> None:
     with col2:
         num_days = st.selectbox("Number of days", [1, 2, 3, 4, 5, 6, 7], index=2)
 
-    # Season selector
+    # Season selector — four buttons, one per season
+    # The selected season is stored in session state and highlighted in red
     st.markdown(
         '<div style="font-weight:700; color:#1a1a1a; font-size:0.97rem; '
         'margin-top:1rem; margin-bottom:0.4rem;">When are you travelling?</div>',
@@ -355,6 +362,7 @@ def step_destination() -> None:
                 unsafe_allow_html=True,
             )
 
+    # Summary box: shows the selected city, season, and number of available activities
     st.write("")
     season_choice = st.session_state.get("season_choice", "summer")
     city_acts   = df[df["city"] == city]
@@ -368,6 +376,7 @@ def step_destination() -> None:
         unsafe_allow_html=True,
     )
 
+    # Save inputs to session state and move to step 2
     if st.button("Next →"):
         st.session_state["city"]     = city
         st.session_state["num_days"] = num_days
@@ -379,6 +388,12 @@ def step_destination() -> None:
 # ══════════════════════════════════════════════════════════════════════════════
 # STEP 2 — Category preference sliders
 # ══════════════════════════════════════════════════════════════════════════════
+
+# Renders the second page of the app.
+# The user rates their interest in each of the 6 activity categories on a 1–5 slider.
+# Ratings are stored in a prefs dictionary, which is passed to the KNN model.
+# Categories rated 1 or 2 (LOW_RATING_THRESHOLD) are excluded from the results entirely.
+# On submission, the KNN ranking and itinerary are built and saved to session state.
 
 def step_preferences() -> None:
     render_progress(2)
@@ -400,6 +415,8 @@ def step_preferences() -> None:
     prefs: dict[str, int] = {}
     col_a, col_b = st.columns(2)
 
+    # Display one slider per category, laid out in two columns
+    # A label below each slider describes the selected rating in plain language
     for i, cat in enumerate(CATEGORIES):
         col = col_a if i % 2 == 0 else col_b
 
@@ -430,6 +447,7 @@ def step_preferences() -> None:
     st.write("")
     col_back, col_next = st.columns([1, 5])
     with col_back:
+        # Back button returns the user to step 1 without losing their city/season selection
         if st.button("← Back", key="pref_back"):
             st.session_state["step"] = 1
             st.rerun()
@@ -440,6 +458,7 @@ def step_preferences() -> None:
             df     = load_activities()
             season = st.session_state.get("season", "summer")
 
+            # Load activities for the selected city, filtered by season
             acts = df[df["city"] == st.session_state["city"]].reset_index(drop=True)
             if acts.empty:
                 acts = df
@@ -448,15 +467,21 @@ def step_preferences() -> None:
             if acts.empty:
                 acts = df[df["city"] == st.session_state["city"]].reset_index(drop=True)
 
+            # Run the KNN model to rank activities by similarity to the user's preference profile
+            # Falls back to a call without the season argument for compatibility
             try:
                 ranked = get_knn_ranked_activities(acts, prefs, season=season)
             except TypeError:
                 ranked = get_knn_ranked_activities(acts, prefs)
 
+            # Remove activities in categories the user rated too low (1 or 2)
             ranked    = apply_preference_filter(ranked, prefs)
+            # Fetch weather forecast for the city (used to adapt indoor/outdoor selection)
             forecast  = get_city_forecast(st.session_state["city"], st.session_state["num_days"])
+            # Build the day-by-day itinerary from the ranked activities and forecast
             itinerary = build_itinerary(ranked, st.session_state["num_days"], forecast)
 
+            # Save results to session state and advance to step 3
             st.session_state["ranked"]    = ranked
             st.session_state["itinerary"] = itinerary
             st.session_state["step"]      = 3
@@ -467,11 +492,16 @@ def step_preferences() -> None:
 # STEP 3 — Final itinerary + chart
 # ══════════════════════════════════════════════════════════════════════════════
 
+# Renders a stacked bar chart showing how the itinerary is distributed across
+# the 6 activity categories, one bar per day.
+# Each category is colour-coded using CATEGORY_COLORS.
+
 def render_activity_chart(itinerary: list) -> None:
     """Stacked bar chart showing activity category distribution across days."""
     days_labels = [f"Day {d['day']}" for d in itinerary]
     cat_counts  = {cat: [] for cat in CATEGORIES}
 
+    # Count how many activities per category appear in each day's slots
     for day_plan in itinerary:
         day_cats = [
             day_plan["slots"][slot]["category"]
@@ -515,6 +545,14 @@ def render_activity_chart(itinerary: list) -> None:
     st.plotly_chart(fig, use_container_width=True)
 
 
+# Generates a one-page landscape A4 PDF of the full itinerary using fpdf2.
+# Layout: Swiss-red header banner, then days arranged in up to 3 columns.
+# Each day block contains a red day label, a light-red weather strip,
+# and three slot cards (Morning / Afternoon / Evening) with alternating backgrounds.
+# Activity names and descriptions are truncated to fit the column width.
+# A light-red footer credits the data sources.
+# Returns raw PDF bytes for use with st.download_button.
+
 def generate_itinerary_pdf(
     itinerary: list,
     city: str,
@@ -535,6 +573,7 @@ def generate_itinerary_pdf(
     from fpdf import FPDF
 
     # ── Description lookup ────────────────────────────────────────────────────
+    # Build a name → description dictionary from locations.csv for use in slot cards
     desc_lookup: dict[str, str] = {}
     if "description" in df.columns:
         for _, row in df.iterrows():
@@ -563,6 +602,7 @@ def generate_itinerary_pdf(
     COL_GAP   = 4
 
     # ── Header banner ─────────────────────────────────────────────────────────
+    # Full-width red banner with the app title and trip summary (city, season, days)
     pdf.set_fill_color(*RED)
     pdf.rect(0, 0, PAGE_W, HEADER_H, style="F")
 
@@ -581,6 +621,8 @@ def generate_itinerary_pdf(
     )
 
     # ── Column grid dimensions ────────────────────────────────────────────────
+    # Days are distributed across up to 3 columns depending on trip length
+    # Column width and day block height are calculated dynamically
     content_top = HEADER_H + 3
     content_h   = PAGE_H - content_top - FOOTER_H - 2
 
@@ -604,6 +646,7 @@ def generate_itinerary_pdf(
         return text if len(text) <= limit else text[:limit - 2] + ".."
 
     # ── Day blocks ────────────────────────────────────────────────────────────
+    # Each day gets a header bar, a weather strip, and three slot cards
     for day_idx, day_plan in enumerate(itinerary):
         col_idx = day_idx // days_per_col
         row_idx = day_idx % days_per_col
@@ -618,7 +661,7 @@ def generate_itinerary_pdf(
         pdf.set_xy(col_x, day_y)
         pdf.cell(col_w, DAY_HDR_H, f"  Day {day_plan['day']}", ln=False, fill=True)
 
-        # Weather strip
+        # Weather strip — shows condition label, min/max temperature, and rainfall
         w_idx = day_plan["day"] - 1
         wx = day_y + DAY_HDR_H
         if w_idx < len(forecast):
@@ -633,7 +676,8 @@ def generate_itinerary_pdf(
                 ln=False, fill=True,
             )
 
-        # Slot cards
+        # Slot cards — one per time slot (Morning, Afternoon, Evening)
+        # Alternating light grey / white backgrounds for readability
         slots_start = day_y + DAY_HDR_H + WEATHER_H
 
         for s_idx, slot in enumerate(SLOTS):
@@ -656,6 +700,7 @@ def generate_itinerary_pdf(
             pdf.cell(col_w - 2, 3, slot.upper(), ln=False)
 
             if is_free:
+                # No activity assigned — display a free time placeholder
                 pdf.set_xy(col_x + 1.5, sy + 4.2)
                 pdf.set_text_color(*GREY)
                 pdf.set_font("Helvetica", "I", 7.5)
@@ -667,7 +712,7 @@ def generate_itinerary_pdf(
                 pdf.set_font("Helvetica", "B", 8)
                 pdf.cell(col_w - 2, 3.5, _trunc(name, NAME_MAX), ln=False)
 
-                # Description (one truncated line)
+                # Description (one truncated line, only shown if slot is tall enough)
                 if desc and SLOT_H > 13:
                     pdf.set_xy(col_x + 1.5, sy + 8)
                     pdf.set_text_color(*GREY)
@@ -675,6 +720,7 @@ def generate_itinerary_pdf(
                     pdf.cell(col_w - 2, 3, _trunc(desc, DESC_MAX), ln=False)
 
     # ── Footer ────────────────────────────────────────────────────────────────
+    # Light-red footer bar crediting the ML model and weather data source
     pdf.set_fill_color(*LIGHT_RED)
     pdf.rect(0, PAGE_H - FOOTER_H, PAGE_W, FOOTER_H, style="F")
     pdf.set_xy(0, PAGE_H - FOOTER_H + 1)
@@ -688,6 +734,12 @@ def generate_itinerary_pdf(
 
     return bytes(pdf.output())
 
+
+# Renders the final page of the app.
+# Displays the full day-by-day itinerary as a timetable with morning, afternoon, and evening slots.
+# Each day also shows a weather card (live or typical depending on the selected season).
+# Below the timetable: a stacked bar chart breaking down activity categories per day.
+# The user can download the full itinerary as a PDF, go back to change preferences, or start over.
 
 def step_itinerary() -> None:
     render_progress(3)
@@ -703,7 +755,7 @@ def step_itinerary() -> None:
         unsafe_allow_html=True,
     )
 
-    # Summary bar: destination, season, duration, top 3 interests
+    # Summary bar: destination, duration, and top 3 highest-rated activity categories
     top_cats = sorted(prefs, key=prefs.get, reverse=True)[:3]
     top_str  = " · ".join(c for c in top_cats)
     st.markdown(
@@ -716,7 +768,7 @@ def step_itinerary() -> None:
     )
 
     # Fetch the right weather source depending on whether the chosen season
-    # matches today's real-world season
+    # matches today's real-world season — live forecast vs. typical conditions
     forecast, weather_source = get_forecast_for_season(city, season, num_days)
     if forecast:
         st.markdown(
@@ -728,6 +780,8 @@ def step_itinerary() -> None:
         )
 
     # ── Timetable ─────────────────────────────────────────────────────────────
+    # Days are displayed in rows of up to 3 columns
+    # Each column shows a day header, a weather card, and one card per time slot
     for row_start in range(0, num_days, 3):
         chunk = itinerary[row_start: row_start + 3]
         cols  = st.columns(len(chunk))
@@ -750,7 +804,8 @@ def step_itinerary() -> None:
                         unsafe_allow_html=True,
                     )
 
-                # One card per time slot
+                # One card per time slot — colour-coded by slot (morning/afternoon/evening)
+                # Free time slots get a neutral style when no activity could be assigned
                 for slot in SLOTS:
                     act   = day_plan["slots"][slot]
                     name  = act["name"]
@@ -775,6 +830,7 @@ def step_itinerary() -> None:
                     )
 
     # ── Activity breakdown chart ──────────────────────────────────────────────
+    # Stacked bar chart showing how activity categories are distributed across days
     st.markdown("---")
     st.markdown(
         '<div class="step-heading" style="font-size:1.1rem;">Activity breakdown</div>',
@@ -787,6 +843,8 @@ def step_itinerary() -> None:
     render_activity_chart(itinerary)
 
     # ── Download itinerary as PDF ─────────────────────────────────────────────
+    # Generates the PDF using fpdf2 and offers it as a download
+    # If fpdf2 is not installed, a warning with the install command is shown instead
     st.markdown("---")
     st.markdown(
         '<div class="step-heading" style="font-size:1.1rem;">Download your itinerary</div>',
@@ -818,6 +876,8 @@ def step_itinerary() -> None:
         st.warning(f"PDF generation unavailable: {e}. Install fpdf2 with: pip install fpdf2")
 
     # ── Navigation ────────────────────────────────────────────────────────────
+    # Back button returns to step 2 keeping the current itinerary in memory
+    # Start over clears all session state and returns to step 1
     st.markdown("---")
     col_back3, col_restart = st.columns([1, 1])
     with col_back3:
@@ -844,8 +904,11 @@ def step_itinerary() -> None:
 # Entry point
 # ══════════════════════════════════════════════════════════════════════════════
 
+# Main entry point for the Streamlit app.
+# Initialises step to 1 on first load, then routes to the correct step function
+# based on the current value stored in session state.
+
 def run_app() -> None:
-    # Initialise step to 1 on first load, then route to the correct step function
     if "step" not in st.session_state:
         st.session_state["step"] = 1
 
