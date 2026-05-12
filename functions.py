@@ -160,18 +160,14 @@ def is_bad_weather(label: str) -> bool:
     return any(w in label.lower() for w in
                ["rain", "drizzle", "snow", "storm", "thunder"])
 
-
+#Check if the activity in under restriction
 def is_allowed_in_slot(row, slot: str) -> bool:
-    # Check whether an activity is permitted in the requested time slot.
-    # Uses SLOT_RESTRICTIONS; categories not listed are allowed in all slots.
     cat     = row.get("category", "")
     allowed = SLOT_RESTRICTIONS.get(cat)
     return (slot in allowed) if allowed else True
 
-
+# Chose the time slot suited for the activity if no priority of time slot, it will chose randomly
 def get_best_slot(time_slot_value) -> str:
-    # Determine the preferred time slot from the CSV "time_slot" value.
-    # Falls back to a random slot if the value is missing or unrecognised.
     if pd.isna(time_slot_value):
         return random.choice(SLOTS)
     parts = [p.strip() for p in str(time_slot_value).split("|")]
