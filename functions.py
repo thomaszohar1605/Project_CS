@@ -178,13 +178,6 @@ def get_best_slot(time_slot_value) -> str:
 
 # Filter to have activites only available for the correct season, through the CSV that classifies the activites depending on the season 
 def filter_by_season(df: pd.DataFrame, season: str) -> pd.DataFrame:
-    """
-    Hard pre-filter: keep only activities whose 'seasons' column contains
-    the chosen season keyword.
-
-    The CSV stores seasons as pipe-separated strings e.g. "spring|summer|fall".
-    Activities with no seasons value are kept as year-round.
-    """
     season_clean = season.strip().lower()
 
     def _has_season(val) -> bool:
