@@ -153,10 +153,10 @@ def get_city_forecast(city: str, num_days: int) -> list:
     return get_weather(lat, lon, num_days)
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
+# Additional Support 
+ 
+# If the weather is for example Thunderstorm and returns True for bad weather, it willa avoid outdor activites on rainy or snowy day  
 def is_bad_weather(label: str) -> bool:
-    # Return True if the weather label indicates conditions unsuitable for outdoor activities
     return any(w in label.lower() for w in
                ["rain", "drizzle", "snow", "storm", "thunder"])
 
