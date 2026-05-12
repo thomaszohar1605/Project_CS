@@ -53,10 +53,9 @@ SLOT_CSS = {
 }
 
 
-# Restriction made, becasue nightlife & entertainment can only happen in the evening + Relaxation and Wellness is restricted from happening in the evening 
+# Restriction made, becasue nightlife & entertainment can only happen in the evening 
 SLOT_RESTRICTIONS = {
     "Nightlife & Entertainment": ["Evening"],
-    "Relaxation & Wellness":     ["Morning", "Afternoon"],
 }
 
 # Activities from categories rated at or below this value are removed
