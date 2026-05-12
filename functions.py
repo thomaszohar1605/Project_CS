@@ -177,7 +177,6 @@ def get_best_slot(time_slot_value) -> str:
     return random.choice(SLOTS)
 
 # Filter to have activites only available for the correct season, through the CSV that classifies the activites depending on the season 
-
 def filter_by_season(df: pd.DataFrame, season: str) -> pd.DataFrame:
     """
     Hard pre-filter: keep only activities whose 'seasons' column contains
@@ -780,13 +779,12 @@ def step_itinerary() -> None:
                         badge = ""
                     else:
                         css   = SLOT_CSS[slot]
-                        icon  = SLOT_ICON[slot]
                         color = CATEGORY_COLORS.get(cat, "#2e6da4")
                         badge = ""
 
                     cols[i].markdown(
                         f'<div class="tt-slot {css}">'
-                        f'{icon} <strong>{slot}</strong>'
+                        f'<strong>{slot}</strong>'
                         f'{badge}<br>'
                         f'<span class="act-meta">{name}</span>'
                         f'</div>',
