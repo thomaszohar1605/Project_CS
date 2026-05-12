@@ -115,7 +115,7 @@ CAT_TIME_PROFILE = {
     "Culture & History":         {"morning": 1.0, "afternoon": 1.0, "evening": 0.0},
     "Food & Drink":              {"morning": 1.0, "afternoon": 1.0, "evening": 1.0},
     "Nightlife & Entertainment": {"morning": 0.0, "afternoon": 0.0, "evening": 1.0},
-    "Relaxation & Wellness":     {"morning": 1.0, "afternoon": 1.0, "evening": 0.0},
+    "Relaxation & Wellness":     {"morning": 1.0, "afternoon": 1.0, "evening": 0.5},
     "Adventure & Sports":        {"morning": 1.0, "afternoon": 1.0, "evening": 0.0},
 }
 
