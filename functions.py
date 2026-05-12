@@ -117,18 +117,12 @@ def get_current_season() -> str:
     else:
         return "fall"
 
-
-def get_forecast_for_season(city: str, season: str, num_days: int) -> tuple[list, str]:
-    """
-    Return (forecast_list, source_label) for the given city, season, and duration.
-
-    - If the chosen season matches today's real season, fetch live data from
+# - If the chosen season matches today's real season, fetch live data from
       Open-Meteo and label it 'Live forecast'.
     - Otherwise return typical hardcoded Swiss conditions for that season and
       label it 'Typical conditions for <season>'.
 
-    This prevents showing May weather when a user plans a winter trip.
-    """
+def get_forecast_for_season(city: str, season: str, num_days: int) -> tuple[list, str]:
     current = get_current_season()
     if season.lower() == current:
         # Seasons match — live forecast is actually relevant
