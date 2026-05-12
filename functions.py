@@ -140,10 +140,10 @@ def load_activities() -> pd.DataFrame:
     return pd.read_csv(os.path.join(FOLDER, "locations.csv"))
 
 
+# Look up the city coordinates then linked it with the live weather forecast.
+# Cached for 1 hour to avoid redundant API calls.
 @st.cache_data(ttl=3600)
 def get_city_forecast(city: str, num_days: int) -> list:
-    # Look up the city coordinates then fetch a live weather forecast.
-    # Cached for 1 hour to avoid redundant API calls.
     df   = load_activities()
     rows = df[df["city"] == city]
     if rows.empty:
