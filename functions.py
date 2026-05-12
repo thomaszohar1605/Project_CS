@@ -45,7 +45,7 @@ SEASON_LABELS = {
 # Time slot for the planning 
 SLOTS = ["Morning", "Afternoon", "Evening"]
 
-# CSS class applied to each timetable slot card — controls background colour
+# CSS (Cascading Style Sheets):controls background colour
 SLOT_CSS = {
     "Morning":   "tt-morning",
     "Afternoon": "tt-afternoon",
@@ -53,9 +53,7 @@ SLOT_CSS = {
 }
 
 
-
-# Hard constraints on which time slots certain categories may appear in.
-# Nightlife is restricted to Evening only; Wellness is excluded from Evening.
+# Restriction made, becasue nightlife & entertainment can only happen in the evening + Relaxation and Wellness is restricted from happening in the evening 
 SLOT_RESTRICTIONS = {
     "Nightlife & Entertainment": ["Evening"],
     "Relaxation & Wellness":     ["Morning", "Afternoon"],
