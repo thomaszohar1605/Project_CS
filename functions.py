@@ -1,29 +1,28 @@
-"""
-functions.py  —  Swiss Vacation Planner
-========================================
-3-step UI flow:
-  Step 1 -> Destination, days & season
-  Step 2 -> Rate 6 categories with sliders (1-5)
-  Step 3 -> Final itinerary + activity chart
-"""
+
+#Step 1 -> Destination, days & season
+#Step 2 -> Rate 6 categories 1 to 5
+#Step 3 -> Final itinerary + pdf
+
 
 from __future__ import annotations
 
-# ── Imports ───────────────────────────────────────────────────────────────────
+#import the relevant libraries 
 
 import os, random, datetime, math
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+#Machine learning with KNN 
+
 from ml_rating import get_knn_ranked_activities, CATEGORIES
 
 SEASONS = ["spring", "summer", "fall", "winter"]
 from weather import get_weather
 
-# ── Constants ─────────────────────────────────────────────────────────────────
+#Variables with the ML (category, season)
 
-# Absolute path to the project folder — used when loading CSV files
+#Loader of location.csv
 FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 # Colour assigned to each category for UI badges and the activity chart
@@ -36,14 +35,6 @@ CATEGORY_COLORS = {
     "Adventure & Sports":        "#fbbf24",
 }
 
-CATEGORY_EMOJI = {
-    "Outdoor & Nature":          "",
-    "Culture & History":         "",
-    "Food & Drink":              "",
-    "Nightlife & Entertainment": "",
-    "Relaxation & Wellness":     "",
-    "Adventure & Sports":        "",
-}
 
 SEASON_LABELS = {
     "spring": "Spring",
