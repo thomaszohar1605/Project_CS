@@ -176,6 +176,7 @@ def get_best_slot(time_slot_value) -> str:
             return s
     return random.choice(SLOTS)
 
+# Filter to have activites only available for the correct season, through the CSV that classifies the activites depending on the season 
 
 def filter_by_season(df: pd.DataFrame, season: str) -> pd.DataFrame:
     """
