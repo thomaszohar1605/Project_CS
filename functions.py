@@ -104,9 +104,8 @@ SEASONAL_WEATHER = {
     ],
 }
 
-
+#Return the real-world season based on today's month
 def get_current_season() -> str:
-    """Return the real-world season based on today's month."""
     month = datetime.date.today().month
     if month in (12, 1, 2):
         return "winter"
@@ -117,10 +116,8 @@ def get_current_season() -> str:
     else:
         return "fall"
 
-# - If the chosen season matches today's real season, fetch live data from
-      Open-Meteo and label it 'Live forecast'.
-    - Otherwise return typical hardcoded Swiss conditions for that season and
-      label it 'Typical conditions for <season>'.
+# If the chosen season matches today's real season, it will base on the Open-Meteo and label it 'Live forecast'.
+# Otherwise return typical Swiss conditions for that season and label it Typical conditions
 
 def get_forecast_for_season(city: str, season: str, num_days: int) -> tuple[list, str]:
     current = get_current_season()
@@ -136,11 +133,10 @@ def get_forecast_for_season(city: str, season: str, num_days: int) -> tuple[list
     return forecast, label
 
 
-# ── Data loaders ──────────────────────────────────────────────────────────────
+# Data loaders with the CSV documents, location.csv
 
 @st.cache_data
 def load_activities() -> pd.DataFrame:
-    # Load the full activity dataset from CSV; cached so it is only read once
     return pd.read_csv(os.path.join(FOLDER, "locations.csv"))
 
 
