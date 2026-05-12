@@ -224,7 +224,7 @@ def build_itinerary(ranked_df: pd.DataFrame,
         for slot in SLOTS:
             chosen = None
 
-            # Pass 1: correct slot bucket + weather preference match
+# First step, check if it is the correct slot bucket + if the weather preference match
             for row in buckets[slot]:
                 if row["activity_name"] in used:
                     continue
@@ -236,7 +236,7 @@ def build_itinerary(ranked_df: pd.DataFrame,
                 elif not prefer_indoor and setting in ("outdoor", "both"):
                     chosen = row; break
 
-            # Pass 2: any bucket + weather preference match
+#Second step, check if any bucket + if the weather still preference match
             if chosen is None:
                 for any_slot in SLOTS:
                     for row in buckets[any_slot]:
@@ -252,7 +252,7 @@ def build_itinerary(ranked_df: pd.DataFrame,
                     if chosen:
                         break
 
-            # Pass 3: any unused activity allowed in this slot (ignore weather)
+#Third step, if any unused activity allowed in this slot
             if chosen is None:
                 for any_slot in SLOTS:
                     for row in buckets[any_slot]:
@@ -270,7 +270,7 @@ def build_itinerary(ranked_df: pd.DataFrame,
                 }
                 used.add(chosen["activity_name"])
             else:
-                # No suitable activity found — fill with free time
+# If no activities are suited it will fill the void with Free time
                 day_plan[slot] = {
                     "name":      "Free time — explore at your own pace",
                     "category":  "",
