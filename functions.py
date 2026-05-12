@@ -58,15 +58,13 @@ SLOT_RESTRICTIONS = {
     "Nightlife & Entertainment": ["Evening"],
 }
 
-# Activities from categories rated at or below this value are removed
-# entirely from the candidate pool after KNN ranking.
+# Activities from categories rated at or below this value are removed for the KNN ranking 
 LOW_RATING_THRESHOLD = 2
 
-# ── Seasonal weather data ─────────────────────────────────────────────────────
+# Weather data without the api
 
-# Typical Swiss weather conditions for each season.
-# Used when the user's chosen season does not match the current real-world
-# season — in that case the live Open-Meteo forecast would be misleading.
+# Typical Swiss weather conditions 
+# Used when the user's chosen season does not match the current real-world season 
 SEASONAL_WEATHER = {
     "spring": [
         {"label": "Partly Cloudy", "min": 8,  "max": 16, "rain": 2.1},
