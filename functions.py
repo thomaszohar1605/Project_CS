@@ -25,7 +25,7 @@ from weather import get_weather
 #Loader of location.csv
 FOLDER = os.path.dirname(os.path.abspath(__file__))
 
-# Colour assigned to each category for UI badges and the activity chart
+# Colour for the activity chart
 CATEGORY_COLORS = {
     "Outdoor & Nature":          "#34d399",
     "Culture & History":         "#60a5fa",
@@ -35,7 +35,6 @@ CATEGORY_COLORS = {
     "Adventure & Sports":        "#fbbf24",
 }
 
-
 SEASON_LABELS = {
     "spring": "Spring",
     "summer": "Summer",
@@ -43,7 +42,7 @@ SEASON_LABELS = {
     "winter": "Winter",
 }
 
-# The three time slots that make up each day in the itinerary
+# Time slot for the planning 
 SLOTS = ["Morning", "Afternoon", "Evening"]
 
 # CSS class applied to each timetable slot card — controls background colour
@@ -53,11 +52,7 @@ SLOT_CSS = {
     "Evening":   "tt-evening",
 }
 
-SLOT_ICON = {
-    "Morning":   "",
-    "Afternoon": "",
-    "Evening":   "",
-}
+
 
 # Hard constraints on which time slots certain categories may appear in.
 # Nightlife is restricted to Evening only; Wellness is excluded from Evening.
