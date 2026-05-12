@@ -186,7 +186,7 @@ def filter_by_season(df: pd.DataFrame, season: str) -> pd.DataFrame:
 
     return df[df["seasons"].apply(_has_season)].reset_index(drop=True)
 
-
+# Filter KNN and Rating 
 # KNN + low rating leading to activites ranked at 1 or 2 will never appear 
 
 def apply_preference_filter(ranked: pd.DataFrame, prefs: dict) -> pd.DataFrame:
@@ -196,28 +196,26 @@ def apply_preference_filter(ranked: pd.DataFrame, prefs: dict) -> pd.DataFrame:
     return ranked.reset_index(drop=True)
 
 
-# ── Itinerary builder ─────────────────────────────────────────────────────────
+# Itinerary builder 
+# Build a day by day itinerary from the ML ranking activities 
+# Activities higher in ranked are placed first 
 
 def build_itinerary(ranked_df: pd.DataFrame,
                     num_days: int,
                     forecast: list) -> list:
-    """
-    Build a day-by-day itinerary from ML-ranked activities.
-    Activities higher in ranked_df (better knn_score) are placed first.
-    """
-    all_rows = ranked_df.to_dict("records")   # sorted best to worst by KNN score
+    all_rows = ranked_df.to_dict("records")  
 
-    # Bucket activities by preferred time slot, preserving ML rank order
+# Bucket activities by preferred time slot, preserving ML rank order
     buckets: dict[str, list] = {s: [] for s in SLOTS}
     for row in all_rows:
         buckets[get_best_slot(row.get("time_slot", ""))].append(row)
 
-    used: set[str] = set()   # tracks activity names already placed
+    used: set[str] = set() 
     itinerary = []
 
     for day_num in range(1, num_days + 1):
         day_idx       = day_num - 1
-        # Prefer indoor activities on bad-weather days
+ # Prefer indoor activities on bad-weather days
         prefer_indoor = (day_idx < len(forecast) and
                          is_bad_weather(forecast[day_idx]["label"]))
 
