@@ -282,11 +282,10 @@ def build_itinerary(ranked_df: pd.DataFrame,
     return itinerary
 
 
-# ── Progress bar ──────────────────────────────────────────────────────────────
+# Progress bar
+# The 3-step progress bar at the top of each page.
 
 def render_progress(current: int) -> None:
-    # Render the 3-step progress bar at the top of each page.
-    # Completed steps: black. Current step: Swiss red. Upcoming: light grey.
     labels = [
         "1 · Destination",
         "2 · Preferences",
