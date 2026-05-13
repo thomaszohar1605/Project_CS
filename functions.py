@@ -13,14 +13,14 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-#Machine learning with KNN 
+#Machine learning with KNN -------------------------------------------------------------
 
 from ml_rating import get_knn_ranked_activities, CATEGORIES
 
 SEASONS = ["spring", "summer", "fall", "winter"]
 from weather import get_weather
 
-#Variables with the ML (category, season)
+#Fixed Variables (category, season) -------------------------------------------------------------
 
 #Loader of location.csv
 FOLDER = os.path.dirname(os.path.abspath(__file__))
@@ -61,9 +61,9 @@ SLOT_RESTRICTIONS = {
 # Activities from categories rated at or below this value are removed for the KNN ranking 
 LOW_RATING_THRESHOLD = 2
 
-# Weather data without the api
+# Weather data  -------------------------------------------------------------
 
-# Typical Swiss weather conditions 
+# Typical Swiss weather conditions without the api
 # Used when the user's chosen season does not match the current real-world season 
 SEASONAL_WEATHER = {
     "spring": [
@@ -133,7 +133,7 @@ def get_forecast_for_season(city: str, season: str, num_days: int) -> tuple[list
     return forecast, label
 
 
-# Data loaders with the CSV documents, location.csv
+# Data loaders with the CSV documents, location.csv -------------------------------------------------------------
 
 @st.cache_data
 def load_activities() -> pd.DataFrame:
@@ -153,7 +153,7 @@ def get_city_forecast(city: str, num_days: int) -> list:
     return get_weather(lat, lon, num_days)
 
 
-# Additional Support 
+# Additional Support -------------------------------------------------------------
  
 # If the weather is for example Thunderstorm and returns True for bad weather, it willa avoid outdor activites on rainy or snowy day  
 def is_bad_weather(label: str) -> bool:
@@ -196,7 +196,7 @@ def apply_preference_filter(ranked: pd.DataFrame, prefs: dict) -> pd.DataFrame:
     return ranked.reset_index(drop=True)
 
 
-# Itinerary builder 
+# Itinerary builder -------------------------------------------------------------
 # Build a day by day itinerary from the ML ranking activities 
 # Activities higher in ranked are placed first 
 
@@ -282,7 +282,7 @@ def build_itinerary(ranked_df: pd.DataFrame,
     return itinerary
 
 
-# Progress bar
+# Progress bar -------------------------------------------------------------
 # The 3-step progress bar at the top of each page.
 # Highlights the current step, marks completed steps as done, and leaves future steps unstyled.
 
@@ -495,9 +495,8 @@ def step_preferences() -> None:
 # Renders a stacked bar chart showing how the itinerary is distributed across
 # the 6 activity categories, one bar per day.
 # Each category is colour-coded using CATEGORY_COLORS.
-
+# Stacked bar chart showing activity category distribution across days."""
 def render_activity_chart(itinerary: list) -> None:
-    """Stacked bar chart showing activity category distribution across days."""
     days_labels = [f"Day {d['day']}" for d in itinerary]
     cat_counts  = {cat: [] for cat in CATEGORIES}
 
