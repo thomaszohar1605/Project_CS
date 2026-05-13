@@ -97,31 +97,29 @@ CAT_TIME_PROFILE = {
 # Start at 0
 def _activity_to_vector(row: pd.Series) -> np.ndarray:
     feats = {col: 0.0 for col in FEATURE_COLS}
-
-    # One-hot encode the category
     feat_key = CAT_TO_FEAT.get(str(row.get("category", "")))
     if feat_key:
         feats[feat_key] = 1.0
 
-    # Encode indoor/outdoor setting: outdoor=1.0, both=0.5, indoor=0.0
+    # Encode indoor/outdoor 
     setting = str(row.get("indoor_outdoor", "both")).strip().lower()
     feats["feat_is_outdoor"] = {"outdoor": 1.0, "both": 0.5}.get(setting, 0.0)
 
-    # Encode which time slots are available (CSV stores as "Morning|Afternoon")
+    # Encode time slots 
     slots_raw = str(row.get("time_slot", "")).lower()
     feats["feat_is_morning"]   = 1.0 if "morning"   in slots_raw else 0.0
     feats["feat_is_afternoon"] = 1.0 if "afternoon" in slots_raw else 0.0
     feats["feat_is_evening"]   = 1.0 if "evening"   in slots_raw else 0.0
 
-    # Normalise duration: cap at 7 days then divide to get a value in [0, 1]
+    # Duration of 7 days then divide to get a value in [0, 1]
     try:
         days = float(row.get("max_useful_days", 3))
     except (ValueError, TypeError):
         days = 3.0
     feats["feat_duration"] = min(days, 7.0) / 7.0
 
-    # Encode which seasons the activity is available in
-    # CSV stores seasons as pipe-separated e.g. "spring|summer|fall"
+    # Encode which seasons and activity available
+    # CSV stores seasons as pipe-separated 
     seasons_raw = str(row.get("seasons", "")).lower()
     for season, feat_col in SEASON_TO_FEAT.items():
         feats[feat_col] = 1.0 if season in seasons_raw else 0.0
@@ -136,8 +134,7 @@ def _build_feature_matrix(df: pd.DataFrame) -> np.ndarray:
     return np.vstack([_activity_to_vector(row) for _, row in df.iterrows()])
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Weight function
+# ─────────────────────────────────────────────────────────────────────────────# Weight function
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _weight(rating: float) -> float:
