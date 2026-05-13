@@ -147,22 +147,18 @@ def _build_feature_matrix(df: pd.DataFrame) -> np.ndarray:
 def _weight(rating: float) -> float:
     return (float(rating) / 3.0) ** 2
 
-# Build the user profile vector -------------------------------------------------------------
+# Build the user profile vector --ß-----------------------------------------------------------
 
+ 
+# Convert the 6 category ratings and the chosen season into one 15-dimensional user profile vector.
+
+# Category preferences are weighted by (rating/3)^2. Time-of-day flags use per-category profilesto avoid recommending evening activities when Nightlife is rated low.
+
+# The four season flags are set so the chosen season = 1.0 and all other seasons = 0.0, pulling the KNN profile toward activities that run in the selected season.
+ 
 
 def _build_user_profile(prefs: dict, season: str) -> np.ndarray:
-    """
-    Convert the 6 category ratings and the chosen season into one
-    15-dimensional user profile vector.
-
-    Category preferences are weighted by (rating/3)^2 so strong
-    preferences dominate. Time-of-day flags use per-category profiles
-    to avoid recommending evening activities when Nightlife is rated low.
-
-    The four season flags are set so the chosen season = 1.0 and all
-    other seasons = 0.0, pulling the KNN profile toward activities
-    that run in the selected season.
-    """
+   
     weighted_vecs = []
     weights       = []
 
