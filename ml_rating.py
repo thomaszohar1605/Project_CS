@@ -91,7 +91,7 @@ CAT_TIME_PROFILE = {
 
 
 
-# Feature engineering
+# Feature engineering --------------------------------------------------------
 # convert one csv row into 15 dimensional into numpy array 
    
 # Start at 0
@@ -134,13 +134,9 @@ def _build_feature_matrix(df: pd.DataFrame) -> np.ndarray:
     return np.vstack([_activity_to_vector(row) for _, row in df.iterrows()])
 
 
-# ─────────────────────────────────────────────────────────────────────────────# Weight function
-# ─────────────────────────────────────────────────────────────────────────────
+# Weight function -------------------------------------------------------------
 
-def _weight(rating: float) -> float:
-    """
-    Non-linear weight from a 1-5 slider rating.
-
+  # Non-linear weight from the 1-5 rating
     rating 1 -> 0.11   strongly downweights
     rating 2 -> 0.44
     rating 3 -> 1.00   neutral
@@ -148,13 +144,11 @@ def _weight(rating: float) -> float:
     rating 5 -> 2.78   strongly upweights
 
     Formula: (rating / 3) ** 2
-    """
+def _weight(rating: float) -> float:
     return (float(rating) / 3.0) ** 2
 
+# Build the user profile vector -------------------------------------------------------------
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Build the user profile vector
-# ─────────────────────────────────────────────────────────────────────────────
 
 def _build_user_profile(prefs: dict, season: str) -> np.ndarray:
     """
