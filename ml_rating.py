@@ -92,14 +92,10 @@ CAT_TIME_PROFILE = {
 
 
 # Feature engineering
-
-
+# convert one csv row into 15 dimensional into numpy array 
+   
+# Start at 0
 def _activity_to_vector(row: pd.Series) -> np.ndarray:
-    """
-    Convert one CSV row into a 15-dimensional numpy array.
-    The four season flags encode which seasons the activity runs in.
-    """
-    # Start with all features set to 0
     feats = {col: 0.0 for col in FEATURE_COLS}
 
     # One-hot encode the category
