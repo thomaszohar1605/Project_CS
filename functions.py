@@ -560,15 +560,6 @@ def generate_itinerary_pdf(
     forecast: list,
     df: pd.DataFrame,
 ) -> bytes:
-    """
-    Build a one-page landscape PDF summary of the personalised itinerary.
-
-    Layout: Swiss-red header, then days arranged in up to 3 columns.
-    Each day block shows the weather strip, then Morning / Afternoon / Evening
-    with activity name and a truncated description from locations.csv.
-
-    Returns raw PDF bytes ready for st.download_button.
-    """
     from fpdf import FPDF
 
     # ── Description lookup ────────────────────────────────────────────────────
