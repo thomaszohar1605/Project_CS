@@ -177,8 +177,8 @@ def _build_user_profile(prefs: dict, season: str) -> np.ndarray:
         feats["feat_is_afternoon"] = time_profile["afternoon"]
         feats["feat_is_evening"]   = time_profile["evening"]
 
-        feats["feat_is_outdoor"] = 0.5   # neutral indoor/outdoor
-        feats["feat_duration"]   = 0.5   # neutral duration
+        feats["feat_is_outdoor"] = 0.5   
+        feats["feat_duration"]   = 0.5   
 
         # Set the chosen season flag to 1.0, all others to 0.0
         season_clean = season.strip().lower()
@@ -198,9 +198,23 @@ def _build_user_profile(prefs: dict, season: str) -> np.ndarray:
     return profile
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Main KNN function
-# ─────────────────────────────────────────────────────────────────────────────
+
+# Main KNN function -------------------------------------------------------------
+
+
+# Fit a KNN model on the city's activities and rank them by cosine distance to the user's profile vector.
+
+# The parameters used are 
+    # - activities for the chosen city (city_df) = DataFrame
+    # - {category_name: slider_rating (1-5)} (prefs) = dict
+    # - chosen season: "spring" | "summer" | "fall" | "winter" (season) = str
+    # - number of neighbours: (k)= int
+
+# Returns
+# city_df copy with extra columns:
+    #'knn_score'  float [0, 1]  — similarity (1 = perfect match)
+    #'knn_rank'   int           — rank (1 = best match)
+# Sorted by knn_score descending 
 
 def get_knn_ranked_activities(
     city_df: pd.DataFrame,
@@ -208,24 +222,7 @@ def get_knn_ranked_activities(
     season: str = "summer",
     k: int = None,
 ) -> pd.DataFrame:
-    """
-    Fit a KNN model on the city's activities and rank them by
-    cosine distance to the user's profile vector.
-
-    Parameters
-    ----------
-    city_df : DataFrame — activities for the chosen city (already season-filtered)
-    prefs   : dict      — {category_name: slider_rating (1-5)}
-    season  : str       — chosen season: "spring" | "summer" | "fall" | "winter"
-    k       : int       — number of neighbours (defaults to all activities)
-
-    Returns
-    -------
-    city_df copy with extra columns:
-        'knn_score'  float [0, 1]  — similarity (1 = perfect match)
-        'knn_rank'   int           — rank (1 = best match)
-    Sorted by knn_score descending.
-    """
+   
     # Guard: return unchanged copy if there are no activities to rank
     if city_df.empty:
         return city_df.copy()
