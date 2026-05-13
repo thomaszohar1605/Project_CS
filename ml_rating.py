@@ -2,19 +2,20 @@
 
 from __future__ import annotations
 
-# Imports
+# Imports the relevant libraries 
 
 import numpy as np
 import pandas as pd
 
+# Nearest Neighbors = Finds the most similar activities to the user's preferences.
+# MinMaxScaler = Puts all feature values on the same scale before comparing.
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import MinMaxScaler
-ß
-# ── Category list ─────────────────────────────────────────────────────────────
 
-# The 6 activity types the user rates in Step 2.
-# Order here defines each category's position in the feature vector —
-# must stay identical to the CATEGORIES list in functions.py.
+# Category list 
+
+# Activites rated in step 2 
+# Each category's position in the feature vector 
 CATEGORIES = [
     "Outdoor & Nature",
     "Culture & History",
@@ -24,36 +25,35 @@ CATEGORIES = [
     "Adventure & Sports",
 ]
 
-# ── Season list ───────────────────────────────────────────────────────────────
+# Season list 
 
-# The four seasons the user can choose from in Step 1.
-# Imported by functions.py — must be defined here at the top level.
+# The seasons from Step 1.
 SEASONS = ["spring", "summer", "fall", "winter"]
 
-# ── Feature column definitions ────────────────────────────────────────────────
+# Feature column definitions 
 
-# 15 feature columns total:
-#   6 one-hot category flags
-#   1 indoor/outdoor value
-#   3 time-slot flags
-#   1 normalised duration
-#   4 season flags
+# 15 feature columns total (total vector)
+# 6 one-hot category flags
+# 1 indoor/outdoor value
+# 3 time-slot flags
+# 1 normalised duration
+# 4 season flags
 FEATURE_COLS = [
-    "feat_outdoor_nature",    # one-hot: 1 if Outdoor & Nature
-    "feat_culture_history",   # one-hot: 1 if Culture & History
-    "feat_food_drink",        # one-hot: 1 if Food & Drink
-    "feat_nightlife",         # one-hot: 1 if Nightlife & Entertainment
-    "feat_wellness",          # one-hot: 1 if Relaxation & Wellness
-    "feat_adventure",         # one-hot: 1 if Adventure & Sports
-    "feat_is_outdoor",        # 0=indoor  0.5=both  1=outdoor
-    "feat_is_morning",        # 1 if Morning is an allowed time slot
-    "feat_is_afternoon",      # 1 if Afternoon is an allowed time slot
-    "feat_is_evening",        # 1 if Evening is an allowed time slot
-    "feat_duration",          # max_useful_days normalised to [0, 1]
-    "feat_season_spring",     # 1 if the activity runs in spring
-    "feat_season_summer",     # 1 if the activity runs in summer
-    "feat_season_fall",       # 1 if the activity runs in fall
-    "feat_season_winter",     # 1 if the activity runs in winter
+    "feat_outdoor_nature",    
+    "feat_culture_history",   
+    "feat_food_drink",        
+    "feat_nightlife",         
+    "feat_wellness",          
+    "feat_adventure",         
+    "feat_is_outdoor",        
+    "feat_is_morning",        
+    "feat_is_afternoon",      
+    "feat_is_evening",        
+    "feat_duration",          
+    "feat_season_spring",     
+    "feat_season_summer",     
+    "feat_season_fall",      
+    "feat_season_winter",   
 ]
 
 # Lookup: category name -> its one-hot feature column
