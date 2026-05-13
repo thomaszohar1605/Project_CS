@@ -33,3 +33,35 @@ The itinerary also includes:
 
 
 **You're ready — enjoy your Swiss adventure!**
+
+
+ml_rating.py  
+
+
+Machine-learning module using a real scikit-learn K-Nearest Neighbors model.
+
+How it works
+1.  The user rates 6 activity categories on a 1-5 slider (Step 2) and
+    picks a travel season in Step 1 (spring / summer / fall / winter).
+
+2.  Each activity in the database is encoded as a 15-dimensional
+    numeric feature vector:
+        - 6 one-hot values  — which category the activity belongs to
+        - 1 value           — indoor (0) / both (0.5) / outdoor (1)
+        - 3 binary values   — whether Morning / Afternoon / Evening is allowed
+        - 1 value           — duration normalised to [0, 1]
+        - 4 binary values   — whether the activity runs in each season
+
+3.  A single USER PROFILE VECTOR is built from the slider ratings and
+    the chosen season. Categories are weighted by (rating/3)^2.
+    The four season flags in the profile are set to 1 for the chosen
+    season and 0 for all others.
+
+4.  We fit a scikit-learn NearestNeighbors model (cosine distance)
+    on all activities already filtered to the chosen season.
+
+5.  We call .kneighbors() with the user profile as the query.
+    Closer cosine distance = more similar to the user's taste.
+
+6.  Activities are ranked best to worst; the itinerary builder picks top-down.
+"""
