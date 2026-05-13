@@ -137,17 +137,17 @@ def _build_feature_matrix(df: pd.DataFrame) -> np.ndarray:
 # Weight function -------------------------------------------------------------
 
   # Non-linear weight from the 1-5 rating
-    rating 1 -> 0.11   strongly downweights
-    rating 2 -> 0.44
-    rating 3 -> 1.00   neutral
-    rating 4 -> 1.78
-    rating 5 -> 2.78   strongly upweights
+#rating 1 -> 0.11   strongly downweights
+#rating 2 -> 0.44
+#rating 3 -> 1.00   neutral
+#rating 4 -> 1.78
+#rating 5 -> 2.78   strongly upweights
 
     Formula: (rating / 3) ** 2
 def _weight(rating: float) -> float:
     return (float(rating) / 3.0) ** 2
 
-# Build the user profile vector --ß-----------------------------------------------------------
+# Build the user profile vector -------------------------------------------------------------
 
  
 # Convert the 6 category ratings and the chosen season into one 15-dimensional user profile vector.
