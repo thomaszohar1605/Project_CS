@@ -253,16 +253,16 @@ def get_knn_ranked_activities(
     )
     knn_model.fit(X_scaled)
 
-    # ── 4. Query: find the K nearest neighbours ──────────────────────────────
+    #  4. Query: find the K nearest neighbours 
     distances, indices = knn_model.kneighbors(profile_scaled)
     distances = distances[0]   # flatten outer dimension
     indices   = indices[0]     # flatten outer dimension
 
-    # ── 5. Convert cosine distance to similarity score ───────────────────────
+    # 5. Convert cosine distance to similarity score 
     # distance 0 = identical, 2 = opposite -> similarity = 1 - distance / 2
     similarities = 1.0 - distances / 2.0
 
-    # ── 6. Map scores back onto the DataFrame ────────────────────────────────
+    # 6. Map scores back onto the DataFrame 
     knn_scores = np.zeros(n)
     knn_ranks  = np.zeros(n, dtype=int)
 
