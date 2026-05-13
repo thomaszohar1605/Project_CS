@@ -12,7 +12,8 @@ import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import MinMaxScaler
 
-# Category list 
+# Category list -------------------------------------------------------------
+
 
 # Activites rated in step 2 
 # Each category's position in the feature vector 
@@ -30,7 +31,8 @@ CATEGORIES = [
 # The seasons from Step 1.
 SEASONS = ["spring", "summer", "fall", "winter"]
 
-# Feature column definitions 
+# Feature column definitions -------------------------------------------------------------
+
 
 # 15 feature columns total (total vector)
 # 6 one-hot category flags
@@ -76,7 +78,8 @@ SEASON_TO_FEAT = {
     "winter": "feat_season_winter",
 }
 
-# Time-of-day category 
+# Time-of-day category -------------------------------------------------------------
+
 
 # Defines which time slots are natural for each category.
 # This is made in order to prevent having event you graded low, for instance nightlife when you graded it low it shoudn't be recommended 
