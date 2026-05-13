@@ -57,6 +57,7 @@ FEATURE_COLS = [
 ]
 
 # Lookup: category name -> its one-hot feature column
+# When the code needs to encode a category into the feature vector, instead of writing
 CAT_TO_FEAT = {
     "Outdoor & Nature":          "feat_outdoor_nature",
     "Culture & History":         "feat_culture_history",
@@ -67,6 +68,7 @@ CAT_TO_FEAT = {
 }
 
 # Lookup: season name -> its feature column
+#same as cat_to_feat but for season
 SEASON_TO_FEAT = {
     "spring": "feat_season_spring",
     "summer": "feat_season_summer",
@@ -74,11 +76,10 @@ SEASON_TO_FEAT = {
     "winter": "feat_season_winter",
 }
 
-# ── Per-category time-of-day profiles ────────────────────────────────────────
+# Time-of-day category 
 
 # Defines which time slots are natural for each category.
-# Previously all slots were hardcoded to 1.0, causing evening/nightlife
-# activities to be recommended even when Nightlife was rated low.
+# This is made in order to prevent having event you graded low, for instance nightlife when you graded it low it shoudn't be recommended 
 CAT_TIME_PROFILE = {
     "Outdoor & Nature":          {"morning": 1.0, "afternoon": 1.0, "evening": 0.0},
     "Culture & History":         {"morning": 1.0, "afternoon": 1.0, "evening": 0.0},
@@ -89,9 +90,9 @@ CAT_TIME_PROFILE = {
 }
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 # Feature engineering
-# ─────────────────────────────────────────────────────────────────────────────
+
 
 def _activity_to_vector(row: pd.Series) -> np.ndarray:
     """
