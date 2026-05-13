@@ -230,18 +230,18 @@ def get_knn_ranked_activities(
     df = city_df.copy().reset_index(drop=True)
     n  = len(df)
 
-    # ── 1. Build and scale the feature matrix ────────────────────────────────
+    # 1. Build and scale the feature matrix 
     X        = _build_feature_matrix(df)
     scaler   = MinMaxScaler()
     # Scale each feature column independently to [0, 1]
     X_scaled = scaler.fit_transform(X)
 
-    # ── 2. Build and scale the user profile vector ───────────────────────────
+    # 2. Build and scale the user profile vector 
     profile        = _build_user_profile(prefs, season)
     # Use the same scaler so profile and activities share the same space
     profile_scaled = scaler.transform(profile.reshape(1, -1))
 
-    # ── 3. Fit the KNN model ─────────────────────────────────────────────────
+    # 3. Fit the KNN model 
     # Default to ALL activities so we get a complete ranking
     k_actual = k if k is not None else n
     k_actual = min(k_actual, n)   # safety cap
