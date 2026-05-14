@@ -306,9 +306,8 @@ def render_progress(current: int) -> None:
     st.write("")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+
 # STEP 1 — Destination, Days & Season
-# ══════════════════════════════════════════════════════════════════════════════
 
 # Renders the first page of the app.
 # The user selects a Swiss city, the number of travel days (1–7), and a season.
@@ -385,9 +384,9 @@ def step_destination() -> None:
         st.rerun()
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+
 # STEP 2 — Category preference sliders
-# ══════════════════════════════════════════════════════════════════════════════
+
 
 # Renders the second page of the app.
 # The user rates their interest in each of the 6 activity categories on a 1–5 slider.
@@ -488,9 +487,9 @@ def step_preferences() -> None:
             st.rerun()
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+
 # STEP 3 — Final itinerary + chart
-# ══════════════════════════════════════════════════════════════════════════════
+
 
 # Renders a stacked bar chart showing how the itinerary is distributed across
 # the 6 activity categories, one bar per day.
