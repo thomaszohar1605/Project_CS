@@ -307,7 +307,8 @@ def render_progress(current: int) -> None:
 
 
 
-# STEP 1 — Destination, Days & Season
+# STEP 1 — Destination, Days & Season -------------------------------------------------------------
+
 
 # Renders the first page of the app.
 # The user selects a Swiss city, the number of travel days (1–7), and a season.
@@ -385,7 +386,8 @@ def step_destination() -> None:
 
 
 
-# STEP 2 — Category preference sliders
+# STEP 2 — Category preference sliders -------------------------------------------------------------
+
 
 
 # Renders the second page of the app.
@@ -488,7 +490,8 @@ def step_preferences() -> None:
 
 
 
-# STEP 3 — Final itinerary + chart
+# STEP 3 — Final itinerary + chart -------------------------------------------------------------
+
 
 
 # Renders a stacked bar chart showing how the itinerary is distributed across
@@ -890,7 +893,8 @@ def step_itinerary() -> None:
 
 
 
-# Entry point
+# Entry point -------------------------------------------------------------
+
 
 # Main entry point for the Streamlit app.
 # Initialises step to 1 on first load, then routes to the correct step function
