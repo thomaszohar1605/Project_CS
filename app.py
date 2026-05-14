@@ -29,32 +29,23 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* ── Sidebar removal ────────────────────────────────────────────────────────
-   Hide the sidebar toggle button and the sidebar panel itself.
-   The app uses a single-column layout, so no sidebar is needed. */
+# Hide the sidebar toggle button and sidebar panel entirely
 [data-testid="collapsedControl"] { display: none; }
 section[data-testid="stSidebar"]  { display: none; }
- 
-/* ── Global base styles ─────────────────────────────────────────────────────
-   Set the entire app to a white background with dark text and Segoe UI font.
-   !important is required to override Streamlit's own default grey background. */
+
+# Base styles: white background, Segoe UI font, dark text
 html, body, .stApp {
     font-size: 16px;
-    background-color: #ffffff !important;
+    background-colçor: #ffffff !important;
     font-family: 'Segoe UI', sans-serif;
     color: #1a1a1a;
 }
- 
-/* Force white background on the main view container specifically,
-   which Streamlit sometimes renders separately from .stApp. */
+
 [data-testid="stAppViewContainer"] {
     background-color: #ffffff !important;
 }
- 
-/* ── Global text colour enforcement ────────────────────────────────────────
-   Streamlit renders many components (labels, selectboxes, sliders, markdown)
-   as isolated DOM elements that do not inherit colour from their parent.
-   This broad selector list forces dark text (#1a1a1a) on all of them. */
+        
+# Force consistent dark text colours across all UI components
 p, span, div, label, h1, h2, h3, h4, h5, h6,
 .stMarkdown p, .stMarkdown span,
 .stCheckbox label, .stCheckbox span,
@@ -65,12 +56,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 [data-baseweb="select"] span {
     color: #1a1a1a !important;
 }
- 
-/* ── Hero banner ────────────────────────────────────────────────────────────
-   The red banner at the top of the page.
-   .hero         — Swiss red (#D52B1E) background container with rounded corners
-   .hero-title   — Large white bold app title
-   .hero-subtitle — Smaller pale-pink tagline text */
+# Hero banner styling displayed at top of application
 .hero {
     background: #D52B1E;
     border-radius: 1.4rem;
@@ -84,16 +70,14 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     letter-spacing: -0.02em;
     margin-bottom: 0.4rem;
 }
+
+# Subtitle styling for application description
 .hero-subtitle {
     font-size: 1.05rem;
-    color: #f5c6c3 !important;  /* light pink — readable on the red background */
+    color: #f5c6c3 !important;
 }
- 
-/* ── Progress bar steps ─────────────────────────────────────────────────────
-   The 3-step indicator rendered at the top of each step page.
-   .prog-step         — default (future) step: light grey background
-   .prog-step.done    — completed step: dark background with white text
-   .prog-step.current — active step: Swiss red background with white text */
+
+# Multi-step progress tracker styling
 .prog-step {
     padding: 0.45rem 0.5rem;
     border-radius: 0.6rem;
@@ -105,10 +89,8 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 }
 .prog-step.done    { background: #1a1a1a; color: #ffffff !important; }
 .prog-step.current { background: #D52B1E; color: #ffffff !important; }
- 
-/* ── Step headings and captions ─────────────────────────────────────────────
-   .step-heading — bold page title shown at the top of each step
-   .step-caption — smaller grey subtitle below the heading */
+
+# Section heading and caption styling
 .step-heading {
     font-size: 1.3rem;
     font-weight: 700;
@@ -120,10 +102,8 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #555555 !important;
     margin-bottom: 1.2rem;
 }
- 
-/* ── Summary box ────────────────────────────────────────────────────────────
-   Light pink info box used to confirm the user's selected city, season,
-   and number of available activities (Steps 1 and 3). */
+
+# Summary card styling for generated trip overview
 .summary-box {
     background: #fff0f0;
     border: 1px solid #f5c6c3;
@@ -133,22 +113,15 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #1a1a1a !important;
     margin-bottom: 0.9rem;
 }
- 
-/* ── Activity metadata text ─────────────────────────────────────────────────
-   Small grey text used for activity names inside the timetable slot cards. */
-.act-meta {
+
+# Metadata styling for activity details and labels.act-meta {
     font-size: 0.83rem;
     color: #555555 !important;
     margin-top: 0.1rem;
     margin-bottom: 0.4rem;
 }
- 
-/* ── Timetable components (Step 3) ──────────────────────────────────────────
-   .tt-header      — "Day N" column header with a red bottom border
-   .tt-slot        — base card style shared by all time-slot cards
-   .tt-morning/afternoon/evening/night — light red background for scheduled slots
-   .tt-free        — grey italic style for unassigned "Free time" slots */
-.tt-header {
+
+# Timetable layout styling for itinerary schedule.tt-header {
     font-weight: 700;
     color: #1a1a1a !important;
     font-size: 0.9rem;
@@ -164,16 +137,13 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #1a1a1a !important;
     font-weight: 500;
 }
-.tt-morning   { background: #fde8e6; color: #1a1a1a !important; }
+# Colour-coded activity blocks by time of day.tt-morning   { background: #fde8e6; color: #1a1a1a !important; }
 .tt-afternoon { background: #fde8e6; color: #1a1a1a !important; }
 .tt-evening   { background: #fde8e6; color: #1a1a1a !important; }
 .tt-night     { background: #fde8e6; color: #1a1a1a !important; }
 .tt-free      { background: #f5f5f5; color: #999999 !important; font-style: italic; }
- 
-/* ── Weather box ────────────────────────────────────────────────────────────
-   Small card shown above each day's timetable column.
-   Uses a light red fill with a solid Swiss red left-border accent. */
-.weather-box {
+
+# Weather information card styling.weather-box {
     background: #fde8e6;
     border-left: 3px solid #D52B1E;
     border-radius: 0.4rem;
@@ -182,11 +152,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #1a1a1a !important;
     margin-bottom: 0.5rem;
 }
- 
-/* ── Streamlit widget overrides ─────────────────────────────────────────────
-   Streamlit renders selectboxes and text inputs using the BaseWeb design
-   system, which has its own default styles. These rules ensure consistent
-   white backgrounds, rounded corners, and dark text across all input widgets. */
+# Custom styling for Streamlit form inputs and selectboxes
 div[data-testid="stSelectbox"] div[role="combobox"],
 div[data-testid="stSelectbox"] div[data-baseweb="select"] > div,
 div[data-testid="stNumberInput"] input,
@@ -197,24 +163,19 @@ div[data-testid="stTextInput"] input {
     font-size: 1rem !important;
     color: #1a1a1a !important;
 }
- 
-/* Force the outer BaseWeb select wrapper to also use a white background
-   and a light grey border, matching the input fields above. */
+
+# Selectbox container styling
 [data-baseweb="select"] > div {
     background-color: #ffffff !important;
     border-color: #cccccc !important;
 }
- 
-/* Ensure all Streamlit labels and markdown text use the same base font size
-   and remain dark, overriding any inherited or default values. */
+
+# Label and markdown text styling
 label, .stMarkdown p, .stMarkdown li {
     font-size: 1rem !important;
     color: #1a1a1a !important;
 }
- 
-/* ── Button styling ─────────────────────────────────────────────────────────
-   All buttons (navigation and PDF download) use Swiss red as background.
-   On hover, the shade darkens slightly to provide visual feedback. */
+# Primary action button styling using Swiss-themed colours
 .stButton > button,
 .stDownloadButton > button {
     background-color: #D52B1E !important;
@@ -227,24 +188,17 @@ label, .stMarkdown p, .stMarkdown li {
 }
 .stButton > button:hover,
 .stDownloadButton > button:hover {
-    background-color: #a01f16 !important;  /* darker red on hover */
+    background-color: #a01f16 !important;
     color: #ffffff !important;
 }
- 
-/* ── Footer ─────────────────────────────────────────────────────────────────
-   Small centred credits line at the bottom of Step 3. */
+# Footer styling shown at bottom of application
 .footer {
     text-align: center;
     color: #999999 !important;
     padding: 28px 0 8px 0;
     font-size: 0.85rem;
 }
- 
-/* ── Dropdown menu overrides ────────────────────────────────────────────────
-   Streamlit renders select dropdowns in a floating popover/portal outside
-   the main DOM tree, so they are not affected by the rules above.
-   These selectors target the popover container and each list item directly
-   to force white backgrounds and dark text in the open dropdown. */
+# Custom dropdown menu styling overriding Streamlit defaults       
 ul[data-testid="stSelectboxVirtualDropdown"],
 [data-baseweb="popover"],
 [data-baseweb="menu"],
@@ -253,35 +207,31 @@ ul[data-testid="stSelectboxVirtualDropdown"],
     background-color: #ffffff !important;
     color: #1a1a1a !important;
 }
- 
-/* Ensure each individual option row also has a white background.
-   Without this, BaseWeb applies its own alternating-row or hover styles. */
+
 li[role="option"],
 [data-baseweb="menu"] li,
 [role="option"] span {
     background-color: #ffffff !important;
     color: #1a1a1a !important;
 }
- 
-/* Light red hover highlight on dropdown items — consistent with the app palette. */
+
 li[role="option"]:hover,
 [role="option"]:hover {
     background-color: #fee2e2 !important;
     color: #1a1a1a !important;
 }
- 
-/* Style the placeholder text in selectboxes as medium grey
-   so it is visually distinct from a selected value. */
+
+# Placeholder text styling inside selectboxes
 [data-baseweb="select"] [data-testid="stSelectboxPlaceholder"],
 div[data-baseweb="select"] span {
     color: #555555 !important;
 }
- 
+
 </style>
 """, unsafe_allow_html=True)
- 
+
 # ── Hero Banner ───────────────────────────────────────────────────────────────
- 
+
 # Render the top banner with the app title and tagline
 st.markdown(
     '<div class="hero">'
@@ -294,22 +244,22 @@ st.markdown(
 )
 # Locate CSV file containing activity coordinates
 # ── Activity Map ──────────────────────────────────────────────────────────────
- 
+
 # Locate the CSV file containing activity coordinates (same directory as this script)
 try:
     _CSV = pathlib.Path(__file__).resolve().parent / "locations.csv"
 except NameError:
     # Fallback for interactive environments where __file__ is not defined
     _CSV = pathlib.Path("locations.csv")
- 
+
 # Load activity location data from CSV
 df_raw = pd.read_csv(_CSV)
- 
+
 st.markdown(
     '<div class="step-heading">Activities across Switzerland</div>',
     unsafe_allow_html=True,
 )
- 
+
 # Render an interactive PyDeck map centred on Switzerland
 # Each activity is shown as a red dot; hovering reveals name, city, and category
 st.pydeck_chart(pdk.Deck(
@@ -346,6 +296,6 @@ st.pydeck_chart(pdk.Deck(
 # Main application execution
 # Launch planner interface and core application workflow
 # ── Main App Logic ────────────────────────────────────────────────────────────
- 
+
 # Hand off to run_app() in functions.py, which handles the multi-step planner UI
 run_app()
