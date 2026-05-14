@@ -29,14 +29,14 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-# Hide the sidebar toggle button and sidebar panel entirely
+/* Hide the sidebar toggle button and sidebar panel entirely */
 [data-testid="collapsedControl"] { display: none; }
 section[data-testid="stSidebar"]  { display: none; }
 
-# Base styles: white background, Segoe UI font, dark text
+/* Base styles: white background, Segoe UI font, dark text */
 html, body, .stApp {
     font-size: 16px;
-    background-colçor: #ffffff !important;
+    background-color: #ffffff !important;
     font-family: 'Segoe UI', sans-serif;
     color: #1a1a1a;
 }
@@ -44,8 +44,8 @@ html, body, .stApp {
 [data-testid="stAppViewContainer"] {
     background-color: #ffffff !important;
 }
-        
-# Force consistent dark text colours across all UI components
+
+/* Force consistent dark text colours across all UI components */
 p, span, div, label, h1, h2, h3, h4, h5, h6,
 .stMarkdown p, .stMarkdown span,
 .stCheckbox label, .stCheckbox span,
@@ -56,7 +56,8 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 [data-baseweb="select"] span {
     color: #1a1a1a !important;
 }
-# Hero banner styling displayed at top of application
+
+/* Hero banner styling displayed at top of application */
 .hero {
     background: #D52B1E;
     border-radius: 1.4rem;
@@ -71,13 +72,13 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     margin-bottom: 0.4rem;
 }
 
-# Subtitle styling for application description
+/* Subtitle styling for application description */
 .hero-subtitle {
     font-size: 1.05rem;
     color: #f5c6c3 !important;
 }
 
-# Multi-step progress tracker styling
+/* Multi-step progress tracker styling */
 .prog-step {
     padding: 0.45rem 0.5rem;
     border-radius: 0.6rem;
@@ -90,7 +91,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
 .prog-step.done    { background: #1a1a1a; color: #ffffff !important; }
 .prog-step.current { background: #D52B1E; color: #ffffff !important; }
 
-# Section heading and caption styling
+/* Section heading and caption styling */
 .step-heading {
     font-size: 1.3rem;
     font-weight: 700;
@@ -103,7 +104,7 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     margin-bottom: 1.2rem;
 }
 
-# Summary card styling for generated trip overview
+/* Summary card styling for generated trip overview */
 .summary-box {
     background: #fff0f0;
     border: 1px solid #f5c6c3;
@@ -114,14 +115,16 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     margin-bottom: 0.9rem;
 }
 
-# Metadata styling for activity details and labels.act-meta {
+/* Metadata styling for activity details and labels */
+.act-meta {
     font-size: 0.83rem;
     color: #555555 !important;
     margin-top: 0.1rem;
     margin-bottom: 0.4rem;
 }
 
-# Timetable layout styling for itinerary schedule.tt-header {
+/* Timetable layout styling for itinerary schedule */
+.tt-header {
     font-weight: 700;
     color: #1a1a1a !important;
     font-size: 0.9rem;
@@ -137,13 +140,16 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #1a1a1a !important;
     font-weight: 500;
 }
-# Colour-coded activity blocks by time of day.tt-morning   { background: #fde8e6; color: #1a1a1a !important; }
+
+/* Colour-coded activity blocks by time of day */
+.tt-morning   { background: #fde8e6; color: #1a1a1a !important; }
 .tt-afternoon { background: #fde8e6; color: #1a1a1a !important; }
 .tt-evening   { background: #fde8e6; color: #1a1a1a !important; }
 .tt-night     { background: #fde8e6; color: #1a1a1a !important; }
 .tt-free      { background: #f5f5f5; color: #999999 !important; font-style: italic; }
 
-# Weather information card styling.weather-box {
+/* Weather information card styling */
+.weather-box {
     background: #fde8e6;
     border-left: 3px solid #D52B1E;
     border-radius: 0.4rem;
@@ -152,7 +158,8 @@ p, span, div, label, h1, h2, h3, h4, h5, h6,
     color: #1a1a1a !important;
     margin-bottom: 0.5rem;
 }
-# Custom styling for Streamlit form inputs and selectboxes
+
+/* Custom styling for Streamlit form inputs and selectboxes */
 div[data-testid="stSelectbox"] div[role="combobox"],
 div[data-testid="stSelectbox"] div[data-baseweb="select"] > div,
 div[data-testid="stNumberInput"] input,
@@ -164,18 +171,19 @@ div[data-testid="stTextInput"] input {
     color: #1a1a1a !important;
 }
 
-# Selectbox container styling
+/* Selectbox container styling */
 [data-baseweb="select"] > div {
     background-color: #ffffff !important;
     border-color: #cccccc !important;
 }
 
-# Label and markdown text styling
+/* Label and markdown text styling */
 label, .stMarkdown p, .stMarkdown li {
     font-size: 1rem !important;
     color: #1a1a1a !important;
 }
-# Primary action button styling using Swiss-themed colours
+
+/* Primary action button styling using Swiss-themed colours */
 .stButton > button,
 .stDownloadButton > button {
     background-color: #D52B1E !important;
@@ -191,14 +199,16 @@ label, .stMarkdown p, .stMarkdown li {
     background-color: #a01f16 !important;
     color: #ffffff !important;
 }
-# Footer styling shown at bottom of application
+
+/* Footer styling shown at bottom of application */
 .footer {
     text-align: center;
     color: #999999 !important;
     padding: 28px 0 8px 0;
     font-size: 0.85rem;
 }
-# Custom dropdown menu styling overriding Streamlit defaults       
+
+/* Custom dropdown menu styling overriding Streamlit defaults */
 ul[data-testid="stSelectboxVirtualDropdown"],
 [data-baseweb="popover"],
 [data-baseweb="menu"],
@@ -221,7 +231,7 @@ li[role="option"]:hover,
     color: #1a1a1a !important;
 }
 
-# Placeholder text styling inside selectboxes
+/* Placeholder text styling inside selectboxes */
 [data-baseweb="select"] [data-testid="stSelectboxPlaceholder"],
 div[data-baseweb="select"] span {
     color: #555555 !important;
