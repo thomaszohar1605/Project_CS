@@ -889,9 +889,8 @@ def step_itinerary() -> None:
     )
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+
 # Entry point
-# ══════════════════════════════════════════════════════════════════════════════
 
 # Main entry point for the Streamlit app.
 # Initialises step to 1 on first load, then routes to the correct step function
