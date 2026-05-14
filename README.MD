@@ -57,11 +57,9 @@ How it works
     The four season flags in the profile are set to 1 for the chosen
     season and 0 for all others.
 
-4.  We fit a scikit-learn NearestNeighbors model (cosine distance)
-    on all activities already filtered to the chosen season.
+4.  We fit a scikit-learn NearestNeighbors model on all activities already filtered to the chosen season.
 
 5.  We call .kneighbors() with the user profile as the query.
     Closer cosine distance = more similar to the user's taste.
 
 6.  Activities are ranked best to worst; the itinerary builder picks top-down.
-"""
