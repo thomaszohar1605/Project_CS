@@ -13,14 +13,14 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-#Machine learning with KNN -------------------------------------------------------------
+#Machine learning with KNN 
 
 from ml_rating import get_knn_ranked_activities, CATEGORIES
 
 SEASONS = ["spring", "summer", "fall", "winter"]
 from weather import get_weather
 
-#Fixed Variables (category, season) -------------------------------------------------------------
+#Variables with the ML (category, season)
 
 #Loader of location.csv
 FOLDER = os.path.dirname(os.path.abspath(__file__))
@@ -61,9 +61,9 @@ SLOT_RESTRICTIONS = {
 # Activities from categories rated at or below this value are removed for the KNN ranking 
 LOW_RATING_THRESHOLD = 2
 
-# Weather data  -------------------------------------------------------------
+# Weather data without the api
 
-# Typical Swiss weather conditions without the api
+# Typical Swiss weather conditions 
 # Used when the user's chosen season does not match the current real-world season 
 SEASONAL_WEATHER = {
     "spring": [
@@ -133,7 +133,7 @@ def get_forecast_for_season(city: str, season: str, num_days: int) -> tuple[list
     return forecast, label
 
 
-# Data loaders with the CSV documents, location.csv -------------------------------------------------------------
+# Data loaders with the CSV documents, location.csv
 
 @st.cache_data
 def load_activities() -> pd.DataFrame:
@@ -153,7 +153,7 @@ def get_city_forecast(city: str, num_days: int) -> list:
     return get_weather(lat, lon, num_days)
 
 
-# Additional Support -------------------------------------------------------------
+# Additional Support 
  
 # If the weather is for example Thunderstorm and returns True for bad weather, it willa avoid outdor activites on rainy or snowy day  
 def is_bad_weather(label: str) -> bool:
@@ -196,7 +196,7 @@ def apply_preference_filter(ranked: pd.DataFrame, prefs: dict) -> pd.DataFrame:
     return ranked.reset_index(drop=True)
 
 
-# Itinerary builder -------------------------------------------------------------
+# Itinerary builder 
 # Build a day by day itinerary from the ML ranking activities 
 # Activities higher in ranked are placed first 
 
@@ -282,7 +282,7 @@ def build_itinerary(ranked_df: pd.DataFrame,
     return itinerary
 
 
-# Progress bar -------------------------------------------------------------
+# Progress bar
 # The 3-step progress bar at the top of each page.
 # Highlights the current step, marks completed steps as done, and leaves future steps unstyled.
 
@@ -306,9 +306,9 @@ def render_progress(current: int) -> None:
     st.write("")
 
 
-
-# STEP 1 — Destination, Days & Season -------------------------------------------------------------
-
+# ══════════════════════════════════════════════════════════════════════════════
+# STEP 1 — Destination, Days & Season
+# ══════════════════════════════════════════════════════════════════════════════
 
 # Renders the first page of the app.
 # The user selects a Swiss city, the number of travel days (1–7), and a season.
@@ -385,10 +385,9 @@ def step_destination() -> None:
         st.rerun()
 
 
-
-# STEP 2 — Category preference sliders -------------------------------------------------------------
-
-
+# ══════════════════════════════════════════════════════════════════════════════
+# STEP 2 — Category preference sliders
+# ══════════════════════════════════════════════════════════════════════════════
 
 # Renders the second page of the app.
 # The user rates their interest in each of the 6 activity categories on a 1–5 slider.
@@ -489,16 +488,16 @@ def step_preferences() -> None:
             st.rerun()
 
 
-
-# STEP 3 — Final itinerary + chart -------------------------------------------------------------
-
-
+# ══════════════════════════════════════════════════════════════════════════════
+# STEP 3 — Final itinerary + chart
+# ══════════════════════════════════════════════════════════════════════════════
 
 # Renders a stacked bar chart showing how the itinerary is distributed across
 # the 6 activity categories, one bar per day.
 # Each category is colour-coded using CATEGORY_COLORS.
-# Stacked bar chart showing activity category distribution across days."""
+
 def render_activity_chart(itinerary: list) -> None:
+    """Stacked bar chart showing activity category distribution across days."""
     days_labels = [f"Day {d['day']}" for d in itinerary]
     cat_counts  = {cat: [] for cat in CATEGORIES}
 
@@ -562,6 +561,15 @@ def generate_itinerary_pdf(
     forecast: list,
     df: pd.DataFrame,
 ) -> bytes:
+    """
+    Build a one-page landscape PDF summary of the personalised itinerary.
+
+    Layout: Swiss-red header, then days arranged in up to 3 columns.
+    Each day block shows the weather strip, then Morning / Afternoon / Evening
+    with activity name and a truncated description from locations.csv.
+
+    Returns raw PDF bytes ready for st.download_button.
+    """
     from fpdf import FPDF
 
     # ── Description lookup ────────────────────────────────────────────────────
@@ -633,6 +641,28 @@ def generate_itinerary_pdf(
     NAME_MAX  = max(12, int(col_w / 1.95))
     DESC_MAX  = max(20, int(col_w / 1.55))
 
+    def _safe(text: str) -> str:
+        """Replace characters unsupported by FPDF's built-in fonts with ASCII equivalents."""
+        return (text
+            .replace("—", "-")   # em dash —
+            .replace("–", "-")   # en dash –
+            .replace("‘", "'")   # left single quote '
+            .replace("’", "'")   # right single quote '
+            .replace("“", '"')   # left double quote "
+            .replace("”", '"')   # right double quote "
+            .replace("€", "EUR") # euro sign €
+            .replace("é", "e")   # é
+            .replace("è", "e")   # è
+            .replace("ê", "e")   # ê
+            .replace("ü", "u")   # ü
+            .replace("ä", "a")   # ä
+            .replace("ö", "o")   # ö
+            .replace("û", "u")   # û
+            .replace("à", "a")   # à
+            .replace("â", "a")   # â
+            .encode("latin-1", errors="replace").decode("latin-1")
+        )
+
     def _trunc(text: str, limit: int) -> str:
         """Truncate text to limit characters, adding '..' if cut."""
         return text if len(text) <= limit else text[:limit - 2] + ".."
@@ -702,14 +732,14 @@ def generate_itinerary_pdf(
                 pdf.set_xy(col_x + 1.5, sy + 4.2)
                 pdf.set_text_color(*DARK)
                 pdf.set_font("Helvetica", "B", 8)
-                pdf.cell(col_w - 2, 3.5, _trunc(name, NAME_MAX), ln=False)
+                pdf.cell(col_w - 2, 3.5, _trunc(_safe(name), NAME_MAX), ln=False)
 
                 # Description (one truncated line, only shown if slot is tall enough)
                 if desc and SLOT_H > 13:
                     pdf.set_xy(col_x + 1.5, sy + 8)
                     pdf.set_text_color(*GREY)
                     pdf.set_font("Helvetica", "", 6.5)
-                    pdf.cell(col_w - 2, 3, _trunc(desc, DESC_MAX), ln=False)
+                    pdf.cell(col_w - 2, 3, _trunc(_safe(desc), DESC_MAX), ln=False)
 
     # ── Footer ────────────────────────────────────────────────────────────────
     # Light-red footer bar crediting the ML model and weather data source
@@ -892,9 +922,9 @@ def step_itinerary() -> None:
     )
 
 
-
-# Entry point -------------------------------------------------------------
-
+# ══════════════════════════════════════════════════════════════════════════════
+# Entry point
+# ══════════════════════════════════════════════════════════════════════════════
 
 # Main entry point for the Streamlit app.
 # Initialises step to 1 on first load, then routes to the correct step function
