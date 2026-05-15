@@ -734,12 +734,18 @@ def generate_itinerary_pdf(
                 pdf.set_font("Helvetica", "B", 8)
                 pdf.cell(col_w - 2, 3.5, _trunc(_safe(name), NAME_MAX), ln=False)
 
-                # Description (one truncated line, only shown if slot is tall enough)
+                # Description — wraps across multiple lines within the slot boundary
                 if desc and SLOT_H > 13:
-                    pdf.set_xy(col_x + 1.5, sy + 8)
+                    pdf.set_xy(col_x + 1.5, sy + 8.5)
                     pdf.set_text_color(*GREY)
                     pdf.set_font("Helvetica", "", 6.5)
-                    pdf.cell(col_w - 2, 3, _trunc(_safe(desc), DESC_MAX), ln=False)
+                    # Calculate how many lines fit in the remaining slot space
+                    line_h       = 2.8
+                    available_h  = SLOT_H - 8.5
+                    max_lines    = max(1, int(available_h / line_h))
+                    chars_per_ln = max(30, int((col_w - 3) / 1.3))
+                    safe_desc    = _safe(desc)[: chars_per_ln * max_lines]
+                    pdf.multi_cell(col_w - 3, line_h, safe_desc, border=0)
 
     # ── Footer ────────────────────────────────────────────────────────────────
     # Light-red footer bar crediting the ML model and weather data source
